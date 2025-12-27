@@ -1,0 +1,217 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: S3 bucket and DynamoDB table for chuck application
+
+Parameters:
+  HostedZoneName:
+    Type: String
+    Description: The DNS name of an existing Amazon Route 53 hosted zone (e.g. overcomingsh.in.)
+    Default: overcomingsh.in.
+  LambdaCodeBucket:
+    Type: String
+    Description: S3 bucket containing Lambda deployment package
+  LambdaCodeKey:
+    Type: String
+    Description: S3 key for Lambda deployment package (e.g., lambda.zip)
+
+Mappings:
+  AWSRegion2S3WebsiteHostedZoneId:
+    us-east-1:
+      Id: Z3AQBSTGFYJSTF
+    us-west-1:
+      Id: Z2F56UZL2M1ACD
+    us-west-2:
+      Id: Z3BJ6K6RIION7M
+    eu-west-1:
+      Id: Z1BKCTXD74EZPE
+    ap-southeast-1:
+      Id: Z3O0J2DXBE1FTB
+    ap-southeast-2:
+      Id: Z1WCIGYICN2BYD
+    ap-northeast-1:
+      Id: Z2M4EHUR26P7ZW
+    sa-east-1:
+      Id: Z7KQH4QJS55SO
+
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: chuck.overcomingsh.in
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - Content-Type
+              - Authorization
+              - X-Requested-With
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - DELETE
+              - HEAD
+            AllowedOrigins:
+              - "*"
+      WebsiteConfiguration:
+        IndexDocument: index.html
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireArchivedItems
+            Prefix: images/
+            Status: Enabled
+            ExpirationInDays: 30
+
+  S3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3Bucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: PublicReadForWebHosting
+            Effect: Allow
+            Principal: "*"
+            Action: s3:GetObject
+            Resource: !Sub "${S3Bucket.Arn}/*"
+          - Sid: DenyDirectAccessToLambdaPrefix
+            Effect: Deny
+            Principal: "*"
+            Action: s3:GetObject
+            Resource: !Sub "${S3Bucket.Arn}/lambda/*"
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: chuck-items
+      AttributeDefinitions:
+        - AttributeName: archived
+          AttributeType: S
+        - AttributeName: createdAt
+          AttributeType: S
+      KeySchema:
+        - AttributeName: archived
+          KeyType: HASH
+        - AttributeName: createdAt
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: false
+
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/lambda/chuck-api
+      RetentionInDays: 7
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: chuck-lambda-execution-role
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: chuck-lambda-policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource: !Sub "${S3Bucket.Arn}/images/*"
+              - Effect: Allow
+                Action:
+                  - dynamodb:Query
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                Resource: !GetAtt DynamoDBTable.Arn
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/chuck-api:*"
+
+  ChuckApiFunction:
+    Type: AWS::Lambda::Function
+    DependsOn: LambdaLogGroup
+    Properties:
+      FunctionName: chuck-api
+      Runtime: provided.al2
+      Handler: bootstrap
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref LambdaCodeBucket
+        S3Key: !Ref LambdaCodeKey
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref S3Bucket
+          TABLE_NAME: !Ref DynamoDBTable
+          REGION: !Ref AWS::Region
+      Timeout: 30
+      MemorySize: 512
+      Architectures:
+        - arm64
+
+  ChuckApiFunctionUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      AuthType: NONE
+      TargetFunctionArn: !GetAtt ChuckApiFunction.Arn
+      Cors:
+        AllowOrigins:
+          - "*"
+        AllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+          - X-Requested-With
+        MaxAge: 300
+
+  ChuckApiFunctionUrlPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ChuckApiFunction
+      Action: lambda:InvokeFunctionUrl
+      Principal: "*"
+      FunctionUrlAuthType: NONE
+
+  DnsRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: !Ref HostedZoneName
+      Name: !Sub "${S3Bucket}."
+      Type: A
+      AliasTarget:
+        HostedZoneId: !FindInMap
+          - AWSRegion2S3WebsiteHostedZoneId
+          - !Ref AWS::Region
+          - Id
+        DNSName: !Sub "s3-website-${AWS::Region}.amazonaws.com."
+
+Outputs:
+  BucketName:
+    Value: !Ref S3Bucket
+    Description: Name of the S3 bucket
+  TableName:
+    Value: !Ref DynamoDBTable
+    Description: Name of the DynamoDB table
+  FunctionUrl:
+    Value: !GetAtt ChuckApiFunctionUrl.FunctionUrl
+    Description: Lambda Function URL for API access
+  WebsiteURL:
+    Value: !Sub "http://${S3Bucket}"
+    Description: URL for the website
