@@ -87,11 +87,10 @@ updatedAt descending.
 **Error Messages:**
 
 Error display patterns:
-- List loading failures: alert dialog with user-friendly message and
-  retry button for critical errors that prevent app functionality
+- List loading failures: alert dialog with user-friendly message for
+  critical errors that prevent app functionality
 - Item operations (archive/unarchive/state changes): alert dialog with
-  user-friendly message and retry button. Technical error details logged
-  to console.
+  user-friendly message. Technical error details logged to console.
 - Bulk operation results: success/failure summary inline in bulk actions
   panel
 - Upload failures: silent retry with consolidated notification after
@@ -99,4 +98,5 @@ Error display patterns:
 - Success confirmations: brief toast-style banner (green, top of screen,
   2s auto-dismiss, no user interaction required)
 - General principle: user-friendly messages in UI, technical details in
-  logs. No persistent banners or overlays to avoid disrupting user flow.
+  logs. No persistent banners or overlays. Users retry via normal UI
+  elements (refresh button, etc.).

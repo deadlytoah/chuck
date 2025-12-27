@@ -41,14 +41,7 @@ class _ItemsGridState extends ConsumerState<ItemsGrid> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    ref.read(itemsProvider.notifier).loadItems();
-                  },
-                  child: const Text('Retry'),
+                  child: const Text('OK'),
                 ),
               ],
             ),

@@ -44,7 +44,7 @@ void main() {
       mockApiService = MockApiService();
     });
 
-    testWidgets('Cancel button dismisses dialog with single tap',
+    testWidgets('OK button dismisses dialog with single tap',
         (WidgetTester tester) async {
       mockApiService.shouldFail = true;
 
@@ -72,56 +72,15 @@ void main() {
       expect(find.byType(AlertDialog), findsOneWidget);
       expect(find.text('Error'), findsOneWidget);
       expect(find.text('Unable to load items'), findsOneWidget);
+      expect(find.text('OK'), findsOneWidget);
 
-      // Tap Cancel once
-      await tester.tap(find.text('Cancel'));
+      // Tap OK once
+      await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
 
       // Dialog should be dismissed after single tap
       expect(find.byType(AlertDialog), findsNothing,
-          reason: 'Dialog should be dismissed after single Cancel tap');
-    });
-
-    testWidgets('Retry button dismisses dialog with single tap even when retry fails',
-        (WidgetTester tester) async {
-      mockApiService.shouldFail = true;
-
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            apiServiceProvider.overrideWithValue(mockApiService),
-          ],
-          child: MaterialApp(
-            home: Scaffold(
-              body: ItemsGrid(),
-            ),
-          ),
-        ),
-      );
-
-      // Trigger initial error
-      final container = ProviderScope.containerOf(
-        tester.element(find.byType(ItemsGrid)),
-      );
-      await container.read(itemsProvider.notifier).loadItems();
-      await tester.pumpAndSettle();
-
-      // Verify dialog is shown
-      expect(find.byType(AlertDialog), findsOneWidget);
-
-      final initialCallCount = mockApiService.loadItemsCallCount;
-
-      // Tap Retry once
-      await tester.tap(find.text('Retry'));
-      await tester.pumpAndSettle();
-
-      // Dialog should be dismissed after single tap
-      expect(find.byType(AlertDialog), findsNothing,
-          reason: 'Dialog should be dismissed after single Retry tap');
-
-      // Verify retry was actually called
-      expect(mockApiService.loadItemsCallCount, greaterThan(initialCallCount),
-          reason: 'Retry should trigger loadItems');
+          reason: 'Dialog should be dismissed after single OK tap');
     });
 
     testWidgets('Only one dialog shown even when error occurs multiple times',
@@ -156,7 +115,7 @@ void main() {
           reason: 'Only one dialog should be shown even with multiple errors');
     });
 
-    testWidgets('Retry then fail again only shows one new dialog',
+    testWidgets('Same error after dismissal does not auto-show dialog',
         (WidgetTester tester) async {
       mockApiService.shouldFail = true;
 
@@ -184,15 +143,18 @@ void main() {
       expect(find.byType(AlertDialog), findsOneWidget);
       expect(find.text('Unable to load items'), findsOneWidget);
 
-      // Tap Retry (which will fail again)
-      await tester.tap(find.text('Retry'));
-      await tester.pump(); // Process the tap
-      await tester.pump(); // Process Navigator.pop
-      await tester.pump(const Duration(milliseconds: 100)); // Give time for retry
+      // Dismiss dialog
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsNothing);
 
-      // Should only show one dialog, not multiple
-      expect(find.byType(AlertDialog), findsOneWidget,
-          reason: 'Should only show one dialog after retry fails');
+      // Trigger same error again
+      await container.read(itemsProvider.notifier).loadItems();
+      await tester.pumpAndSettle();
+
+      // Should NOT show dialog again (same error message, user already dismissed it)
+      expect(find.byType(AlertDialog), findsNothing,
+          reason: 'Should not auto-show dialog for same error after dismissal');
     });
 
     testWidgets('Multiple rebuilds before postFrameCallback only show one dialog',
@@ -236,14 +198,14 @@ void main() {
           reason: 'Multiple rebuilds should not create multiple dialogs');
 
       // Verify we can dismiss with one tap
-      await tester.tap(find.text('Cancel'));
+      await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
 
       expect(find.byType(AlertDialog), findsNothing,
           reason: 'Single tap should dismiss the dialog');
     });
 
-    testWidgets('Clicking Retry that fails again shows second dialog (THE BUG)',
+    testWidgets('Different error message shows new dialog',
         (WidgetTester tester) async {
       mockApiService.shouldFail = true;
 
@@ -269,35 +231,22 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(AlertDialog), findsOneWidget);
-      expect(find.text('Retry'), findsOneWidget);
+      expect(find.text('Unable to load items'), findsOneWidget);
 
-      // Click Retry button (which will fail again)
-      await tester.tap(find.text('Retry'));
-      await tester.pump(); // Process tap
-      await tester.pump(); // Process Navigator.pop
-      await tester.pump(const Duration(milliseconds: 50)); // Start of loadItems
-      await tester.pumpAndSettle(); // Complete loadItems and show new dialog
+      // Dismiss dialog
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsNothing);
 
-      // BUG: A second dialog appears because:
-      // 1. Retry clears error (error = null, _previousError = null)
-      // 2. loadItems fails (error = "Unable to load items", _previousError = null)
-      // 3. Condition "Unable to load items" != null is true, so new dialog shown
+      // Different error message
+      final notifier = container.read(itemsProvider.notifier);
+      notifier.state = notifier.state.copyWith(error: 'Network connection lost');
+      await tester.pumpAndSettle();
 
-      // Expected: No dialog (user already saw this error)
-      // Actual: Dialog appears again
-      expect(find.byType(AlertDialog), findsNothing,
-          reason: 'Should not show new dialog when retry fails with same error');
-
-      // If bug exists, tapping Cancel once won't dismiss (two dialogs stacked)
-      if (find.byType(AlertDialog).evaluate().isNotEmpty) {
-        await tester.tap(find.text('Cancel'));
-        await tester.pumpAndSettle();
-
-        // With the bug, dialog still visible after one Cancel
-        final stillVisible = find.byType(AlertDialog).evaluate().isNotEmpty;
-        expect(stillVisible, false,
-            reason: 'Should dismiss with single Cancel tap (not two dialogs stacked)');
-      }
+      // Should show dialog for different error
+      expect(find.byType(AlertDialog), findsOneWidget,
+          reason: 'Should show dialog when error message changes');
+      expect(find.text('Network connection lost'), findsOneWidget);
     });
   });
 }
