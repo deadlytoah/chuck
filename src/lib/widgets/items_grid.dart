@@ -11,36 +11,56 @@ Widget itemsGridPreview() {
   );
 }
 
-class ItemsGrid extends ConsumerWidget {
+class ItemsGrid extends ConsumerStatefulWidget {
   final bool shrinkWrap;
 
   const ItemsGrid({super.key, this.shrinkWrap = false});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ItemsGrid> createState() => _ItemsGridState();
+}
+
+class _ItemsGridState extends ConsumerState<ItemsGrid> {
+  String? _previousError;
+
+  @override
+  Widget build(BuildContext context) {
     final itemsState = ref.watch(itemsProvider);
     final selectionState = ref.watch(selectionProvider);
 
-    if (itemsState.isLoading && itemsState.items.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+    // Show alert dialog when error changes
+    if (itemsState.error != null && itemsState.error != _previousError) {
+      _previousError = itemsState.error;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Error'),
+              content: Text(itemsState.error!),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    ref.read(itemsProvider.notifier).loadItems();
+                  },
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          );
+        }
+      });
+    } else if (itemsState.error == null) {
+      _previousError = null;
     }
 
-    if (itemsState.error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.red),
-            const SizedBox(height: 16),
-            Text('Error: ${itemsState.error}'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => ref.read(itemsProvider.notifier).loadItems(),
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      );
+    if (itemsState.isLoading && itemsState.items.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (itemsState.items.isEmpty) {
@@ -49,8 +69,8 @@ class ItemsGrid extends ConsumerWidget {
 
     final gridView = GridView.builder(
       padding: const EdgeInsets.all(16),
-      shrinkWrap: shrinkWrap,
-      physics: shrinkWrap ? const NeverScrollableScrollPhysics() : null,
+      shrinkWrap: widget.shrinkWrap,
+      physics: widget.shrinkWrap ? const NeverScrollableScrollPhysics() : null,
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: 300,
         childAspectRatio: 0.80,
@@ -70,7 +90,7 @@ class ItemsGrid extends ConsumerWidget {
 
     return Column(
       children: [
-        if (shrinkWrap) gridView else Expanded(child: gridView),
+        if (widget.shrinkWrap) gridView else Expanded(child: gridView),
         if (itemsState.nextToken != null)
           Padding(
             padding: const EdgeInsets.all(16),

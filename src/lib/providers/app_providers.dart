@@ -138,25 +138,15 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
   }
 
   Future<void> archiveItem(String itemId) async {
-    try {
-      await apiService.archiveItem(itemId);
-
-      final newItems = state.items.where((i) => i.itemId != itemId).toList();
-      state = state.copyWith(items: newItems);
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
+    await apiService.archiveItem(itemId);
+    final newItems = state.items.where((i) => i.itemId != itemId).toList();
+    state = state.copyWith(items: newItems);
   }
 
   Future<void> unarchiveItem(String itemId) async {
-    try {
-      await apiService.updateItem(itemId, archived: false);
-
-      final newItems = state.items.where((i) => i.itemId != itemId).toList();
-      state = state.copyWith(items: newItems);
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
+    await apiService.updateItem(itemId, archived: false);
+    final newItems = state.items.where((i) => i.itemId != itemId).toList();
+    state = state.copyWith(items: newItems);
   }
 }
 

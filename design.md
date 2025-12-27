@@ -87,6 +87,8 @@ updatedAt descending.
 **Error Messages:**
 
 All error messages display inline with affected content:
+- List loading failures: alert dialog with error message and retry button
+  for critical errors that prevent app functionality
 - Archive/unarchive failures: error state on item card with retry action
 - Bulk operation results: success/failure summary inline in bulk actions
   panel

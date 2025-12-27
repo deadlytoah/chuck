@@ -163,6 +163,8 @@ images/{uuid}/thumb.jpg
 ## Error Message Display
 
 Error messages display inline with affected content:
+- **List loading failures**: Alert dialog with error message and retry
+  button for critical errors that prevent app functionality
 - **Camera permission denied**: Alert dialog with settings access option
 - **Archive/unarchive failures**: Error state on item card (red border +
   error icon + inline retry action)
