@@ -9,6 +9,13 @@ fi
 FLUTTER_DIR="$HOME/flutter"
 FLUTTER_VERSION="stable"
 
+# Install GitHub CLI if not present
+if ! command -v gh &> /dev/null; then
+  echo "Installing GitHub CLI..."
+  sudo apt-get update -qq
+  sudo apt-get install -y gh
+fi
+
 # Install Flutter if not present
 if [ ! -d "$FLUTTER_DIR" ]; then
   echo "Installing Flutter SDK..."
