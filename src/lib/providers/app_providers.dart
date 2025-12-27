@@ -92,7 +92,8 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
         isLoading: false,
       );
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      print('Load items error: $e');
+      state = state.copyWith(isLoading: false, error: 'Unable to load items');
     }
   }
 
@@ -114,7 +115,8 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
         isLoading: false,
       );
     } catch (e) {
-      state = state.copyWith(error: e.toString());
+      print('Load more items error: $e');
+      state = state.copyWith(error: 'Unable to load more items');
     }
   }
 
@@ -133,20 +135,31 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
         this.state = this.state.copyWith(items: newItems);
       }
     } catch (e) {
-      this.state = this.state.copyWith(error: e.toString());
+      print('Update item error: $e');
+      this.state = this.state.copyWith(error: 'Unable to update item');
     }
   }
 
   Future<void> archiveItem(String itemId) async {
-    await apiService.archiveItem(itemId);
-    final newItems = state.items.where((i) => i.itemId != itemId).toList();
-    state = state.copyWith(items: newItems);
+    try {
+      await apiService.archiveItem(itemId);
+      final newItems = state.items.where((i) => i.itemId != itemId).toList();
+      state = state.copyWith(items: newItems);
+    } catch (e) {
+      print('Archive item error: $e');
+      state = state.copyWith(error: 'Unable to archive item');
+    }
   }
 
   Future<void> unarchiveItem(String itemId) async {
-    await apiService.updateItem(itemId, archived: false);
-    final newItems = state.items.where((i) => i.itemId != itemId).toList();
-    state = state.copyWith(items: newItems);
+    try {
+      await apiService.updateItem(itemId, archived: false);
+      final newItems = state.items.where((i) => i.itemId != itemId).toList();
+      state = state.copyWith(items: newItems);
+    } catch (e) {
+      print('Unarchive item error: $e');
+      state = state.copyWith(error: 'Unable to unarchive item');
+    }
   }
 }
 
