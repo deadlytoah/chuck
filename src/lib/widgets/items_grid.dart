@@ -22,6 +22,7 @@ class ItemsGrid extends ConsumerStatefulWidget {
 
 class _ItemsGridState extends ConsumerState<ItemsGrid> {
   String? _previousError;
+  bool _isShowingDialog = false;
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +30,11 @@ class _ItemsGridState extends ConsumerState<ItemsGrid> {
     final selectionState = ref.watch(selectionProvider);
 
     // Show alert dialog when error changes
-    if (itemsState.error != null && itemsState.error != _previousError) {
+    if (itemsState.error != null &&
+        itemsState.error != _previousError &&
+        !_isShowingDialog) {
       _previousError = itemsState.error;
+      _isShowingDialog = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           showDialog(
@@ -40,12 +44,24 @@ class _ItemsGridState extends ConsumerState<ItemsGrid> {
               content: Text(itemsState.error!),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      _isShowingDialog = false;
+                    });
+                  },
                   child: const Text('OK'),
                 ),
               ],
             ),
-          );
+          ).then((_) {
+            // Ensure flag is reset even if dialog dismissed by other means
+            if (mounted) {
+              setState(() {
+                _isShowingDialog = false;
+              });
+            }
+          });
         }
       });
     } else if (itemsState.error == null) {
