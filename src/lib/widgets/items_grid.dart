@@ -44,12 +44,7 @@ class _ItemsGridState extends ConsumerState<ItemsGrid> {
               content: Text(itemsState.error!),
               actions: [
                 TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    setState(() {
-                      _isShowingDialog = false;
-                    });
-                  },
+                  onPressed: () => Navigator.pop(context),
                   child: const Text('OK'),
                 ),
               ],
