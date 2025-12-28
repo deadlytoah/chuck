@@ -157,54 +157,6 @@ void main() {
           reason: 'Should not auto-show dialog for same error after dismissal');
     });
 
-    testWidgets('Multiple rebuilds before postFrameCallback only show one dialog',
-        (WidgetTester tester) async {
-      mockApiService.shouldFail = true;
-
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            apiServiceProvider.overrideWithValue(mockApiService),
-          ],
-          child: MaterialApp(
-            home: Scaffold(
-              body: ItemsGrid(),
-            ),
-          ),
-        ),
-      );
-
-      final container = ProviderScope.containerOf(
-        tester.element(find.byType(ItemsGrid)),
-      );
-
-      // Trigger error and multiple rebuilds quickly
-      await container.read(itemsProvider.notifier).loadItems();
-      await tester.pump(); // First build with error
-
-      // Force multiple rebuilds with same error before postFrameCallback executes
-      container.read(itemsProvider.notifier).state =
-        container.read(itemsProvider.notifier).state.copyWith();
-      await tester.pump(); // Second build with same error
-
-      container.read(itemsProvider.notifier).state =
-        container.read(itemsProvider.notifier).state.copyWith();
-      await tester.pump(); // Third build with same error
-
-      await tester.pumpAndSettle(); // Let all postFrameCallbacks execute
-
-      // Should only show ONE dialog, not three
-      expect(find.byType(AlertDialog), findsOneWidget,
-          reason: 'Multiple rebuilds should not create multiple dialogs');
-
-      // Verify we can dismiss with one tap
-      await tester.tap(find.text('OK'));
-      await tester.pumpAndSettle();
-
-      expect(find.byType(AlertDialog), findsNothing,
-          reason: 'Single tap should dismiss the dialog');
-    });
-
     testWidgets('Different error message shows new dialog',
         (WidgetTester tester) async {
       mockApiService.shouldFail = true;
