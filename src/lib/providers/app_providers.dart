@@ -132,7 +132,7 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
       if (index != -1) {
         final newItems = List<Item>.from(this.state.items);
         newItems[index] = updatedItem;
-        this.state = this.state.copyWith(items: newItems);
+        this.state = this.state.copyWith(items: newItems, error: null);
       }
     } catch (e) {
       print('Update item error: $e');
@@ -144,7 +144,7 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
     try {
       await apiService.archiveItem(itemId);
       final newItems = state.items.where((i) => i.itemId != itemId).toList();
-      state = state.copyWith(items: newItems);
+      state = state.copyWith(items: newItems, error: null);
     } catch (e) {
       print('Archive item error: $e');
       state = state.copyWith(error: 'Unable to archive item');
@@ -155,7 +155,7 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
     try {
       await apiService.updateItem(itemId, archived: false);
       final newItems = state.items.where((i) => i.itemId != itemId).toList();
-      state = state.copyWith(items: newItems);
+      state = state.copyWith(items: newItems, error: null);
     } catch (e) {
       print('Unarchive item error: $e');
       state = state.copyWith(error: 'Unable to unarchive item');
