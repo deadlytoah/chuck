@@ -66,7 +66,8 @@ updatedAt descending.
   leaving the camera screen
 - Photos immediately added to queue upon capture (no cancellation)
 - Maximum queue of 12 photos maintained to manage memory and processing
-- Visual feedback: white flash overlay with haptic feedback on capture
+- Visual feedback: brief green checkmark overlay fades in/out with haptic
+  feedback when photo added to queue
 - Queue processes immediately when non-metered network available,
   regardless of app state
 - Camera exit: back button only, returns user to home page
