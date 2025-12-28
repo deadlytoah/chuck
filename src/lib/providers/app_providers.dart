@@ -46,26 +46,22 @@ class ItemsState {
   final List<Item> items;
   final String? nextToken;
   final bool isLoading;
-  final String? error;
 
   ItemsState({
     required this.items,
     this.nextToken,
     this.isLoading = false,
-    this.error,
   });
 
   ItemsState copyWith({
     List<Item>? items,
     String? nextToken,
     bool? isLoading,
-    String? error,
   }) {
     return ItemsState(
       items: items ?? this.items,
       nextToken: nextToken ?? this.nextToken,
       isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
     );
   }
 }
@@ -77,47 +73,37 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
     : super(ItemsState(items: [], isLoading: false));
 
   Future<void> loadItems({String? filter, String? sort, int limit = 20}) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
 
-    try {
-      final response = await apiService.getItems(
-        filter: filter,
-        sort: sort,
-        limit: limit,
-      );
+    final response = await apiService.getItems(
+      filter: filter,
+      sort: sort,
+      limit: limit,
+    );
 
-      state = ItemsState(
-        items: response.items,
-        nextToken: response.nextToken,
-        isLoading: false,
-      );
-    } catch (e) {
-      print('Load items error: $e');
-      state = state.copyWith(isLoading: false, error: 'Unable to load items');
-    }
+    state = ItemsState(
+      items: response.items,
+      nextToken: response.nextToken,
+      isLoading: false,
+    );
   }
 
   Future<void> loadMore({String? filter, String? sort}) async {
     if (state.nextToken == null || state.isLoading) return;
 
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
 
-    try {
-      final response = await apiService.getItems(
-        nextToken: state.nextToken,
-        filter: filter,
-        sort: sort,
-      );
+    final response = await apiService.getItems(
+      nextToken: state.nextToken,
+      filter: filter,
+      sort: sort,
+    );
 
-      state = ItemsState(
-        items: [...state.items, ...response.items],
-        nextToken: response.nextToken,
-        isLoading: false,
-      );
-    } catch (e) {
-      print('Load more items error: $e');
-      state = state.copyWith(error: 'Unable to load more items');
-    }
+    state = ItemsState(
+      items: [...state.items, ...response.items],
+      nextToken: response.nextToken,
+      isLoading: false,
+    );
   }
 
   Future<void> updateItem(String itemId, {String? state, String? notes}) async {

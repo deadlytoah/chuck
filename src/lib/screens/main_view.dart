@@ -15,10 +15,29 @@ class _MainViewState extends ConsumerState<MainView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final filter = ref.read(filterProvider);
-      final sort = ref.read(sortProvider);
-      ref.read(itemsProvider.notifier).loadItems(filter: filter, sort: sort);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final filter = ref.read(filterProvider);
+        final sort = ref.read(sortProvider);
+        await ref.read(itemsProvider.notifier).loadItems(filter: filter, sort: sort);
+      } catch (e) {
+        print('Load items error: $e');
+        if (mounted) {
+          showDialog<void>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Error'),
+              content: const Text('Unable to load items'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        }
+      }
     });
   }
 
