@@ -30,46 +30,38 @@ class _ItemsGridState extends ConsumerState<ItemsGrid> {
     final selectionState = ref.watch(selectionProvider);
 
     // Use ref.listen to react to error changes and show dialog
-    // This ensures we only react once per error change, avoiding double dialogs
+    // ref.listen fires after build completes, so we can show dialog directly
     ref.listen<ItemsState>(itemsProvider, (previous, next) {
-      print('[ItemsGrid] Provider changed: prevError=${previous?.error}, '
+      print('[ItemsGrid] Listen fired: prevError=${previous?.error}, '
           'nextError=${next.error}, lastShown=$_lastShownError, showing=$_isShowingDialog');
 
       // Show dialog if there's a new error that we haven't shown yet
       if (next.error != null &&
           next.error != _lastShownError &&
-          !_isShowingDialog) {
-        print('[ItemsGrid] Scheduling dialog for error: ${next.error}');
+          !_isShowingDialog &&
+          mounted) {
+        print('[ItemsGrid] Showing dialog for error: ${next.error}');
         _lastShownError = next.error;
         _isShowingDialog = true;
 
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          print('[ItemsGrid] PostFrameCallback executing, showing dialog');
-          if (mounted) {
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Error'),
-                content: Text(next.error!),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      print('[ItemsGrid] OK tapped, closing dialog');
-                      Navigator.pop(context);
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Error'),
+            content: Text(next.error!),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  print('[ItemsGrid] OK tapped, closing dialog');
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
               ),
-            ).then((_) {
-              print('[ItemsGrid] Dialog dismissed, resetting flag');
-              if (mounted) {
-                setState(() {
-                  _isShowingDialog = false;
-                });
-              }
-            });
-          }
+            ],
+          ),
+        ).then((_) {
+          print('[ItemsGrid] Dialog dismissed, resetting flag');
+          _isShowingDialog = false;
         });
       } else if (next.error == null && _lastShownError != null) {
         print('[ItemsGrid] Error cleared, resetting lastShown');
