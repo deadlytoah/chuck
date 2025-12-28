@@ -52,7 +52,10 @@ class _ItemsGridState extends ConsumerState<ItemsGrid> {
             actions: [
               TextButton(
                 onPressed: () {
-                  print('[ItemsGrid] OK tapped, closing dialog');
+                  print('[ItemsGrid] OK tapped, clearing error and closing dialog');
+                  // Clear the error from provider state so it can show again on next failure
+                  ref.read(itemsProvider.notifier).state =
+                      ref.read(itemsProvider.notifier).state.copyWith(error: null);
                   Navigator.pop(context);
                 },
                 child: const Text('OK'),
