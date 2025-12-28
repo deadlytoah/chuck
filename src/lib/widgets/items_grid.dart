@@ -50,8 +50,8 @@ class ItemsGrid extends ConsumerWidget {
 
     final gridView = GridView.builder(
       padding: const EdgeInsets.all(16),
-      shrinkWrap: widget.shrinkWrap,
-      physics: widget.shrinkWrap ? const NeverScrollableScrollPhysics() : null,
+      shrinkWrap: shrinkWrap,
+      physics: shrinkWrap ? const NeverScrollableScrollPhysics() : null,
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: 300,
         childAspectRatio: 0.80,
@@ -71,7 +71,7 @@ class ItemsGrid extends ConsumerWidget {
 
     return Column(
       children: [
-        if (widget.shrinkWrap) gridView else Expanded(child: gridView),
+        if (shrinkWrap) gridView else Expanded(child: gridView),
         if (itemsState.nextToken != null)
           Padding(
             padding: const EdgeInsets.all(16),
