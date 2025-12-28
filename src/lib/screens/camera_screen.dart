@@ -20,6 +20,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
   bool _isCameraInitialized = false;
   bool _isCapturing = false;
   bool _hasShownPermissionDialog = false;
+  double _checkmarkOpacity = 0.0;
 
   @override
   void initState() {
@@ -102,6 +103,19 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
 
       final file = await _controller!.takePicture();
       queueService.addPhoto(file.path);
+
+      // Show checkmark confirmation
+      if (mounted) {
+        setState(() {
+          _checkmarkOpacity = 1.0;
+        });
+        await Future.delayed(const Duration(milliseconds: 700));
+        if (mounted) {
+          setState(() {
+            _checkmarkOpacity = 0.0;
+          });
+        }
+      }
     } catch (e) {
       debugPrint('Error capturing photo: $e');
     } finally {
@@ -163,6 +177,19 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
         children: [
           // Camera Preview
           CameraPreview(_controller!),
+
+          // Checkmark Confirmation Overlay
+          Center(
+            child: AnimatedOpacity(
+              opacity: _checkmarkOpacity,
+              duration: const Duration(milliseconds: 400),
+              child: const Icon(
+                Icons.check_circle,
+                color: Color(0xFF4CAF50),
+                size: 64,
+              ),
+            ),
+          ),
 
           // Controls Overlay
           SafeArea(
