@@ -12,6 +12,8 @@ class MainView extends ConsumerStatefulWidget {
 }
 
 class _MainViewState extends ConsumerState<MainView> {
+  bool _hasShownLoadError = false;
+
   @override
   void initState() {
     super.initState();
@@ -22,7 +24,8 @@ class _MainViewState extends ConsumerState<MainView> {
         await ref.read(itemsProvider.notifier).loadItems(filter: filter, sort: sort);
       } catch (e) {
         print('Load items error: $e');
-        if (mounted) {
+        if (mounted && !_hasShownLoadError) {
+          _hasShownLoadError = true;
           showDialog<void>(
             context: context,
             builder: (context) => AlertDialog(
