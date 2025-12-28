@@ -164,10 +164,6 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
           // Camera Preview
           CameraPreview(_controller!),
 
-          // Flash Overlay
-          if (_isCapturing)
-            Container(color: Colors.white.withValues(alpha: 0.8)),
-
           // Controls Overlay
           SafeArea(
             child: Column(
