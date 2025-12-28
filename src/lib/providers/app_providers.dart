@@ -121,45 +121,30 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
   }
 
   Future<void> updateItem(String itemId, {String? state, String? notes}) async {
-    try {
-      final updatedItem = await apiService.updateItem(
-        itemId,
-        state: state,
-        notes: notes,
-      );
+    final updatedItem = await apiService.updateItem(
+      itemId,
+      state: state,
+      notes: notes,
+    );
 
-      final index = this.state.items.indexWhere((i) => i.itemId == itemId);
-      if (index != -1) {
-        final newItems = List<Item>.from(this.state.items);
-        newItems[index] = updatedItem;
-        this.state = this.state.copyWith(items: newItems, error: null);
-      }
-    } catch (e) {
-      print('Update item error: $e');
-      this.state = this.state.copyWith(error: 'Unable to update item');
+    final index = this.state.items.indexWhere((i) => i.itemId == itemId);
+    if (index != -1) {
+      final newItems = List<Item>.from(this.state.items);
+      newItems[index] = updatedItem;
+      this.state = this.state.copyWith(items: newItems);
     }
   }
 
   Future<void> archiveItem(String itemId) async {
-    try {
-      await apiService.archiveItem(itemId);
-      final newItems = state.items.where((i) => i.itemId != itemId).toList();
-      state = state.copyWith(items: newItems, error: null);
-    } catch (e) {
-      print('Archive item error: $e');
-      state = state.copyWith(error: 'Unable to archive item');
-    }
+    await apiService.archiveItem(itemId);
+    final newItems = state.items.where((i) => i.itemId != itemId).toList();
+    state = state.copyWith(items: newItems);
   }
 
   Future<void> unarchiveItem(String itemId) async {
-    try {
-      await apiService.updateItem(itemId, archived: false);
-      final newItems = state.items.where((i) => i.itemId != itemId).toList();
-      state = state.copyWith(items: newItems, error: null);
-    } catch (e) {
-      print('Unarchive item error: $e');
-      state = state.copyWith(error: 'Unable to unarchive item');
-    }
+    await apiService.updateItem(itemId, archived: false);
+    final newItems = state.items.where((i) => i.itemId != itemId).toList();
+    state = state.copyWith(items: newItems);
   }
 }
 

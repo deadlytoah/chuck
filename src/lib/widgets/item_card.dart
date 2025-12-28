@@ -134,11 +134,49 @@ class _ItemCardState extends ConsumerState<ItemCard> {
   }
 
   Future<void> _archiveItem(WidgetRef ref, BuildContext context) async {
-    await ref.read(itemsProvider.notifier).archiveItem(widget.item.itemId);
+    try {
+      await ref.read(itemsProvider.notifier).archiveItem(widget.item.itemId);
+    } catch (e) {
+      print('Archive item error: $e');
+      if (context.mounted) {
+        showDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Unable to archive item'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _unarchiveItem(WidgetRef ref, BuildContext context) async {
-    await ref.read(itemsProvider.notifier).unarchiveItem(widget.item.itemId);
+    try {
+      await ref.read(itemsProvider.notifier).unarchiveItem(widget.item.itemId);
+    } catch (e) {
+      print('Unarchive item error: $e');
+      if (context.mounted) {
+        showDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Unable to unarchive item'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    }
   }
 
   void _showEditDialog(BuildContext context, WidgetRef ref) {
@@ -278,26 +316,62 @@ class _EditItemDialogState extends ConsumerState<_EditItemDialog> {
   }
 
   void _save() async {
-    await ref
-        .read(itemsProvider.notifier)
-        .updateItem(
-          widget.item.itemId,
-          state: selectedState != widget.item.state ? selectedState : null,
-          notes: commentController.text != widget.item.notes
-              ? commentController.text
-              : null,
-        );
+    try {
+      await ref.read(itemsProvider.notifier).updateItem(
+            widget.item.itemId,
+            state: selectedState != widget.item.state ? selectedState : null,
+            notes: commentController.text != widget.item.notes
+                ? commentController.text
+                : null,
+          );
 
-    if (mounted) {
-      Navigator.pop(context);
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      print('Update item error: $e');
+      if (mounted) {
+        showDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Unable to update item'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
     }
   }
 
   void _unarchive() async {
-    await ref.read(itemsProvider.notifier).unarchiveItem(widget.item.itemId);
+    try {
+      await ref.read(itemsProvider.notifier).unarchiveItem(widget.item.itemId);
 
-    if (mounted) {
-      Navigator.pop(context);
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      print('Unarchive item error: $e');
+      if (mounted) {
+        showDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Unable to unarchive item'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
     }
   }
 }

@@ -11,75 +11,34 @@ Widget itemsGridPreview() {
   );
 }
 
-class ItemsGrid extends ConsumerStatefulWidget {
+class ItemsGrid extends ConsumerWidget {
   final bool shrinkWrap;
 
   const ItemsGrid({super.key, this.shrinkWrap = false});
 
   @override
-  ConsumerState<ItemsGrid> createState() => _ItemsGridState();
-}
-
-class _ItemsGridState extends ConsumerState<ItemsGrid> {
-  String? _lastShownError;
-  bool _isShowingDialog = false;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final itemsState = ref.watch(itemsProvider);
     final selectionState = ref.watch(selectionProvider);
 
-    // Use ref.listen to react to error changes
-    ref.listen<ItemsState>(
-      itemsProvider,
-      (previous, next) {
-        print('[ItemsGrid] Listen fired: prevError=${previous?.error}, '
-            'nextError=${next.error}, lastShown=$_lastShownError, showing=$_isShowingDialog');
-
-        // Only show dialog if we have a new error we haven't shown
-        if (next.error != null && next.error != _lastShownError) {
-          if (!_isShowingDialog && mounted) {
-            print('[ItemsGrid] Showing dialog for: ${next.error}');
-            final errorToShow = next.error!;
-            _lastShownError = errorToShow;
-            _isShowingDialog = true;
-
-            // Clear error immediately from provider to prevent duplicate triggers
-            Future.microtask(() {
-              ref.read(itemsProvider.notifier).state =
-                  ref.read(itemsProvider).copyWith(error: null);
-            });
-
-            showDialog<void>(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) => AlertDialog(
-                title: const Text('Error'),
-                content: Text(errorToShow),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      print('[ItemsGrid] OK tapped');
-                      Navigator.pop(context);
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
+    // Show error dialog for load failures only
+    ref.listen<ItemsState>(itemsProvider, (previous, next) {
+      if (next.error != null && next.error != previous?.error) {
+        showDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Error'),
+            content: Text(next.error!),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
               ),
-            ).then((_) {
-              print('[ItemsGrid] Dialog dismissed');
-              _isShowingDialog = false;
-              _lastShownError = null;
-            });
-          } else {
-            print('[ItemsGrid] Skipping dialog (showing=$_isShowingDialog, mounted=$mounted)');
-          }
-        } else if (next.error == null) {
-          print('[ItemsGrid] Error cleared');
-          _lastShownError = null;
-        }
-      },
-    );
+            ],
+          ),
+        );
+      }
+    });
 
     if (itemsState.isLoading && itemsState.items.isEmpty) {
       return const Center(child: CircularProgressIndicator());
