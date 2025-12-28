@@ -33,9 +33,12 @@ class _ItemsGridState extends ConsumerState<ItemsGrid> {
     if (itemsState.error != null &&
         itemsState.error != _previousError &&
         !_isShowingDialog) {
+      print('[ItemsGrid] Scheduling dialog: error=${itemsState.error}, '
+          'prev=$_previousError, showing=$_isShowingDialog');
       _previousError = itemsState.error;
       _isShowingDialog = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        print('[ItemsGrid] PostFrameCallback executing, showing dialog');
         if (mounted) {
           showDialog(
             context: context,
@@ -44,12 +47,16 @@ class _ItemsGridState extends ConsumerState<ItemsGrid> {
               content: Text(itemsState.error!),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () {
+                    print('[ItemsGrid] OK tapped, closing dialog');
+                    Navigator.pop(context);
+                  },
                   child: const Text('OK'),
                 ),
               ],
             ),
           ).then((_) {
+            print('[ItemsGrid] Dialog dismissed, resetting flag');
             // Ensure flag is reset even if dialog dismissed by other means
             if (mounted) {
               setState(() {
@@ -60,7 +67,13 @@ class _ItemsGridState extends ConsumerState<ItemsGrid> {
         }
       });
     } else if (itemsState.error == null) {
+      if (_previousError != null) {
+        print('[ItemsGrid] Error cleared, resetting previous');
+      }
       _previousError = null;
+    } else {
+      print('[ItemsGrid] Build: error=${itemsState.error}, '
+          'prev=$_previousError, showing=$_isShowingDialog (no action)');
     }
 
     if (itemsState.isLoading && itemsState.items.isEmpty) {
