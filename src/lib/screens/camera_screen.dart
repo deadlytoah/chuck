@@ -20,6 +20,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
   bool _isCameraInitialized = false;
   bool _isCapturing = false;
   bool _hasShownPermissionDialog = false;
+  double _checkmarkOpacity = 0.0;
 
   @override
   void initState() {
@@ -102,6 +103,19 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
 
       final file = await _controller!.takePicture();
       queueService.addPhoto(file.path);
+
+      // Show checkmark confirmation
+      if (mounted) {
+        setState(() {
+          _checkmarkOpacity = 1.0;
+        });
+        await Future.delayed(const Duration(milliseconds: 700));
+        if (mounted) {
+          setState(() {
+            _checkmarkOpacity = 0.0;
+          });
+        }
+      }
     } catch (e) {
       debugPrint('Error capturing photo: $e');
     } finally {
@@ -164,9 +178,30 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
           // Camera Preview
           CameraPreview(_controller!),
 
-          // Flash Overlay
-          if (_isCapturing)
-            Container(color: Colors.white.withValues(alpha: 0.8)),
+          // Confirmation Message Overlay
+          Center(
+            child: AnimatedOpacity(
+              opacity: _checkmarkOpacity,
+              duration: const Duration(milliseconds: 400),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.7),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'Photo queued for upload',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+          ),
 
           // Controls Overlay
           SafeArea(

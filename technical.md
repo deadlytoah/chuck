@@ -123,11 +123,12 @@ images/{uuid}/thumb.jpg
   simplify error handling and retry logic
 - Queue processing: items sent to backend using existing `POST
   /items/upload` and `POST /items` flow
-- Visual flash feedback: implemented using StatefulWidget with temporary
-  white overlay (pure white #FFFFFF at 80% opacity)
-- Flash duration: controlled with Timer to appear immediately after
-  capture, providing immediate visual confirmation
-- Haptic feedback: `mediumImpact` on capture for clear, distinct
+- Visual confirmation: text message "Photo queued for upload" fades
+  in/out after photo added to queue (400ms fade-in, 300ms display, 400ms
+  fade-out)
+- Text style: white text, 16px, centered, semi-transparent dark background
+  for contrast
+- Haptic feedback: `mediumImpact` when photo queued for clear, distinct
   confirmation
 - Network monitoring: check on network status change and app foreground
   return (no polling)
