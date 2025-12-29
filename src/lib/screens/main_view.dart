@@ -15,14 +15,18 @@ class _MainViewState extends ConsumerState<MainView> {
   @override
   void initState() {
     super.initState();
+    print('[MainView] initState called');
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      print('[MainView] postFrameCallback executing');
       try {
         final filter = ref.read(filterProvider);
         final sort = ref.read(sortProvider);
         await ref.read(itemsProvider.notifier).loadItems(filter: filter, sort: sort);
+        print('[MainView] loadItems succeeded');
       } catch (e) {
-        print('Load items error: $e');
+        print('[MainView] Load items error: $e');
         if (mounted) {
+          print('[MainView] Showing error dialog');
           showDialog<void>(
             context: context,
             builder: (context) => AlertDialog(
@@ -30,7 +34,10 @@ class _MainViewState extends ConsumerState<MainView> {
               content: const Text('Unable to load items'),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () {
+                    print('[MainView] OK tapped');
+                    Navigator.pop(context);
+                  },
                   child: const Text('OK'),
                 ),
               ],
