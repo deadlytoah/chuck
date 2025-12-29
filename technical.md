@@ -98,7 +98,9 @@ images/{uuid}/thumb.jpg
 
 ## Lambda + Flutter Integration
 - Lambda runtime: Go (golang)
-- Flutter state management: Riverpod with manual refresh for syncing
+- Flutter state management: Riverpod with manual refresh for syncing.
+  Camera uploads automatically update item list after backend confirms
+  creation.
 - UI controls: TabBar for view switching (Main View is default landing
   page, tab index 0); AppBar for filter, sort, and refresh.
 - Authentication: none (URL-based access, kept private within family)
@@ -123,6 +125,9 @@ images/{uuid}/thumb.jpg
   simplify error handling and retry logic
 - Queue processing: items sent to backend using existing `POST
   /items/upload` and `POST /items` flow
+- Item display: After `POST /items` completes successfully, new item
+  automatically added to Main View grid via state update (no manual refresh
+  required)
 - Visual confirmation: text message "Photo queued for upload" fades
   in/out after photo added to queue (400ms fade-in, 300ms display, 400ms
   fade-out)
