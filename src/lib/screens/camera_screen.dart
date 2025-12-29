@@ -178,15 +178,27 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
           // Camera Preview
           CameraPreview(_controller!),
 
-          // Checkmark Confirmation Overlay
+          // Confirmation Message Overlay
           Center(
             child: AnimatedOpacity(
               opacity: _checkmarkOpacity,
               duration: const Duration(milliseconds: 400),
-              child: const Icon(
-                Icons.check_circle,
-                color: Color(0xFF4CAF50),
-                size: 64,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.7),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'Photo queued for upload',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
               ),
             ),
           ),

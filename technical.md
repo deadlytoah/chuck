@@ -123,9 +123,11 @@ images/{uuid}/thumb.jpg
   simplify error handling and retry logic
 - Queue processing: items sent to backend using existing `POST
   /items/upload` and `POST /items` flow
-- Visual confirmation: green checkmark icon overlay fades in/out after
-  photo added to queue (400ms fade-in, 300ms display, 400ms fade-out)
-- Icon: Material Icons checkmark, green (#4CAF50), 64px, centered
+- Visual confirmation: text message "Photo queued for upload" fades
+  in/out after photo added to queue (400ms fade-in, 300ms display, 400ms
+  fade-out)
+- Text style: white text, 16px, centered, semi-transparent dark background
+  for contrast
 - Haptic feedback: `mediumImpact` when photo queued for clear, distinct
   confirmation
 - Network monitoring: check on network status change and app foreground
