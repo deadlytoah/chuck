@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chuck/screens/home_page.dart';
 import 'package:chuck/widgets/queue_status_button.dart';
+import 'package:chuck/widgets/hamburger_menu.dart';
 import 'package:chuck/providers/providers.dart';
 
 void main() {
@@ -102,7 +103,7 @@ void main() {
       expect(find.byType(QueueStatusButton), findsOneWidget);
 
       // Open hamburger menu
-      await tester.tap(find.byType(IconButton));
+      await tester.tap(find.byType(HamburgerMenu));
       await tester.pumpAndSettle();
 
       // Tap "Admin" to switch to Admin Page
@@ -125,7 +126,7 @@ void main() {
       );
 
       // Switch to Admin Page
-      await tester.tap(find.byType(IconButton));
+      await tester.tap(find.byType(HamburgerMenu));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Admin'));
       await tester.pumpAndSettle();
@@ -134,7 +135,7 @@ void main() {
       expect(find.byIcon(Icons.camera_alt), findsNothing);
 
       // Switch back to Home
-      await tester.tap(find.byType(IconButton));
+      await tester.tap(find.byType(HamburgerMenu));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Home'));
       await tester.pumpAndSettle();
