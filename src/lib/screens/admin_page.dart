@@ -14,8 +14,6 @@ class AdminPage extends ConsumerStatefulWidget {
 }
 
 class _AdminPageState extends ConsumerState<AdminPage> {
-  bool _hasShownLoadError = false;
-
   @override
   void initState() {
     super.initState();
@@ -26,8 +24,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         await ref.read(itemsProvider.notifier).loadItems(filter: filter, sort: sort);
       } catch (e) {
         print('Load items error: $e');
-        if (mounted && !_hasShownLoadError) {
-          _hasShownLoadError = true;
+        if (mounted) {
           showDialog<void>(
             context: context,
             builder: (context) => AlertDialog(
