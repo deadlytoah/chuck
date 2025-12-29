@@ -69,31 +69,34 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
         ],
       ),
-      floatingActionButton: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          QueueStatusButton(
-            count: queueCount,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const QueueReviewScreen()),
-              );
-            },
-          ),
-          const SizedBox(width: 16),
-          FloatingActionButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const CameraScreen()),
-              );
-            },
-            heroTag: 'camera',
-            child: const Icon(Icons.camera_alt),
-          ),
-        ],
-      ),
+      floatingActionButton: _selectedIndex == 0
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                QueueStatusButton(
+                  count: queueCount,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const QueueReviewScreen()),
+                    );
+                  },
+                ),
+                const SizedBox(width: 16),
+                FloatingActionButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const CameraScreen()),
+                    );
+                  },
+                  heroTag: 'camera',
+                  child: const Icon(Icons.camera_alt),
+                ),
+              ],
+            )
+          : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }

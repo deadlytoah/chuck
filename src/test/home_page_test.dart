@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chuck/screens/home_page.dart';
 import 'package:chuck/widgets/queue_status_button.dart';
+import 'package:chuck/widgets/hamburger_menu.dart';
 import 'package:chuck/providers/providers.dart';
 
 void main() {
@@ -71,6 +72,78 @@ void main() {
       );
 
       expect(find.byIcon(Icons.camera_alt), findsOneWidget);
+    });
+
+    testWidgets('FABs are visible on Main View (tab index 0)', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const ProviderScope(
+          child: MaterialApp(home: HomePage()),
+        ),
+      );
+
+      // FABs should be visible on Main View
+      expect(find.byIcon(Icons.camera_alt), findsOneWidget);
+      expect(find.byType(QueueStatusButton), findsOneWidget);
+      expect(find.byType(FloatingActionButton), findsNWidgets(2));
+    });
+
+    testWidgets('FABs are hidden on Admin Page (tab index 1)', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const ProviderScope(
+          child: MaterialApp(home: HomePage()),
+        ),
+      );
+
+      // Initially FABs should be visible on Main View
+      expect(find.byIcon(Icons.camera_alt), findsOneWidget);
+      expect(find.byType(QueueStatusButton), findsOneWidget);
+
+      // Open hamburger menu
+      await tester.tap(find.byType(HamburgerMenu));
+      await tester.pumpAndSettle();
+
+      // Tap "Admin" to switch to Admin Page
+      await tester.tap(find.text('Admin'));
+      await tester.pumpAndSettle();
+
+      // FABs should NOT be visible on Admin Page
+      expect(find.byIcon(Icons.camera_alt), findsNothing);
+      expect(find.byType(QueueStatusButton), findsNothing);
+      expect(find.byType(FloatingActionButton), findsNothing);
+    });
+
+    testWidgets('FABs reappear when switching back to Main View', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        const ProviderScope(
+          child: MaterialApp(home: HomePage()),
+        ),
+      );
+
+      // Switch to Admin Page
+      await tester.tap(find.byType(HamburgerMenu));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Admin'));
+      await tester.pumpAndSettle();
+
+      // FABs should be hidden
+      expect(find.byIcon(Icons.camera_alt), findsNothing);
+
+      // Switch back to Home
+      await tester.tap(find.byType(HamburgerMenu));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Home'));
+      await tester.pumpAndSettle();
+
+      // FABs should reappear
+      expect(find.byIcon(Icons.camera_alt), findsOneWidget);
+      expect(find.byType(QueueStatusButton), findsOneWidget);
+      expect(find.byType(FloatingActionButton), findsNWidgets(2));
     });
   });
 }
