@@ -25,57 +25,60 @@ class BulkActions extends ConsumerWidget {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            ElevatedButton.icon(
-              onPressed: () {
-                ref.read(selectionProvider.notifier).toggleSelectionMode();
-              },
-              icon: Icon(
-                selectionState.isSelectionMode
-                    ? Icons.check_box
-                    : Icons.check_box_outline_blank,
-              ),
-              label: Text(
-                selectionState.isSelectionMode
-                    ? 'Exit Selection Mode'
-                    : 'Bulk Archive',
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: selectionState.isSelectionMode
-                    ? Colors.orange
-                    : null,
-              ),
-            ),
-            if (selectionState.isSelectionMode) ...[
-              const SizedBox(width: 16),
-              Text(
-                '$selectedCount selected (max 25)',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const Spacer(),
-              if (selectedCount > 0) ...[
-                TextButton(
-                  onPressed: () {
-                    ref.read(selectionProvider.notifier).clearSelection();
-                  },
-                  child: const Text('Clear'),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              ElevatedButton.icon(
+                onPressed: () {
+                  ref.read(selectionProvider.notifier).toggleSelectionMode();
+                },
+                icon: Icon(
+                  selectionState.isSelectionMode
+                      ? Icons.check_box
+                      : Icons.check_box_outline_blank,
                 ),
-                const SizedBox(width: 8),
-                ElevatedButton.icon(
-                  onPressed: selectedCount > 0
-                      ? () => _bulkArchive(context, ref)
+                label: Text(
+                  selectionState.isSelectionMode
+                      ? 'Exit Selection Mode'
+                      : 'Bulk Archive',
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: selectionState.isSelectionMode
+                      ? Colors.orange
                       : null,
-                  icon: const Icon(Icons.archive),
-                  label: Text('Archive $selectedCount items'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                  ),
                 ),
+              ),
+              if (selectionState.isSelectionMode) ...[
+                const SizedBox(width: 16),
+                Text(
+                  '$selectedCount selected (max 25)',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(width: 16),
+                if (selectedCount > 0) ...[
+                  TextButton(
+                    onPressed: () {
+                      ref.read(selectionProvider.notifier).clearSelection();
+                    },
+                    child: const Text('Clear'),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: selectedCount > 0
+                        ? () => _bulkArchive(context, ref)
+                        : null,
+                    icon: const Icon(Icons.archive),
+                    label: Text('Archive $selectedCount items'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
               ],
             ],
-          ],
+          ),
         ),
       ),
     );
