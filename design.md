@@ -86,12 +86,17 @@ updatedAt descending.
 
 **Error Messages:**
 
-All error messages display inline with affected content:
-- Archive/unarchive failures: error state on item card with retry action
+Error display patterns:
+- List loading failures: alert dialog with user-friendly message for
+  critical errors that prevent app functionality
+- Item operations (archive/unarchive/state changes): alert dialog with
+  user-friendly message. Technical error details logged to console.
 - Bulk operation results: success/failure summary inline in bulk actions
   panel
 - Upload failures: silent retry with consolidated notification after
   exhaustion; manual review via queue status button
 - Success confirmations: brief toast-style banner (green, top of screen,
   2s auto-dismiss, no user interaction required)
-- No persistent banners or overlays to avoid disrupting user flow
+- General principle: user-friendly messages in UI, technical details in
+  logs. No persistent banners or overlays. Users retry via normal UI
+  elements (refresh button, etc.).

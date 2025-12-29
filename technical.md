@@ -162,16 +162,26 @@ images/{uuid}/thumb.jpg
 
 ## Error Message Display
 
-Error messages display inline with affected content:
+Error display patterns:
+- **List loading failures**: Alert dialog with user-friendly message for
+  critical errors that prevent app functionality
 - **Camera permission denied**: Alert dialog with settings access option
-- **Archive/unarchive failures**: Error state on item card (red border +
-  error icon + inline retry action)
+- **Item operations (archive/unarchive/state changes)**: Alert dialog
+  with user-friendly message. Technical error details logged to console
+  for debugging.
 - **Bulk archive results**: Success/failure summary inline in bulk
   actions panel with retry option
 - **Success confirmations**: Brief toast-style banner (green, appears at
   top of screen, 2s auto-dismiss, slides down smoothly)
-- **General principle**: No persistent banners or overlays; errors appear
-  contextually to avoid disrupting user flow
+- **General principle**: User-friendly messages in UI, technical details
+  in logs. No persistent banners or overlays. Users retry via normal UI
+  elements (refresh button, etc.).
+
+**Error message guidelines**:
+- UI displays: "Unable to archive item", "Unable to load items", etc.
+- Console logs: Full exception details with stack traces
+- All operations that can fail should follow this pattern
+- Error dialogs have single OK/Cancel button (no Retry)
 
 Note: Upload failures use silent retry (see Upload Retry & Failure
 Handling section)

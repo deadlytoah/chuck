@@ -46,26 +46,22 @@ class ItemsState {
   final List<Item> items;
   final String? nextToken;
   final bool isLoading;
-  final String? error;
 
   ItemsState({
     required this.items,
     this.nextToken,
     this.isLoading = false,
-    this.error,
   });
 
   ItemsState copyWith({
     List<Item>? items,
     String? nextToken,
     bool? isLoading,
-    String? error,
   }) {
     return ItemsState(
       items: items ?? this.items,
       nextToken: nextToken ?? this.nextToken,
       isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
     );
   }
 }
@@ -77,86 +73,64 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
     : super(ItemsState(items: [], isLoading: false));
 
   Future<void> loadItems({String? filter, String? sort, int limit = 20}) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
 
-    try {
-      final response = await apiService.getItems(
-        filter: filter,
-        sort: sort,
-        limit: limit,
-      );
+    final response = await apiService.getItems(
+      filter: filter,
+      sort: sort,
+      limit: limit,
+    );
 
-      state = ItemsState(
-        items: response.items,
-        nextToken: response.nextToken,
-        isLoading: false,
-      );
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
+    state = ItemsState(
+      items: response.items,
+      nextToken: response.nextToken,
+      isLoading: false,
+    );
   }
 
   Future<void> loadMore({String? filter, String? sort}) async {
     if (state.nextToken == null || state.isLoading) return;
 
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
 
-    try {
-      final response = await apiService.getItems(
-        nextToken: state.nextToken,
-        filter: filter,
-        sort: sort,
-      );
+    final response = await apiService.getItems(
+      nextToken: state.nextToken,
+      filter: filter,
+      sort: sort,
+    );
 
-      state = ItemsState(
-        items: [...state.items, ...response.items],
-        nextToken: response.nextToken,
-        isLoading: false,
-      );
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
+    state = ItemsState(
+      items: [...state.items, ...response.items],
+      nextToken: response.nextToken,
+      isLoading: false,
+    );
   }
 
   Future<void> updateItem(String itemId, {String? state, String? notes}) async {
-    try {
-      final updatedItem = await apiService.updateItem(
-        itemId,
-        state: state,
-        notes: notes,
-      );
+    final updatedItem = await apiService.updateItem(
+      itemId,
+      state: state,
+      notes: notes,
+    );
 
-      final index = this.state.items.indexWhere((i) => i.itemId == itemId);
-      if (index != -1) {
-        final newItems = List<Item>.from(this.state.items);
-        newItems[index] = updatedItem;
-        this.state = this.state.copyWith(items: newItems);
-      }
-    } catch (e) {
-      this.state = this.state.copyWith(error: e.toString());
+    final index = this.state.items.indexWhere((i) => i.itemId == itemId);
+    if (index != -1) {
+      final newItems = List<Item>.from(this.state.items);
+      newItems[index] = updatedItem;
+      this.state = this.state.copyWith(items: newItems);
     }
   }
 
   Future<void> archiveItem(String itemId) async {
-    try {
-      await apiService.archiveItem(itemId);
-
-      final newItems = state.items.where((i) => i.itemId != itemId).toList();
-      state = state.copyWith(items: newItems);
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
+    await apiService.archiveItem(itemId);
+    final newItems = state.items.where((i) => i.itemId != itemId).toList();
+    state = state.copyWith(items: newItems);
   }
 
   Future<void> unarchiveItem(String itemId) async {
-    try {
-      await apiService.updateItem(itemId, archived: false);
-
-      final newItems = state.items.where((i) => i.itemId != itemId).toList();
-      state = state.copyWith(items: newItems);
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
+    await apiService.updateItem(itemId, archived: false);
+    final newItems = state.items.where((i) => i.itemId != itemId).toList();
+    state = state.copyWith(items: newItems);
   }
 }
 

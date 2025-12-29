@@ -15,10 +15,15 @@ class _MainViewState extends ConsumerState<MainView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final filter = ref.read(filterProvider);
-      final sort = ref.read(sortProvider);
-      ref.read(itemsProvider.notifier).loadItems(filter: filter, sort: sort);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final filter = ref.read(filterProvider);
+        final sort = ref.read(sortProvider);
+        await ref.read(itemsProvider.notifier).loadItems(filter: filter, sort: sort);
+      } catch (e) {
+        // Silent failure on initial load - user can tap refresh button to retry
+        print('Initial load failed: $e');
+      }
     });
   }
 

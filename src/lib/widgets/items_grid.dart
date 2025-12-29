@@ -25,24 +25,6 @@ class ItemsGrid extends ConsumerWidget {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (itemsState.error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.red),
-            const SizedBox(height: 16),
-            Text('Error: ${itemsState.error}'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => ref.read(itemsProvider.notifier).loadItems(),
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      );
-    }
-
     if (itemsState.items.isEmpty) {
       return const Center(child: Text('No items match your filter.'));
     }
@@ -77,12 +59,31 @@ class ItemsGrid extends ConsumerWidget {
             child: ElevatedButton(
               onPressed: itemsState.isLoading
                   ? null
-                  : () {
-                      final filter = ref.read(filterProvider);
-                      final sort = ref.read(sortProvider);
-                      ref
-                          .read(itemsProvider.notifier)
-                          .loadMore(filter: filter, sort: sort);
+                  : () async {
+                      try {
+                        final filter = ref.read(filterProvider);
+                        final sort = ref.read(sortProvider);
+                        await ref
+                            .read(itemsProvider.notifier)
+                            .loadMore(filter: filter, sort: sort);
+                      } catch (e) {
+                        print('Load more items error: $e');
+                        if (context.mounted) {
+                          showDialog<void>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Error'),
+                              content: const Text('Unable to load more items'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                      }
                     },
               child: itemsState.isLoading
                   ? const SizedBox(

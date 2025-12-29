@@ -56,7 +56,7 @@ class FilterBar extends ConsumerWidget {
                 ],
                 onChanged: (value) {
                   ref.read(filterProvider.notifier).state = value;
-                  _refresh(ref, filterOverride: value);
+                  _refresh(ref, context, filterOverride: value);
                 },
               ),
             ),
@@ -94,13 +94,13 @@ class FilterBar extends ConsumerWidget {
                 ],
                 onChanged: (value) {
                   ref.read(sortProvider.notifier).state = value;
-                  _refresh(ref, sortOverride: value);
+                  _refresh(ref, context, sortOverride: value);
                 },
               ),
             ),
             const SizedBox(width: 8),
             IconButton(
-              onPressed: () => _refresh(ref),
+              onPressed: () => _refresh(ref, context),
               icon: const Icon(Icons.refresh),
               tooltip: 'Refresh',
             ),
@@ -110,9 +110,28 @@ class FilterBar extends ConsumerWidget {
     );
   }
 
-  void _refresh(WidgetRef ref, {String? filterOverride, String? sortOverride}) {
-    final filter = filterOverride ?? ref.read(filterProvider);
-    final sort = sortOverride ?? ref.read(sortProvider);
-    ref.read(itemsProvider.notifier).loadItems(filter: filter, sort: sort);
+  void _refresh(WidgetRef ref, BuildContext context, {String? filterOverride, String? sortOverride}) async {
+    try {
+      final filter = filterOverride ?? ref.read(filterProvider);
+      final sort = sortOverride ?? ref.read(sortProvider);
+      await ref.read(itemsProvider.notifier).loadItems(filter: filter, sort: sort);
+    } catch (e) {
+      print('Load items error: $e');
+      if (context.mounted) {
+        showDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Unable to load items'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    }
   }
 }
