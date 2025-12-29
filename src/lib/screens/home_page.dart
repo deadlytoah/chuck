@@ -9,6 +9,7 @@ import '../widgets/hamburger_menu.dart';
 import '../widgets/queue_status_button.dart';
 import '../widgets/failed_upload_banner.dart';
 import '../providers/providers.dart';
+import '../models/queued_photo.dart';
 
 @Preview()
 Widget homePagePreview() {
@@ -35,8 +36,12 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final queueCount =
-        ref.watch(cameraQueueServiceProvider.notifier).pendingCount;
+    final queueCount = ref.watch(
+      cameraQueueServiceProvider.select((photos) => photos
+          .where((p) =>
+              p.state == PhotoState.pending || p.state == PhotoState.failed)
+          .length),
+    );
 
     return Scaffold(
       body: Stack(

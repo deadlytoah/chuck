@@ -145,5 +145,49 @@ void main() {
       expect(find.byType(QueueStatusButton), findsOneWidget);
       expect(find.byType(FloatingActionButton), findsNWidgets(2));
     });
+
+    testWidgets('Queue counter updates reactively when photos are added', (
+      WidgetTester tester,
+    ) async {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(home: HomePage()),
+        ),
+      );
+
+      // Initial state: counter should show 0
+      expect(find.byType(QueueStatusButton), findsOneWidget);
+      expect(find.text('0'), findsOneWidget);
+
+      // Add photos to queue
+      final queueService = container.read(cameraQueueServiceProvider.notifier);
+      queueService.addPhoto('/test/1.jpg');
+      await tester.pump();
+
+      // Counter should update to 1
+      expect(find.text('1'), findsOneWidget);
+      expect(find.text('0'), findsNothing);
+
+      // Add another photo
+      queueService.addPhoto('/test/2.jpg');
+      await tester.pump();
+
+      // Counter should update to 2
+      expect(find.text('2'), findsOneWidget);
+      expect(find.text('1'), findsNothing);
+
+      // Mark one as failed (should still count in pending)
+      queueService.markFailed(container.read(cameraQueueServiceProvider)[0].id);
+      await tester.pump();
+
+      // Counter should still show 2 (pending + failed)
+      expect(find.text('2'), findsOneWidget);
+
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+    });
   });
 }

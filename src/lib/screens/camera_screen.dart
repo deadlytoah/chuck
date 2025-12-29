@@ -6,6 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../providers/app_providers.dart';
 import '../providers/providers.dart';
 import '../services/camera_service.dart';
+import '../services/camera_queue_service.dart';
 
 class CameraScreen extends ConsumerStatefulWidget {
   const CameraScreen({super.key});
@@ -238,8 +239,12 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
                   child: Center(
                     child: Consumer(
                       builder: (context, ref, child) {
-                        final queueService = ref.watch(cameraQueueServiceProvider.notifier);
-                        final isQueueFull = queueService.isQueueFull;
+                        final isQueueFull = ref.watch(
+                          cameraQueueServiceProvider.select(
+                            (photos) =>
+                                photos.length >= CameraQueueService.maxQueueSize,
+                          ),
+                        );
                         return GestureDetector(
                           onTap: isQueueFull ? null : _capturePhoto,
                           child: Opacity(
