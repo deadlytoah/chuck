@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/queued_photo.dart';
 import '../providers/providers.dart';
@@ -42,20 +42,24 @@ class _FailedUploadBannerState extends ConsumerState<FailedUploadBanner> {
     }
 
     return Container(
-      color: Colors.green,
+      color: CupertinoColors.systemGreen,
       child: SafeArea(
         bottom: false,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              const Icon(Icons.info_outline, color: Colors.white, size: 20),
+              const Icon(
+                CupertinoIcons.info_circle,
+                color: CupertinoColors.white,
+                size: 20,
+              ),
               const SizedBox(width: 12),
               const Expanded(
                 child: Text(
                   'Some photos failed to upload. Tap the queue button to review.',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: CupertinoColors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),

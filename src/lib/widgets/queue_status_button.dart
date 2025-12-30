@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 class QueueStatusButton extends StatelessWidget {
   final int count;
@@ -12,14 +12,23 @@ class QueueStatusButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: onPressed,
-      heroTag: 'queueStatus',
-      child: Text(
-        '$count',
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
+    return Container(
+      width: 56,
+      height: 56,
+      decoration: const BoxDecoration(
+        color: CupertinoColors.activeBlue,
+        shape: BoxShape.circle,
+      ),
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        onPressed: onPressed,
+        child: Text(
+          '$count',
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: CupertinoColors.white,
+          ),
         ),
       ),
     );

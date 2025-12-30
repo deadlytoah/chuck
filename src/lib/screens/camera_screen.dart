@@ -1,5 +1,5 @@
 import 'package:camera/camera.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -131,20 +131,21 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
   void _showPermissionDeniedDialog() async {
     if (!mounted) return;
 
-    await showDialog(
+    await showCupertinoDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
+      builder: (context) => CupertinoAlertDialog(
         title: const Text('Camera Access Required'),
         content: const Text('Camera access is needed to take photos of items.'),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () {
               Navigator.of(context).pop();
             },
             child: const Text('Cancel'),
           ),
-          TextButton(
+          CupertinoDialogAction(
+            isDefaultAction: true,
             onPressed: () {
               Navigator.of(context).pop();
               openAppSettings();
@@ -165,15 +166,20 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
   Widget build(BuildContext context) {
     if (!_isCameraInitialized || _controller == null) {
       // Loading state
-      return const Scaffold(
-        backgroundColor: Colors.black,
-        body: Center(child: CircularProgressIndicator(color: Colors.white)),
+      return const CupertinoPageScaffold(
+        backgroundColor: CupertinoColors.black,
+        child: Center(
+          child: CupertinoActivityIndicator(
+            color: CupertinoColors.white,
+            radius: 14,
+          ),
+        ),
       );
     }
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
+    return CupertinoPageScaffold(
+      backgroundColor: CupertinoColors.black,
+      child: Stack(
         fit: StackFit.expand,
         children: [
           // Camera Preview
@@ -190,13 +196,13 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.7),
+                  color: CupertinoColors.black.withOpacity(0.7),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text(
                   'Photo queued for upload',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: CupertinoColors.white,
                     fontSize: 16,
                   ),
                 ),
@@ -216,15 +222,17 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
                       // Back Button
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.4),
+                          color: CupertinoColors.black.withOpacity(0.4),
                           shape: BoxShape.circle,
                         ),
-                        child: IconButton(
-                          icon: const Icon(
-                            Icons.arrow_back,
-                            color: Colors.white,
-                          ),
+                        child: CupertinoButton(
+                          padding: const EdgeInsets.all(8),
                           onPressed: () => Navigator.of(context).pop(),
+                          child: const Icon(
+                            CupertinoIcons.back,
+                            color: CupertinoColors.white,
+                            size: 28,
+                          ),
                         ),
                       ),
                     ],
@@ -254,9 +262,9 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
                               width: 80,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                border:
-                                    Border.all(color: Colors.white, width: 4),
-                                color: Colors.white.withValues(alpha: 0.2),
+                                border: Border.all(
+                                    color: CupertinoColors.white, width: 4),
+                                color: CupertinoColors.white.withOpacity(0.2),
                               ),
                               child: Center(
                                 child: Container(
@@ -264,7 +272,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
                                   width: 64,
                                   decoration: const BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: Colors.white,
+                                    color: CupertinoColors.white,
                                   ),
                                 ),
                               ),

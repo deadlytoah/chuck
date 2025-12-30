@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/item.dart';
@@ -17,9 +17,9 @@ Widget itemCardPreview() {
   );
 
   return ProviderScope(
-    child: MaterialApp(
-      home: Scaffold(
-        body: Center(
+    child: CupertinoApp(
+      home: CupertinoPageScaffold(
+        child: Center(
           child: SizedBox(width: 300, child: ItemCard(item: sampleItem)),
         ),
       ),
@@ -46,9 +46,20 @@ class ItemCard extends ConsumerStatefulWidget {
 class _ItemCardState extends ConsumerState<ItemCard> {
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: CupertinoColors.systemBackground,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: CupertinoColors.systemGrey.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
+      child: GestureDetector(
         onTap: widget.showCheckbox
             ? () => ref
                 .read(selectionProvider.notifier)
@@ -66,8 +77,11 @@ class _ItemCardState extends ConsumerState<ItemCard> {
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.broken_image),
+                        color: CupertinoColors.systemGrey5,
+                        child: const Icon(
+                          CupertinoIcons.photo,
+                          color: CupertinoColors.systemGrey,
+                        ),
                       );
                     },
                   ),
@@ -82,15 +96,9 @@ class _ItemCardState extends ConsumerState<ItemCard> {
                         children: [
                           _StateChip(state: widget.item.state),
                           if (!widget.showCheckbox)
-                            IconButton(
-                              icon: Icon(
-                                widget.item.archived
-                                    ? Icons.unarchive
-                                    : Icons.archive,
-                              ),
-                              iconSize: 20,
+                            CupertinoButton(
                               padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
+                              minSize: 20,
                               onPressed: () {
                                 if (widget.item.archived) {
                                   _unarchiveItem(ref, context);
@@ -98,6 +106,13 @@ class _ItemCardState extends ConsumerState<ItemCard> {
                                   _archiveItem(ref, context);
                                 }
                               },
+                              child: Icon(
+                                widget.item.archived
+                                    ? CupertinoIcons.tray_arrow_up
+                                    : CupertinoIcons.archivebox,
+                                size: 20,
+                                color: CupertinoColors.systemGrey,
+                              ),
                             ),
                         ],
                       ),
@@ -106,7 +121,10 @@ class _ItemCardState extends ConsumerState<ItemCard> {
                         const SizedBox(height: 4),
                         Text(
                           widget.item.notes!,
-                          style: Theme.of(context).textTheme.bodySmall,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: CupertinoColors.systemGrey,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -120,11 +138,33 @@ class _ItemCardState extends ConsumerState<ItemCard> {
               Positioned(
                 top: 8,
                 right: 8,
-                child: Checkbox(
-                  value: widget.isSelected,
-                  onChanged: (_) => ref
+                child: GestureDetector(
+                  onTap: () => ref
                       .read(selectionProvider.notifier)
                       .toggleItem(widget.item.itemId),
+                  child: Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: widget.isSelected
+                          ? CupertinoColors.activeBlue
+                          : CupertinoColors.white,
+                      border: Border.all(
+                        color: widget.isSelected
+                            ? CupertinoColors.activeBlue
+                            : CupertinoColors.systemGrey3,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: widget.isSelected
+                        ? const Icon(
+                            CupertinoIcons.check_mark,
+                            size: 16,
+                            color: CupertinoColors.white,
+                          )
+                        : null,
+                  ),
                 ),
               ),
           ],
@@ -139,13 +179,13 @@ class _ItemCardState extends ConsumerState<ItemCard> {
     } catch (e) {
       print('Archive item error: $e');
       if (context.mounted) {
-        showDialog<void>(
+        showCupertinoDialog<void>(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (context) => CupertinoAlertDialog(
             title: const Text('Error'),
             content: const Text('Unable to archive item'),
             actions: [
-              TextButton(
+              CupertinoDialogAction(
                 onPressed: () => Navigator.pop(context),
                 child: const Text('OK'),
               ),
@@ -162,13 +202,13 @@ class _ItemCardState extends ConsumerState<ItemCard> {
     } catch (e) {
       print('Unarchive item error: $e');
       if (context.mounted) {
-        showDialog<void>(
+        showCupertinoDialog<void>(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (context) => CupertinoAlertDialog(
             title: const Text('Error'),
             content: const Text('Unable to unarchive item'),
             actions: [
-              TextButton(
+              CupertinoDialogAction(
                 onPressed: () => Navigator.pop(context),
                 child: const Text('OK'),
               ),
@@ -180,7 +220,7 @@ class _ItemCardState extends ConsumerState<ItemCard> {
   }
 
   void _showEditDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
+    showCupertinoDialog(
       context: context,
       builder: (context) => _EditItemDialog(item: widget.item),
     );
@@ -195,29 +235,35 @@ class _StateChip extends StatelessWidget {
   Color get _color {
     switch (state) {
       case 'Chuck':
-        return Colors.red;
+        return CupertinoColors.systemRed;
       case 'Keep':
-        return Colors.green;
+        return CupertinoColors.systemGreen;
       case 'Sell':
-        return Colors.blue;
+        return CupertinoColors.systemBlue;
       case 'Undecided':
-        return Colors.orange;
+        return CupertinoColors.systemOrange;
       case 'Unanswered':
       default:
-        return Colors.grey;
+        return CupertinoColors.systemGrey;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Chip(
-      label: Text(
-        state,
-        style: const TextStyle(fontSize: 12, color: Colors.white),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: _color,
+        borderRadius: BorderRadius.circular(6),
       ),
-      backgroundColor: _color,
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      child: Text(
+        state,
+        style: const TextStyle(
+          fontSize: 12,
+          color: CupertinoColors.white,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     );
   }
 }
@@ -251,67 +297,133 @@ class _EditItemDialogState extends ConsumerState<_EditItemDialog> {
   @override
   Widget build(BuildContext context) {
     final isArchived = widget.item.archived;
+    final states = ['Unanswered', 'Chuck', 'Keep', 'Sell', 'Undecided'];
+    final stateIndex = states.indexOf(selectedState);
 
-    return AlertDialog(
+    return CupertinoAlertDialog(
       title: const Text('Edit Item'),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Image.network(widget.item.imageUrl, fit: BoxFit.contain),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              initialValue: selectedState,
-              decoration: const InputDecoration(
-                labelText: 'State',
-                border: OutlineInputBorder(),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: 16),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(widget.item.imageUrl, fit: BoxFit.contain),
+          ),
+          const SizedBox(height: 16),
+          if (!isArchived) ...[
+            const Text(
+              'State',
+              style: TextStyle(
+                fontSize: 13,
+                color: CupertinoColors.systemGrey,
               ),
-              items: const [
-                DropdownMenuItem(
-                  value: 'Unanswered',
-                  child: Text('Unanswered'),
+            ),
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: () => _showStatePicker(context, states, stateIndex),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
                 ),
-                DropdownMenuItem(value: 'Chuck', child: Text('Chuck')),
-                DropdownMenuItem(value: 'Keep', child: Text('Keep')),
-                DropdownMenuItem(value: 'Sell', child: Text('Sell')),
-                DropdownMenuItem(value: 'Undecided', child: Text('Undecided')),
-              ],
-              onChanged: isArchived
-                  ? null
-                  : (value) {
-                      if (value != null) {
-                        setState(() => selectedState = value);
-                      }
-                    },
+                decoration: BoxDecoration(
+                  border: Border.all(color: CupertinoColors.systemGrey4),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(selectedState),
+                    const Icon(
+                      CupertinoIcons.chevron_down,
+                      size: 16,
+                      color: CupertinoColors.systemGrey,
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: commentController,
-              decoration: const InputDecoration(
-                labelText: 'Notes',
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 3,
-            ),
-            if (isArchived) ...[
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: () => _unarchive(),
-                icon: const Icon(Icons.unarchive),
-                label: const Text('Unarchive'),
-              ),
-            ],
           ],
-        ),
+          const Text(
+            'Notes',
+            style: TextStyle(
+              fontSize: 13,
+              color: CupertinoColors.systemGrey,
+            ),
+          ),
+          const SizedBox(height: 8),
+          CupertinoTextField(
+            controller: commentController,
+            placeholder: 'Add notes...',
+            maxLines: 3,
+            padding: const EdgeInsets.all(12),
+          ),
+          if (isArchived) ...[
+            const SizedBox(height: 16),
+            CupertinoButton(
+              onPressed: () => _unarchive(),
+              color: CupertinoColors.activeBlue,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(CupertinoIcons.tray_arrow_up, size: 20),
+                  SizedBox(width: 8),
+                  Text('Unarchive'),
+                ],
+              ),
+            ),
+          ],
+        ],
       ),
       actions: [
-        TextButton(
+        CupertinoDialogAction(
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancel'),
         ),
-        ElevatedButton(onPressed: () => _save(), child: const Text('Save')),
+        CupertinoDialogAction(
+          isDefaultAction: true,
+          onPressed: () => _save(),
+          child: const Text('Save'),
+        ),
       ],
+    );
+  }
+
+  void _showStatePicker(BuildContext context, List<String> states, int initialIndex) {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) => Container(
+        height: 216,
+        padding: const EdgeInsets.only(top: 6.0),
+        margin: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        color: CupertinoColors.systemBackground.resolveFrom(context),
+        child: SafeArea(
+          top: false,
+          child: CupertinoPicker(
+            magnification: 1.22,
+            squeeze: 1.2,
+            useMagnifier: true,
+            itemExtent: 32,
+            scrollController: FixedExtentScrollController(
+              initialItem: initialIndex >= 0 ? initialIndex : 0,
+            ),
+            onSelectedItemChanged: (int selectedItem) {
+              setState(() {
+                selectedState = states[selectedItem];
+              });
+            },
+            children: List<Widget>.generate(states.length, (int index) {
+              return Center(child: Text(states[index]));
+            }),
+          ),
+        ),
+      ),
     );
   }
 
@@ -331,13 +443,13 @@ class _EditItemDialogState extends ConsumerState<_EditItemDialog> {
     } catch (e) {
       print('Update item error: $e');
       if (mounted) {
-        showDialog<void>(
+        showCupertinoDialog<void>(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (context) => CupertinoAlertDialog(
             title: const Text('Error'),
             content: const Text('Unable to update item'),
             actions: [
-              TextButton(
+              CupertinoDialogAction(
                 onPressed: () => Navigator.pop(context),
                 child: const Text('OK'),
               ),
@@ -358,13 +470,13 @@ class _EditItemDialogState extends ConsumerState<_EditItemDialog> {
     } catch (e) {
       print('Unarchive item error: $e');
       if (mounted) {
-        showDialog<void>(
+        showCupertinoDialog<void>(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (context) => CupertinoAlertDialog(
             title: const Text('Error'),
             content: const Text('Unable to unarchive item'),
             actions: [
-              TextButton(
+              CupertinoDialogAction(
                 onPressed: () => Navigator.pop(context),
                 child: const Text('OK'),
               ),

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chuck/widgets/bulk_actions.dart';
@@ -9,25 +9,25 @@ void main() {
         (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: BulkActions(),
+          child: CupertinoApp(
+            home: CupertinoPageScaffold(
+              child: BulkActions(),
             ),
           ),
         ),
       );
 
       expect(find.text('Bulk Archive'), findsOneWidget);
-      expect(find.byIcon(Icons.check_box_outline_blank), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.check_mark_circled), findsOneWidget);
     });
 
     testWidgets('Hides Bulk Archive and shows Cancel/Archive Selected when activated',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: BulkActions(),
+          child: CupertinoApp(
+            home: CupertinoPageScaffold(
+              child: BulkActions(),
             ),
           ),
         ),
@@ -42,22 +42,22 @@ void main() {
 
       // Cancel button should appear
       expect(find.text('Cancel'), findsOneWidget);
-      expect(find.byIcon(Icons.close), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.xmark), findsOneWidget);
 
       // Archive Selected should appear but be disabled (grayed out)
       expect(find.text('Archive Selected'), findsOneWidget);
 
       // Verify the button with archive icon is disabled
-      final archiveIconButtons = find.byIcon(Icons.archive);
+      final archiveIconButtons = find.byIcon(CupertinoIcons.archivebox);
       expect(archiveIconButtons, findsOneWidget);
 
       final archiveButtonFinder = find.ancestor(
         of: archiveIconButtons,
-        matching: find.byWidgetPredicate((w) => w is ElevatedButton),
+        matching: find.byWidgetPredicate((w) => w is CupertinoButton),
       );
       expect(archiveButtonFinder, findsOneWidget);
 
-      final archiveButton = tester.widget<ElevatedButton>(archiveButtonFinder);
+      final archiveButton = tester.widget<CupertinoButton>(archiveButtonFinder);
       expect(archiveButton.onPressed, isNull); // Disabled when no items selected
     });
   });

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:chuck/widgets/hamburger_menu.dart';
 
@@ -7,42 +7,40 @@ void main() {
     testWidgets('HamburgerMenu renders correctly', (WidgetTester tester) async {
       int selectedIndex = 0;
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            appBar: AppBar(
-              actions: [
-                HamburgerMenu(
-                  selectedIndex: selectedIndex,
-                  onItemSelected: (index) {},
-                ),
-              ],
+        CupertinoApp(
+          home: CupertinoPageScaffold(
+            navigationBar: CupertinoNavigationBar(
+              trailing: HamburgerMenu(
+                selectedIndex: selectedIndex,
+                onItemSelected: (index) {},
+              ),
             ),
+            child: Container(),
           ),
         ),
       );
 
       expect(find.byType(HamburgerMenu), findsOneWidget);
-      expect(find.byType(AnimatedIcon), findsOneWidget);
+      expect(find.byType(CupertinoButton), findsOneWidget);
     });
 
     testWidgets('Opens menu on tap', (WidgetTester tester) async {
       int selectedIndex = 0;
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            appBar: AppBar(
-              actions: [
-                HamburgerMenu(
-                  selectedIndex: selectedIndex,
-                  onItemSelected: (index) {},
-                ),
-              ],
+        CupertinoApp(
+          home: CupertinoPageScaffold(
+            navigationBar: CupertinoNavigationBar(
+              trailing: HamburgerMenu(
+                selectedIndex: selectedIndex,
+                onItemSelected: (index) {},
+              ),
             ),
+            child: Container(),
           ),
         ),
       );
 
-      await tester.tap(find.byType(IconButton));
+      await tester.tap(find.byType(CupertinoButton));
       await tester.pumpAndSettle();
 
       expect(find.text('Home'), findsOneWidget);
@@ -54,24 +52,23 @@ void main() {
       int? tappedIndex;
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            appBar: AppBar(
-              actions: [
-                HamburgerMenu(
-                  selectedIndex: selectedIndex,
-                  onItemSelected: (index) {
-                    tappedIndex = index;
-                  },
-                ),
-              ],
+        CupertinoApp(
+          home: CupertinoPageScaffold(
+            navigationBar: CupertinoNavigationBar(
+              trailing: HamburgerMenu(
+                selectedIndex: selectedIndex,
+                onItemSelected: (index) {
+                  tappedIndex = index;
+                },
+              ),
             ),
+            child: Container(),
           ),
         ),
       );
 
       // Open menu
-      await tester.tap(find.byType(IconButton));
+      await tester.tap(find.byType(CupertinoButton));
       await tester.pumpAndSettle();
 
       // Tap Admin
