@@ -33,7 +33,7 @@ class _MainViewState extends ConsumerState<MainView> {
       children: [
         SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
             child: const FilterBar(),
           ),
         ),
