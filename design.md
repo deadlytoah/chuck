@@ -85,8 +85,9 @@ updatedAt descending.
 - Subtle indicator: queue status button shows total queued items
 - Persistent failure notification: consolidated message directs user to
   queue status button for review
-- Manual review screen: current status, pending/failed items, Retry
-  button to reset all failed items, actionable guidance
+- Manual review screen: current status, pending/retrying/failed items,
+  Retry button to trigger upload for all queued photos, actionable
+  guidance
 
 **Error Messages:**
 

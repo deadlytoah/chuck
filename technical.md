@@ -161,9 +161,9 @@ images/{uuid}/thumb.jpg
 
 **Manual Review Screen:**
 - Access via queue status button
-- Display: pending/failed items with status and retry count
+- Display: pending/retrying/failed items with status and retry count
 - Actions: "Retry" button (resets retry count and immediately retries
-  all failed items)
+  all queued photos)
 - Guidance: error resolution steps
 
 ## Error Message Display
