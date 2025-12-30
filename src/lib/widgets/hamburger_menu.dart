@@ -168,13 +168,15 @@ class _HamburgerMenuState extends State<HamburgerMenu>
                   : CupertinoColors.label,
             ),
             const SizedBox(width: 12),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected
-                    ? CupertinoColors.activeBlue
-                    : CupertinoColors.label,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: isSelected
+                      ? CupertinoColors.activeBlue
+                      : CupertinoColors.label,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
               ),
             ),
           ],
