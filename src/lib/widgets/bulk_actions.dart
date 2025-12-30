@@ -36,9 +36,6 @@ class BulkActions extends ConsumerWidget {
         children: [
           if (!selectionState.isSelectionMode)
             CupertinoButton(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              color: CupertinoColors.activeBlue,
-              borderRadius: BorderRadius.circular(8),
               onPressed: () {
                 ref.read(selectionProvider.notifier).toggleSelectionMode();
               },
@@ -53,33 +50,27 @@ class BulkActions extends ConsumerWidget {
             ),
           if (selectionState.isSelectionMode) ...[
             CupertinoButton(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              color: CupertinoColors.destructiveRed,
-              borderRadius: BorderRadius.circular(8),
               onPressed: selectedCount > 0 ? () => _bulkArchive(context, ref) : null,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: const [
-                  Icon(CupertinoIcons.archivebox, size: 20, color: CupertinoColors.white),
+                  Icon(CupertinoIcons.archivebox, size: 20, color: CupertinoColors.destructiveRed),
                   SizedBox(width: 8),
-                  Text('Archive Selected', style: TextStyle(color: CupertinoColors.white)),
+                  Text('Archive Selected', style: TextStyle(color: CupertinoColors.destructiveRed)),
                 ],
               ),
             ),
             const SizedBox(width: 8),
             CupertinoButton(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              color: CupertinoColors.systemGrey,
-              borderRadius: BorderRadius.circular(8),
               onPressed: () {
                 ref.read(selectionProvider.notifier).toggleSelectionMode();
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: const [
-                  Icon(CupertinoIcons.xmark, size: 20, color: CupertinoColors.white),
+                  Icon(CupertinoIcons.xmark, size: 20),
                   SizedBox(width: 8),
-                  Text('Cancel', style: TextStyle(color: CupertinoColors.white)),
+                  Text('Cancel'),
                 ],
               ),
             ),

@@ -86,13 +86,11 @@ class _UploadZoneState extends ConsumerState<UploadZone> {
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: Center(
               child: CupertinoButton(
-                color: CupertinoColors.activeBlue,
-                borderRadius: BorderRadius.circular(8),
                 onPressed: _pickFiles,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: const [
-                    Icon(CupertinoIcons.folder, color: CupertinoColors.white),
+                    Icon(CupertinoIcons.folder),
                     SizedBox(width: 8),
                     Text('Choose Images'),
                   ],
@@ -164,13 +162,11 @@ class _UploadZoneState extends ConsumerState<UploadZone> {
                         ),
                         const SizedBox(height: 8),
                         CupertinoButton(
-                          color: CupertinoColors.activeBlue,
-                          borderRadius: BorderRadius.circular(8),
                           onPressed: _pickFiles,
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: const [
-                              Icon(CupertinoIcons.folder, color: CupertinoColors.white),
+                              Icon(CupertinoIcons.folder),
                               SizedBox(width: 8),
                               Text('Choose Images'),
                             ],
