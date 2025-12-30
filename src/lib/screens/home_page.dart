@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'main_view.dart';
@@ -13,7 +13,7 @@ import '../models/queued_photo.dart';
 
 @Preview()
 Widget homePagePreview() {
-  return const ProviderScope(child: MaterialApp(home: HomePage()));
+  return const ProviderScope(child: CupertinoApp(home: HomePage()));
 }
 
 class HomePage extends ConsumerStatefulWidget {
@@ -43,8 +43,8 @@ class _HomePageState extends ConsumerState<HomePage> {
           .length),
     );
 
-    return Scaffold(
-      body: Stack(
+    return CupertinoPageScaffold(
+      child: Stack(
         children: [
           Column(
             children: [
@@ -60,10 +60,18 @@ class _HomePageState extends ConsumerState<HomePage> {
             child: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Material(
-                  color: Theme.of(context).colorScheme.surface,
-                  elevation: 4,
-                  shape: const CircleBorder(),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: CupertinoColors.systemBackground,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: CupertinoColors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
                   child: HamburgerMenu(
                     selectedIndex: _selectedIndex,
                     onItemSelected: _onItemSelected,
@@ -72,37 +80,53 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
             ),
           ),
+          if (_selectedIndex == 0)
+            Positioned(
+              bottom: 16,
+              right: 16,
+              child: SafeArea(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    QueueStatusButton(
+                      count: queueCount,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (context) => const QueueReviewScreen()),
+                        );
+                      },
+                    ),
+                    const SizedBox(width: 16),
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: const BoxDecoration(
+                        color: CupertinoColors.activeBlue,
+                        shape: BoxShape.circle,
+                      ),
+                      child: CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                                builder: (context) => const CameraScreen()),
+                          );
+                        },
+                        child: const Icon(
+                          CupertinoIcons.camera,
+                          color: CupertinoColors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
-      floatingActionButton: _selectedIndex == 0
-          ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                QueueStatusButton(
-                  count: queueCount,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const QueueReviewScreen()),
-                    );
-                  },
-                ),
-                const SizedBox(width: 16),
-                FloatingActionButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const CameraScreen()),
-                    );
-                  },
-                  heroTag: 'camera',
-                  child: const Icon(Icons.camera_alt),
-                ),
-              ],
-            )
-          : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

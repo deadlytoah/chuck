@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/app_providers.dart';
@@ -6,9 +6,9 @@ import '../providers/app_providers.dart';
 @Preview()
 Widget filterBarPreview() {
   return const ProviderScope(
-    child: MaterialApp(
-      home: Scaffold(
-        body: Padding(padding: EdgeInsets.all(16.0), child: FilterBar()),
+    child: CupertinoApp(
+      home: CupertinoPageScaffold(
+        child: Padding(padding: EdgeInsets.all(16.0), child: FilterBar()),
       ),
     ),
   );
@@ -22,89 +22,204 @@ class FilterBar extends ConsumerWidget {
     final filter = ref.watch(filterProvider);
     final sort = ref.watch(sortProvider);
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Flexible(
-              flex: 2,
-              child: DropdownButtonFormField<String?>(
-                initialValue: filter,
-                decoration: const InputDecoration(
-                  labelText: 'Filter',
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 8,
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: CupertinoColors.systemBackground,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: CupertinoColors.systemGrey4,
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Flexible(
+            flex: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Filter',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: CupertinoColors.systemGrey,
                   ),
                 ),
-                items: const [
-                  DropdownMenuItem(value: null, child: Text('All')),
-                  DropdownMenuItem(value: 'Chuck', child: Text('Chuck')),
-                  DropdownMenuItem(value: 'Keep', child: Text('Keep')),
-                  DropdownMenuItem(value: 'Sell', child: Text('Sell')),
-                  DropdownMenuItem(
-                    value: 'Undecided',
-                    child: Text('Undecided'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Unanswered',
-                    child: Text('Unanswered'),
-                  ),
-                  DropdownMenuItem(value: 'archived', child: Text('Archived')),
-                ],
-                onChanged: (value) {
-                  ref.read(filterProvider.notifier).state = value;
-                  _refresh(ref, context, filterOverride: value);
-                },
-              ),
-            ),
-            const SizedBox(width: 8),
-            Flexible(
-              flex: 2,
-              child: DropdownButtonFormField<String?>(
-                initialValue: sort,
-                decoration: const InputDecoration(
-                  labelText: 'Sort',
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 8,
+                const SizedBox(height: 4),
+                CupertinoButton(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  color: CupertinoColors.systemGrey6,
+                  borderRadius: BorderRadius.circular(8),
+                  onPressed: () => _showFilterPicker(context, ref),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          _getFilterLabel(filter),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: CupertinoColors.label,
+                          ),
+                        ),
+                      ),
+                      const Icon(
+                        CupertinoIcons.chevron_down,
+                        size: 16,
+                        color: CupertinoColors.systemGrey,
+                      ),
+                    ],
                   ),
                 ),
-                items: const [
-                  DropdownMenuItem(
-                    value: 'updatedAt:desc',
-                    child: Text('Updated \u{25BC}'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'updatedAt:asc',
-                    child: Text('Updated \u{25B2}'),
-                  ),
-                  DropdownMenuItem(
-                    value: null,
-                    child: Text('Created \u{25BC}'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'createdAt:asc',
-                    child: Text('Created \u{25B2}'),
-                  ),
-                  DropdownMenuItem(value: 'state', child: Text('State')),
-                ],
-                onChanged: (value) {
-                  ref.read(sortProvider.notifier).state = value;
-                  _refresh(ref, context, sortOverride: value);
-                },
-              ),
+              ],
             ),
-            const SizedBox(width: 8),
-            IconButton(
-              onPressed: () => _refresh(ref, context),
-              icon: const Icon(Icons.refresh),
-              tooltip: 'Refresh',
+          ),
+          const SizedBox(width: 8),
+          Flexible(
+            flex: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Sort',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: CupertinoColors.systemGrey,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                CupertinoButton(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  color: CupertinoColors.systemGrey6,
+                  borderRadius: BorderRadius.circular(8),
+                  onPressed: () => _showSortPicker(context, ref),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          _getSortLabel(sort),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: CupertinoColors.label,
+                          ),
+                        ),
+                      ),
+                      const Icon(
+                        CupertinoIcons.chevron_down,
+                        size: 16,
+                        color: CupertinoColors.systemGrey,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
+          const SizedBox(width: 8),
+          CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: () => _refresh(ref, context),
+            child: const Icon(
+              CupertinoIcons.refresh,
+              color: CupertinoColors.activeBlue,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getFilterLabel(String? filter) {
+    switch (filter) {
+      case null:
+        return 'All';
+      case 'Chuck':
+        return 'Chuck';
+      case 'Keep':
+        return 'Keep';
+      case 'Sell':
+        return 'Sell';
+      case 'Undecided':
+        return 'Undecided';
+      case 'Unanswered':
+        return 'Unanswered';
+      case 'archived':
+        return 'Archived';
+      default:
+        return filter;
+    }
+  }
+
+  String _getSortLabel(String? sort) {
+    switch (sort) {
+      case 'updatedAt:desc':
+        return 'Updated \u{25BC}';
+      case 'updatedAt:asc':
+        return 'Updated \u{25B2}';
+      case null:
+        return 'Created \u{25BC}';
+      case 'createdAt:asc':
+        return 'Created \u{25B2}';
+      case 'state':
+        return 'State';
+      default:
+        return sort;
+    }
+  }
+
+  void _showFilterPicker(BuildContext context, WidgetRef ref) {
+    final filters = [null, 'Chuck', 'Keep', 'Sell', 'Undecided', 'Unanswered', 'archived'];
+    final labels = ['All', 'Chuck', 'Keep', 'Sell', 'Undecided', 'Unanswered', 'Archived'];
+
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => CupertinoActionSheet(
+        title: const Text('Filter'),
+        actions: List.generate(
+          filters.length,
+          (index) => CupertinoActionSheetAction(
+            onPressed: () {
+              ref.read(filterProvider.notifier).state = filters[index];
+              _refresh(ref, context, filterOverride: filters[index]);
+              Navigator.pop(context);
+            },
+            child: Text(labels[index]),
+          ),
+        ),
+        cancelButton: CupertinoActionSheetAction(
+          isDefaultAction: true,
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+      ),
+    );
+  }
+
+  void _showSortPicker(BuildContext context, WidgetRef ref) {
+    final sorts = ['updatedAt:desc', 'updatedAt:asc', null, 'createdAt:asc', 'state'];
+    final labels = ['Updated \u{25BC}', 'Updated \u{25B2}', 'Created \u{25BC}', 'Created \u{25B2}', 'State'];
+
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => CupertinoActionSheet(
+        title: const Text('Sort'),
+        actions: List.generate(
+          sorts.length,
+          (index) => CupertinoActionSheetAction(
+            onPressed: () {
+              ref.read(sortProvider.notifier).state = sorts[index];
+              _refresh(ref, context, sortOverride: sorts[index]);
+              Navigator.pop(context);
+            },
+            child: Text(labels[index]),
+          ),
+        ),
+        cancelButton: CupertinoActionSheetAction(
+          isDefaultAction: true,
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
         ),
       ),
     );
@@ -118,13 +233,13 @@ class FilterBar extends ConsumerWidget {
     } catch (e) {
       print('Load items error: $e');
       if (context.mounted) {
-        showDialog<void>(
+        showCupertinoDialog<void>(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (context) => CupertinoAlertDialog(
             title: const Text('Error'),
             content: const Text('Unable to load items'),
             actions: [
-              TextButton(
+              CupertinoDialogAction(
                 onPressed: () => Navigator.pop(context),
                 child: const Text('OK'),
               ),

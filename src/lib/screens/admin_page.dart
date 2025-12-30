@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/app_providers.dart';
 import '../widgets/upload_zone.dart';
@@ -31,21 +31,19 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SafeArea(
-              child: Padding(padding: EdgeInsets.all(16), child: UploadZone()),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: FilterBar(),
-            ),
-            const Padding(padding: EdgeInsets.all(16), child: BulkActions()),
-            const ItemsGrid(shrinkWrap: true),
-          ],
-        ),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          const SafeArea(
+            child: Padding(padding: EdgeInsets.all(16), child: UploadZone()),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: FilterBar(),
+          ),
+          const Padding(padding: EdgeInsets.all(16), child: BulkActions()),
+          const ItemsGrid(shrinkWrap: true),
+        ],
       ),
     );
   }

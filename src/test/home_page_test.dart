@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,14 +28,14 @@ void main() {
     ) async {
       await tester.pumpWidget(
         const ProviderScope(
-          child: MaterialApp(home: HomePage()),
+          child: CupertinoApp(home: HomePage()),
         ),
       );
 
       expect(find.byType(QueueStatusButton), findsOneWidget);
       expect(find.text('0'), findsOneWidget);
-      expect(find.byType(FloatingActionButton), findsNWidgets(2));
-      expect(find.byIcon(Icons.camera_alt), findsOneWidget);
+      expect(find.byType(CupertinoButton), findsAtLeastNWidgets(1));
+      expect(find.byIcon(CupertinoIcons.camera), findsOneWidget);
     });
 
     testWidgets('QueueStatusButton shows count when queue has items', (
@@ -56,13 +56,13 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: const MaterialApp(home: HomePage()),
+          child: const CupertinoApp(home: HomePage()),
         ),
       );
 
       expect(find.byType(QueueStatusButton), findsOneWidget);
       expect(find.text('2'), findsOneWidget);
-      expect(find.byType(FloatingActionButton), findsNWidgets(2));
+      expect(find.byType(CupertinoButton), findsAtLeastNWidgets(1));
 
       // Wait for FailedUploadBanner's 2s timer to complete
       await tester.pump(const Duration(seconds: 2));
@@ -77,11 +77,11 @@ void main() {
     ) async {
       await tester.pumpWidget(
         const ProviderScope(
-          child: MaterialApp(home: HomePage()),
+          child: CupertinoApp(home: HomePage()),
         ),
       );
 
-      expect(find.byIcon(Icons.camera_alt), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.camera), findsOneWidget);
     });
 
     testWidgets('FABs are hidden on Admin Page (tab index 1)', (
@@ -89,12 +89,12 @@ void main() {
     ) async {
       await tester.pumpWidget(
         const ProviderScope(
-          child: MaterialApp(home: HomePage()),
+          child: CupertinoApp(home: HomePage()),
         ),
       );
 
       // Initially FABs should be visible on Main View
-      expect(find.byIcon(Icons.camera_alt), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.camera), findsOneWidget);
       expect(find.byType(QueueStatusButton), findsOneWidget);
 
       // Open hamburger menu
@@ -113,9 +113,8 @@ void main() {
       }
 
       // FABs should NOT be visible on Admin Page
-      expect(find.byIcon(Icons.camera_alt), findsNothing);
+      expect(find.byIcon(CupertinoIcons.camera), findsNothing);
       expect(find.byType(QueueStatusButton), findsNothing);
-      expect(find.byType(FloatingActionButton), findsNothing);
     });
 
     testWidgets('FABs reappear when switching back to Main View', (
@@ -123,7 +122,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         const ProviderScope(
-          child: MaterialApp(home: HomePage()),
+          child: CupertinoApp(home: HomePage()),
         ),
       );
 
@@ -141,7 +140,7 @@ void main() {
       }
 
       // FABs should be hidden
-      expect(find.byIcon(Icons.camera_alt), findsNothing);
+      expect(find.byIcon(CupertinoIcons.camera), findsNothing);
 
       // Switch back to Home
       await tester.tap(find.byType(HamburgerMenu));
@@ -157,9 +156,8 @@ void main() {
       }
 
       // FABs should reappear
-      expect(find.byIcon(Icons.camera_alt), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.camera), findsOneWidget);
       expect(find.byType(QueueStatusButton), findsOneWidget);
-      expect(find.byType(FloatingActionButton), findsNWidgets(2));
     });
   });
 }

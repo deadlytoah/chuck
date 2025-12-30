@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/app_providers.dart';
@@ -7,7 +7,11 @@ import 'item_card.dart';
 @Preview()
 Widget itemsGridPreview() {
   return const ProviderScope(
-    child: MaterialApp(home: Scaffold(body: ItemsGrid(shrinkWrap: true))),
+    child: CupertinoApp(
+      home: CupertinoPageScaffold(
+        child: ItemsGrid(shrinkWrap: true),
+      ),
+    ),
   );
 }
 
@@ -22,7 +26,7 @@ class ItemsGrid extends ConsumerWidget {
     final selectionState = ref.watch(selectionProvider);
 
     if (itemsState.isLoading && itemsState.items.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CupertinoActivityIndicator());
     }
 
     if (itemsState.items.isEmpty) {
@@ -56,7 +60,8 @@ class ItemsGrid extends ConsumerWidget {
         if (itemsState.nextToken != null)
           Padding(
             padding: const EdgeInsets.all(16),
-            child: ElevatedButton(
+            child: CupertinoButton(
+              color: CupertinoColors.activeBlue,
               onPressed: itemsState.isLoading
                   ? null
                   : () async {
@@ -69,13 +74,13 @@ class ItemsGrid extends ConsumerWidget {
                       } catch (e) {
                         print('Load more items error: $e');
                         if (context.mounted) {
-                          showDialog<void>(
+                          showCupertinoDialog<void>(
                             context: context,
-                            builder: (context) => AlertDialog(
+                            builder: (context) => CupertinoAlertDialog(
                               title: const Text('Error'),
                               content: const Text('Unable to load more items'),
                               actions: [
-                                TextButton(
+                                CupertinoDialogAction(
                                   onPressed: () => Navigator.pop(context),
                                   child: const Text('OK'),
                                 ),
@@ -89,7 +94,7 @@ class ItemsGrid extends ConsumerWidget {
                   ? const SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      child: CupertinoActivityIndicator(),
                     )
                   : const Text('Load More'),
             ),
