@@ -73,6 +73,7 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
     : super(ItemsState(items: [], isLoading: false));
 
   Future<void> loadItems({String? filter, String? sort, int limit = 20}) async {
+    final currentItems = state.items;
     state = state.copyWith(isLoading: true);
 
     final response = await apiService.getItems(
@@ -81,8 +82,15 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
       limit: limit,
     );
 
-    state = ItemsState(
-      items: response.items,
+    // Preserve items that were added locally but aren't in backend response yet
+    final backendItemIds = response.items.map((item) => item.itemId).toSet();
+    final localOnlyItems = currentItems.where((item) => !backendItemIds.contains(item.itemId)).toList();
+
+    // Merge: local-only items first, then backend items
+    final mergedItems = [...localOnlyItems, ...response.items];
+
+    state = state.copyWith(
+      items: mergedItems,
       nextToken: response.nextToken,
       isLoading: false,
     );
@@ -131,6 +139,13 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
     await apiService.updateItem(itemId, archived: false);
     final newItems = state.items.where((i) => i.itemId != itemId).toList();
     state = state.copyWith(items: newItems);
+  }
+
+  void addItem(Item item) {
+    // Only add item if not archived (camera uploads are always non-archived)
+    if (!item.archived) {
+      state = state.copyWith(items: [item, ...state.items]);
+    }
   }
 }
 

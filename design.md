@@ -35,7 +35,8 @@ updatedAt descending.
 - Sort: by `createdAt`, `updatedAt` or `state`
 - Filter: by state (Chuck, Keep, Sell, Undecided, Unanswered). The "ALL"
   filter excludes archived items.
-- Manual refresh for updates
+- Manual refresh for updates. Newly uploaded items appear automatically
+  after backend confirmation.
 - Archive button per item. Archived items retain their last known state.
 - State selection available to all users
 
@@ -70,6 +71,8 @@ updatedAt descending.
   in/out with haptic feedback when photo added to queue
 - Queue processes immediately when non-metered network available,
   regardless of app state
+- New items appear in Main View grid after backend confirms creation
+  (POST /items completes)
 - Camera exit: back button only, returns user to home page
 - Camera permission denied: alert dialog explaining camera access need
   with "Go to Settings" and "Cancel" buttons

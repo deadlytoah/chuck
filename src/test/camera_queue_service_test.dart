@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chuck/models/queued_photo.dart';
+import 'package:chuck/models/item.dart';
 import 'package:chuck/providers/providers.dart';
 import 'package:chuck/providers/app_providers.dart';
 import 'package:chuck/services/network_monitor.dart';
@@ -34,13 +35,20 @@ class MockCameraUploadService extends CameraUploadService {
         );
 
   @override
-  Future<void> uploadPhoto(String path) async {
+  Future<Item> uploadPhoto(String path) async {
     uploadCallCount++;
     uploadedPaths.add(path);
     await Future.delayed(const Duration(milliseconds: 10));
     if (shouldFail) {
       throw Exception('Upload failed');
     }
+    return Item(
+      itemId: 'test-item-${uploadCallCount}',
+      imageUrl: 'images/test-${uploadCallCount}/full.jpg',
+      state: 'Unanswered',
+      archived: false,
+      createdAt: DateTime.now(),
+    );
   }
 }
 
@@ -53,6 +61,17 @@ class _MockApiService extends ApiService {
       'uploadUrls': {'thumb': 'url1', 'full': 'url2'},
       'imageUrl': 'https://example.com/image.jpg'
     };
+  }
+
+  @override
+  Future<ItemsResponse> getItems({
+    String? nextToken,
+    int limit = 20,
+    String? sort,
+    String? filter,
+  }) async {
+    // Return empty list - no items in backend yet
+    return ItemsResponse(items: [], nextToken: null);
   }
 }
 
@@ -373,6 +392,106 @@ void main() {
 
     // After success, item should be removed
     expect(testContainer.read(cameraQueueServiceProvider).length, 0);
+
+    testContainer.dispose();
+  });
+
+  test('Upload success adds item to itemsProvider', () async {
+    final mockUploadService = MockCameraUploadService();
+    final mockNetworkMonitor = MockNetworkMonitor(NetworkType.wifi);
+    final mockApiService = _MockApiService();
+
+    final testContainer = ProviderContainer(
+      overrides: [
+        cameraUploadServiceProvider.overrideWithValue(mockUploadService),
+        networkMonitorProvider.overrideWith(
+          (ref) => mockNetworkMonitor,
+        ),
+        apiServiceProvider.overrideWithValue(mockApiService),
+      ],
+    );
+
+    // Verify items list starts empty
+    expect(testContainer.read(itemsProvider).items.length, 0);
+
+    final notifier = testContainer.read(cameraQueueServiceProvider.notifier);
+    notifier.addPhoto('/path/to/photo1.jpg');
+
+    // Wait for stream to process and upload
+    await Future.delayed(const Duration(milliseconds: 50));
+
+    // Verify item was added to items list
+    final itemsState = testContainer.read(itemsProvider);
+    expect(itemsState.items.length, 1);
+    expect(itemsState.items[0].itemId, 'test-item-1');
+    expect(itemsState.items[0].imageUrl, 'images/test-1/full.jpg');
+    expect(itemsState.items[0].state, 'Unanswered');
+    expect(itemsState.items[0].archived, false);
+
+    testContainer.dispose();
+  });
+
+  test('Multiple uploads add items in order to itemsProvider', () async {
+    final mockUploadService = MockCameraUploadService();
+    final mockNetworkMonitor = MockNetworkMonitor(NetworkType.wifi);
+    final mockApiService = _MockApiService();
+
+    final testContainer = ProviderContainer(
+      overrides: [
+        cameraUploadServiceProvider.overrideWithValue(mockUploadService),
+        networkMonitorProvider.overrideWith(
+          (ref) => mockNetworkMonitor,
+        ),
+        apiServiceProvider.overrideWithValue(mockApiService),
+      ],
+    );
+
+    final notifier = testContainer.read(cameraQueueServiceProvider.notifier);
+    notifier.addPhoto('/path/to/photo1.jpg');
+    notifier.addPhoto('/path/to/photo2.jpg');
+
+    // Wait for stream to process both uploads
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    // Verify both items were added (newest first)
+    final itemsState = testContainer.read(itemsProvider);
+    expect(itemsState.items.length, 2);
+    expect(itemsState.items[0].itemId, 'test-item-2');
+    expect(itemsState.items[1].itemId, 'test-item-1');
+
+    testContainer.dispose();
+  });
+
+  test('Failed upload does not add item to itemsProvider', () async {
+    final mockUploadService = MockCameraUploadService();
+    mockUploadService.shouldFail = true;
+    final mockNetworkMonitor = MockNetworkMonitor(NetworkType.wifi);
+    final mockApiService = _MockApiService();
+
+    final testContainer = ProviderContainer(
+      overrides: [
+        cameraUploadServiceProvider.overrideWithValue(mockUploadService),
+        networkMonitorProvider.overrideWith(
+          (ref) => mockNetworkMonitor,
+        ),
+        apiServiceProvider.overrideWithValue(mockApiService),
+      ],
+    );
+
+    final notifier = testContainer.read(cameraQueueServiceProvider.notifier);
+    notifier.addPhoto('/path/to/photo1.jpg');
+
+    // Wait for stream to process
+    await Future.delayed(const Duration(milliseconds: 50));
+
+    // Verify item was NOT added to items list
+    final itemsState = testContainer.read(itemsProvider);
+    expect(itemsState.items.length, 0);
+
+    // Verify photo is marked as failed in queue
+    final queue = testContainer.read(cameraQueueServiceProvider);
+    expect(queue.length, 1);
+    expect(queue.first.state, PhotoState.failed);
 
     testContainer.dispose();
   });

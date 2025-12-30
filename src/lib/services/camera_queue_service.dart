@@ -100,8 +100,12 @@ class CameraQueueService extends Notifier<List<QueuedPhoto>> {
     }).toList();
 
     try {
-      await ref.read(cameraUploadServiceProvider).uploadPhoto(path);
+      final item = await ref.read(cameraUploadServiceProvider).uploadPhoto(path);
       debugPrint('Upload success for $photoId');
+
+      // Add new item to items list
+      ref.read(itemsProvider.notifier).addItem(item);
+
       removePhoto(photoId);
     } catch (e) {
       debugPrint('Upload failed for $photoId: $e');

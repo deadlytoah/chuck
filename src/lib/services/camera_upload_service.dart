@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'api_service.dart';
 import 'image_service.dart';
+import '../models/item.dart';
 
 class CameraUploadService {
   final ApiService apiService;
@@ -9,8 +10,9 @@ class CameraUploadService {
   CameraUploadService({required this.apiService, required this.imageService});
 
   /// Processes and uploads a photo from the given file path.
+  /// Returns the created Item on success.
   /// Throws an exception if any step fails.
-  Future<void> uploadPhoto(String path) async {
+  Future<Item> uploadPhoto(String path) async {
     final file = File(path);
     if (!await file.exists()) {
       throw Exception('File not found at path: $path');
@@ -39,7 +41,7 @@ class CameraUploadService {
     );
 
     // 5. Create item in database
-    await apiService.createItem(imageUrl: imageUrl, state: 'Unanswered');
+    final item = await apiService.createItem(imageUrl: imageUrl, state: 'Unanswered');
 
     // 6. Clean up temporary file
     try {
@@ -48,5 +50,7 @@ class CameraUploadService {
       // Log but don't fail upload if cleanup fails
       print('Warning: Failed to delete temporary file: $e');
     }
+
+    return item;
   }
 }
