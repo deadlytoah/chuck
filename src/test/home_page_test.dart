@@ -6,6 +6,7 @@ import 'package:chuck/screens/home_page.dart';
 import 'package:chuck/widgets/queue_status_button.dart';
 import 'package:chuck/widgets/hamburger_menu.dart';
 import 'package:chuck/providers/providers.dart';
+import 'package:chuck/services/network_monitor.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -40,7 +41,11 @@ void main() {
     testWidgets('QueueStatusButton shows count when queue has items', (
       WidgetTester tester,
     ) async {
-      final container = ProviderContainer();
+      final container = ProviderContainer(
+        overrides: [
+          networkMonitorProvider.overrideWith((ref) => NetworkMonitor(skipInit: true)),
+        ],
+      );
       addTearDown(container.dispose);
 
       final queueService = container.read(cameraQueueServiceProvider.notifier);
@@ -108,12 +113,12 @@ void main() {
       // Open hamburger menu
       await tester.tap(find.byType(HamburgerMenu));
       await tester.pump();
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(milliseconds: 300));
 
       // Tap "Admin" to switch to Admin Page
       await tester.tap(find.text('Admin'));
       await tester.pump();
-      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
       // FABs should NOT be visible on Admin Page
       expect(find.byIcon(Icons.camera_alt), findsNothing);
@@ -133,10 +138,10 @@ void main() {
       // Switch to Admin Page
       await tester.tap(find.byType(HamburgerMenu));
       await tester.pump();
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(milliseconds: 300));
       await tester.tap(find.text('Admin'));
       await tester.pump();
-      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
       // FABs should be hidden
       expect(find.byIcon(Icons.camera_alt), findsNothing);
@@ -144,10 +149,10 @@ void main() {
       // Switch back to Home
       await tester.tap(find.byType(HamburgerMenu));
       await tester.pump();
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(milliseconds: 300));
       await tester.tap(find.text('Home'));
       await tester.pump();
-      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
       // FABs should reappear
       expect(find.byIcon(Icons.camera_alt), findsOneWidget);
