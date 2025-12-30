@@ -47,16 +47,15 @@ class BulkActions extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              if (selectedCount > 0)
-                ElevatedButton.icon(
-                  onPressed: () => _bulkArchive(context, ref),
-                  icon: const Icon(Icons.archive),
-                  label: const Text('Archive Selected'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                  ),
+              ElevatedButton.icon(
+                onPressed: selectedCount > 0 ? () => _bulkArchive(context, ref) : null,
+                icon: const Icon(Icons.archive),
+                label: const Text('Archive Selected'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
                 ),
+              ),
             ],
           ],
         ),

@@ -29,14 +29,16 @@ Redesign button layout to swap "Bulk Archive" with "Cancel" and
 3. **Redesign button interaction** (bulk_actions.dart:30-60)
    - Initial state: Show "Bulk Archive" button only
    - Click "Bulk Archive": Hide it, show "Cancel" and "Archive Selected"
+   - "Archive Selected" initially disabled/grayed out (onPressed: null)
+   - As user selects items, "Archive Selected" becomes enabled
    - "Cancel" button exits selection mode (restores "Bulk Archive")
-   - "Archive Selected" performs the archive operation
    - No Spacer needed - buttons naturally flow left
 
 4. **Add test case** (test/widgets/bulk_actions_test.dart)
    - Test Bulk Archive button shown initially
    - Test Bulk Archive hidden when in selection mode
    - Test Cancel and Archive Selected appear in selection mode
+   - Test Archive Selected is disabled (onPressed: null) when no items selected
 
 5. **Test on mobile**
    - Verify all buttons visible on narrow screens
@@ -50,4 +52,6 @@ Redesign button layout to swap "Bulk Archive" with "Cancel" and
 ## Expected Result
 Compact mobile layout with button swap interaction:
 - Initial: "Bulk Archive" button
-- Selection mode: "Cancel" + "Archive Selected" buttons (no overflow)
+- Selection mode: "Cancel" + "Archive Selected" (disabled) buttons
+- As items selected: "Archive Selected" becomes enabled
+- No overflow on mobile screens

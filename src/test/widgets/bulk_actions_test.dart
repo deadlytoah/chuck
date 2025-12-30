@@ -60,12 +60,19 @@ void main() {
       // Bulk Archive button should be hidden
       expect(find.text('Bulk Archive'), findsNothing);
 
-      // Cancel and Archive Selected buttons should appear
+      // Cancel button should appear
       expect(find.text('Cancel'), findsOneWidget);
       expect(find.byIcon(Icons.close), findsOneWidget);
 
-      // Archive Selected appears only when items selected
-      // (not tested here as it requires selection state setup)
+      // Archive Selected should appear but be disabled (grayed out)
+      expect(find.text('Archive Selected'), findsOneWidget);
+      final archiveButton = tester.widget<ElevatedButton>(
+        find.ancestor(
+          of: find.text('Archive Selected'),
+          matching: find.byType(ElevatedButton),
+        ),
+      );
+      expect(archiveButton.onPressed, isNull); // Disabled when no items selected
     });
   });
 }
