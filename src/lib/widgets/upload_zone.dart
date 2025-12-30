@@ -135,39 +135,42 @@ class _UploadZoneState extends ConsumerState<UploadZone> {
                   onLeave: () => setState(() => isDragging = false),
                 ),
                 Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        CupertinoIcons.cloud_upload,
-                        size: 64,
-                        color: isDragging ? CupertinoColors.activeBlue : CupertinoColors.systemGrey,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Drag & drop images here',
-                        style: TextStyle(
-                          fontSize: 18,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          CupertinoIcons.cloud_upload,
+                          size: 64,
                           color: isDragging ? CupertinoColors.activeBlue : CupertinoColors.systemGrey,
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text('or', style: TextStyle(color: CupertinoColors.systemGrey)),
-                      const SizedBox(height: 8),
-                      CupertinoButton(
-                        color: CupertinoColors.activeBlue,
-                        borderRadius: BorderRadius.circular(8),
-                        onPressed: _pickFiles,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Icon(CupertinoIcons.folder, color: CupertinoColors.white),
-                            SizedBox(width: 8),
-                            Text('Choose Images'),
-                          ],
+                        const SizedBox(height: 16),
+                        Text(
+                          'Drag & drop images here',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: isDragging ? CupertinoColors.activeBlue : CupertinoColors.systemGrey,
+                          ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 8),
+                        Text('or', style: TextStyle(color: CupertinoColors.systemGrey)),
+                        const SizedBox(height: 8),
+                        CupertinoButton(
+                          color: CupertinoColors.activeBlue,
+                          borderRadius: BorderRadius.circular(8),
+                          onPressed: _pickFiles,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Icon(CupertinoIcons.folder, color: CupertinoColors.white),
+                              SizedBox(width: 8),
+                              Text('Choose Images'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

@@ -72,8 +72,8 @@ void main() {
         ),
       );
 
-      // Initial loading state should show CircularProgressIndicator
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      // Initial loading state should show CupertinoActivityIndicator
+      expect(find.byType(CupertinoActivityIndicator), findsOneWidget);
       expect(find.text('Camera permission denied'), findsNothing);
     });
 
@@ -180,11 +180,11 @@ void main() {
       await tester.tap(find.text('Open Camera'));
       await tester.pumpAndSettle();
 
-      // Find back button (IconButton with arrow_back icon)
-      expect(find.byIcon(Icons.arrow_back), findsOneWidget);
+      // Find back button (CupertinoButton with back icon)
+      expect(find.byIcon(CupertinoIcons.back), findsOneWidget);
 
       // Tap back button
-      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.tap(find.byIcon(CupertinoIcons.back));
       await tester.pumpAndSettle();
 
       // Should navigate back - camera screen gone
@@ -217,7 +217,7 @@ void main() {
       await tester.pump();
       await tester.pump();
 
-      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.byType(CupertinoAlertDialog), findsOneWidget);
       expect(find.text('Camera Access Required'), findsOneWidget);
       expect(find.text('Camera access is needed to take photos of items.'), findsOneWidget);
       expect(find.text('Go to Settings'), findsOneWidget);
