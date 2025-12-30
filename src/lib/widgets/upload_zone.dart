@@ -154,7 +154,14 @@ class _UploadZoneState extends ConsumerState<UploadZone> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Text('or', style: TextStyle(color: CupertinoColors.systemGrey)),
+                        Builder(
+                          builder: (context) => Text(
+                            'or',
+                            style: TextStyle(
+                              color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         CupertinoButton(
                           color: CupertinoColors.activeBlue,
@@ -202,16 +209,17 @@ class _UploadProgressList extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: CupertinoColors.systemBackground,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: CupertinoColors.systemGrey4,
-              width: 1,
+        Builder(
+          builder: (context) => Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: CupertinoColors.systemBackground.resolveFrom(context),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: CupertinoColors.separator.resolveFrom(context),
+                width: 1,
+              ),
             ),
-          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -236,12 +244,18 @@ class _UploadProgressList extends ConsumerWidget {
                 value: items.isEmpty ? 0 : completed / items.length,
               ),
               const SizedBox(height: 8),
-              Text(
-                'In progress: $inProgress | Failed: $failed',
-                style: const TextStyle(fontSize: 12, color: CupertinoColors.systemGrey),
+              Builder(
+                builder: (context) => Text(
+                  'In progress: $inProgress | Failed: $failed',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                  ),
+                ),
               ),
             ],
           ),
+        ),
         ),
         const SizedBox(height: 16),
         SizedBox(
@@ -298,10 +312,10 @@ class _UploadThumbnail extends StatelessWidget {
       width: 120,
       margin: const EdgeInsets.only(right: 8),
       decoration: BoxDecoration(
-        color: CupertinoColors.systemBackground,
+        color: CupertinoColors.systemBackground.resolveFrom(context),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: CupertinoColors.systemGrey4,
+          color: CupertinoColors.separator.resolveFrom(context),
           width: 1,
         ),
       ),

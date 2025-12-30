@@ -49,13 +49,17 @@ class _ItemCardState extends ConsumerState<ItemCard> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: CupertinoColors.systemBackground,
+        color: CupertinoColors.secondarySystemBackground.resolveFrom(context),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: CupertinoColors.separator.resolveFrom(context),
+          width: 0.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: CupertinoColors.systemGrey.withOpacity(0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: CupertinoColors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
@@ -122,9 +126,9 @@ class _ItemCardState extends ConsumerState<ItemCard> {
                         const SizedBox(height: 4),
                         Text(
                           widget.item.notes!,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
-                            color: CupertinoColors.systemGrey,
+                            color: CupertinoColors.secondaryLabel.resolveFrom(context),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -149,11 +153,11 @@ class _ItemCardState extends ConsumerState<ItemCard> {
                     decoration: BoxDecoration(
                       color: widget.isSelected
                           ? CupertinoColors.activeBlue
-                          : CupertinoColors.white,
+                          : CupertinoColors.secondarySystemBackground.resolveFrom(context),
                       border: Border.all(
                         color: widget.isSelected
                             ? CupertinoColors.activeBlue
-                            : CupertinoColors.systemGrey3,
+                            : CupertinoColors.systemGrey3.resolveFrom(context),
                         width: 2,
                       ),
                       borderRadius: BorderRadius.circular(14),
@@ -270,4 +274,3 @@ class _StateChip extends StatelessWidget {
     );
   }
 }
-

@@ -25,10 +25,10 @@ class FilterBar extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: CupertinoColors.systemBackground,
+        color: CupertinoColors.secondarySystemBackground.resolveFrom(context),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: CupertinoColors.systemGrey4,
+          color: CupertinoColors.separator.resolveFrom(context),
           width: 1,
         ),
       ),
@@ -43,13 +43,13 @@ class FilterBar extends ConsumerWidget {
                   'Filter',
                   style: TextStyle(
                     fontSize: 12,
-                    color: CupertinoColors.systemGrey,
+                    color: CupertinoColors.secondaryLabel.resolveFrom(context),
                   ),
                 ),
                 const SizedBox(height: 4),
                 CupertinoButton(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  color: CupertinoColors.systemGrey6,
+                  color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
                   borderRadius: BorderRadius.circular(8),
                   onPressed: () => _showFilterPicker(context, ref),
                   child: Row(
@@ -58,16 +58,16 @@ class FilterBar extends ConsumerWidget {
                       Expanded(
                         child: Text(
                           _getFilterLabel(filter),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
-                            color: CupertinoColors.label,
+                            color: CupertinoColors.label.resolveFrom(context),
                           ),
                         ),
                       ),
-                      const Icon(
+                      Icon(
                         CupertinoIcons.chevron_down,
                         size: 16,
-                        color: CupertinoColors.systemGrey,
+                        color: CupertinoColors.secondaryLabel.resolveFrom(context),
                       ),
                     ],
                   ),
@@ -85,13 +85,13 @@ class FilterBar extends ConsumerWidget {
                   'Sort',
                   style: TextStyle(
                     fontSize: 12,
-                    color: CupertinoColors.systemGrey,
+                    color: CupertinoColors.secondaryLabel.resolveFrom(context),
                   ),
                 ),
                 const SizedBox(height: 4),
                 CupertinoButton(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  color: CupertinoColors.systemGrey6,
+                  color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
                   borderRadius: BorderRadius.circular(8),
                   onPressed: () => _showSortPicker(context, ref),
                   child: Row(
@@ -100,16 +100,16 @@ class FilterBar extends ConsumerWidget {
                       Expanded(
                         child: Text(
                           _getSortLabel(sort),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
-                            color: CupertinoColors.label,
+                            color: CupertinoColors.label.resolveFrom(context),
                           ),
                         ),
                       ),
-                      const Icon(
+                      Icon(
                         CupertinoIcons.chevron_down,
                         size: 16,
-                        color: CupertinoColors.systemGrey,
+                        color: CupertinoColors.secondaryLabel.resolveFrom(context),
                       ),
                     ],
                   ),

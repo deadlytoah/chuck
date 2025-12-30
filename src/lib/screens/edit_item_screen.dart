@@ -70,12 +70,12 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
               ),
               const SizedBox(height: 24),
               if (!isArchived) ...[
-                const Text(
+                Text(
                   'State',
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w600,
-                    color: CupertinoColors.label,
+                    color: CupertinoColors.label.resolveFrom(context),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -87,7 +87,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: CupertinoColors.systemGrey6,
+                      color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(
@@ -95,12 +95,15 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                       children: [
                         Text(
                           selectedState,
-                          style: const TextStyle(fontSize: 17),
+                          style: TextStyle(
+                            fontSize: 17,
+                            color: CupertinoColors.label.resolveFrom(context),
+                          ),
                         ),
-                        const Icon(
+                        Icon(
                           CupertinoIcons.chevron_down,
                           size: 20,
-                          color: CupertinoColors.systemGrey,
+                          color: CupertinoColors.secondaryLabel.resolveFrom(context),
                         ),
                       ],
                     ),
@@ -108,12 +111,12 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                 ),
                 const SizedBox(height: 24),
               ],
-              const Text(
+              Text(
                 'Notes',
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
-                  color: CupertinoColors.label,
+                  color: CupertinoColors.label.resolveFrom(context),
                 ),
               ),
               const SizedBox(height: 8),
@@ -124,7 +127,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
                 minLines: 5,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: CupertinoColors.systemGrey6,
+                  color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),

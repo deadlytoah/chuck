@@ -62,7 +62,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: CupertinoColors.systemBackground,
+                    color: CupertinoColors.secondarySystemBackground.resolveFrom(context),
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
