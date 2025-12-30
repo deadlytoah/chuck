@@ -103,6 +103,7 @@ class QueueReviewScreen extends ConsumerWidget {
                       if (uploadingPhotos.isNotEmpty) ...[
                         _buildSectionHeader('Uploading', uploadingPhotos.length),
                         ...uploadingPhotos.map((photo) => _buildPhotoItem(
+                              context,
                               photo,
                               CupertinoIcons.cloud_upload,
                               CupertinoColors.activeBlue,
@@ -113,6 +114,7 @@ class QueueReviewScreen extends ConsumerWidget {
                       if (pendingPhotos.isNotEmpty) ...[
                         _buildSectionHeader('Pending', pendingPhotos.length),
                         ...pendingPhotos.map((photo) => _buildPhotoItem(
+                              context,
                               photo,
                               CupertinoIcons.clock,
                               CupertinoColors.systemGrey,
@@ -123,6 +125,7 @@ class QueueReviewScreen extends ConsumerWidget {
                       if (retryingPhotos.isNotEmpty) ...[
                         _buildSectionHeader('Retrying', retryingPhotos.length),
                         ...retryingPhotos.map((photo) => _buildPhotoItem(
+                              context,
                               photo,
                               CupertinoIcons.refresh,
                               CupertinoColors.systemOrange,
@@ -133,6 +136,7 @@ class QueueReviewScreen extends ConsumerWidget {
                       if (failedPhotos.isNotEmpty) ...[
                         _buildSectionHeader('Failed', failedPhotos.length),
                         ...failedPhotos.map((photo) => _buildPhotoItem(
+                              context,
                               photo,
                               CupertinoIcons.exclamationmark_circle,
                               CupertinoColors.systemRed,
@@ -162,6 +166,7 @@ class QueueReviewScreen extends ConsumerWidget {
   }
 
   Widget _buildPhotoItem(
+    BuildContext context,
     QueuedPhoto photo,
     IconData icon,
     Color color,
