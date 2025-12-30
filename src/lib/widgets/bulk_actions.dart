@@ -37,9 +37,7 @@ class BulkActions extends ConsumerWidget {
                     : Icons.check_box_outline_blank,
               ),
               label: Text(
-                selectionState.isSelectionMode
-                    ? 'Exit Selection Mode'
-                    : 'Bulk Archive',
+                selectionState.isSelectionMode ? 'Cancel' : 'Archive',
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: selectionState.isSelectionMode

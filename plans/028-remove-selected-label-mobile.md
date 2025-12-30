@@ -27,16 +27,21 @@ archive button
    - Users can exit selection mode to clear instead
    - Simplifies layout to just Exit and Archive buttons
 
-3. **Update layout spacing**
-   - Keep Spacer() between Exit button and Archive button
+3. **Shorten button labels** (bulk_actions.dart:40)
+   - "Bulk Archive" => "Archive"
+   - "Exit Selection Mode" => "Cancel"
+   - Reduces button width significantly
+
+4. **Update layout spacing**
+   - Keep Spacer() between buttons
    - Minimal elements for maximum mobile space
 
-4. **Add test case** (test/widgets/bulk_actions_test.dart)
+5. **Add test case** (test/widgets/bulk_actions_test.dart)
    - Test that selection count text is not present in widget tree
    - Test that Clear button is not present
    - Verify Archive button is rendered when items selected
 
-5. **Test on mobile**
+6. **Test on mobile**
    - Verify all buttons visible on narrow screens
    - Ensure button text doesn't wrap/truncate
    - Check spacing is adequate for touch targets
@@ -46,5 +51,7 @@ archive button
 - `src/test/widgets/bulk_actions_test.dart` (new test case)
 
 ## Expected Result
-Archive button visible on mobile with simplified layout: Exit button
-on left, Archive button on right, no overflow.
+Archive button visible on mobile with compact layout:
+- Initial: "Archive" button (enters selection mode)
+- Selection mode: "Cancel" button (left), "Archive X items" (right)
+- No overflow on narrow mobile screens

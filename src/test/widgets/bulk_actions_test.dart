@@ -25,7 +25,7 @@ void main() {
       expect(find.text('Clear'), findsNothing);
     });
 
-    testWidgets('Shows Bulk Archive button initially',
+    testWidgets('Shows Archive button initially',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
@@ -37,12 +37,11 @@ void main() {
         ),
       );
 
-      expect(find.text('Bulk Archive'), findsOneWidget);
+      expect(find.text('Archive'), findsOneWidget);
       expect(find.byIcon(Icons.check_box_outline_blank), findsOneWidget);
     });
 
-    testWidgets('Shows Exit Selection Mode when activated',
-        (WidgetTester tester) async {
+    testWidgets('Shows Cancel when activated', (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
           child: MaterialApp(
@@ -54,10 +53,10 @@ void main() {
       );
 
       // Tap to enter selection mode
-      await tester.tap(find.text('Bulk Archive'));
+      await tester.tap(find.text('Archive'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Exit Selection Mode'), findsOneWidget);
+      expect(find.text('Cancel'), findsOneWidget);
       expect(find.byIcon(Icons.check_box), findsOneWidget);
     });
   });
