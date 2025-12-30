@@ -55,8 +55,12 @@ class BulkArchiveResult {
 
   factory BulkArchiveResult.fromJson(Map<String, dynamic> json) {
     return BulkArchiveResult(
-      archived: List<String>.from(json['archived'] as List),
-      failed: List<String>.from(json['failed'] as List),
+      archived: json['archived'] != null
+          ? List<String>.from(json['archived'] as List)
+          : [],
+      failed: json['failed'] != null
+          ? List<String>.from(json['failed'] as List)
+          : [],
     );
   }
 }
