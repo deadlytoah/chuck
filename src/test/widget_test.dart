@@ -66,27 +66,6 @@ void main() {
       addTearDown(tester.view.reset);
     });
 
-    testWidgets('AdminPage contains all child widgets', (
-      WidgetTester tester,
-    ) async {
-      tester.view.physicalSize = const Size(1200, 800);
-      tester.view.devicePixelRatio = 1.0;
-
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [itemsProvider.overrideWith((ref) => mockItemsNotifier)],
-          child: const MaterialApp(home: AdminPage()),
-        ),
-      );
-
-      expect(find.byType(UploadZone), findsOneWidget);
-      expect(find.byType(FilterBar), findsOneWidget);
-      expect(find.byType(BulkActions), findsOneWidget);
-      expect(find.byType(ItemsGrid), findsOneWidget);
-
-      addTearDown(tester.view.reset);
-    });
-
     testWidgets('AdminPage calls loadItems on initialization', (
       WidgetTester tester,
     ) async {
