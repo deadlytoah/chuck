@@ -3,6 +3,7 @@ import 'package:flutter/widget_previews.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/item.dart';
 import '../providers/app_providers.dart';
+import '../screens/edit_item_screen.dart';
 
 @Preview()
 Widget itemCardPreview() {
@@ -64,7 +65,7 @@ class _ItemCardState extends ConsumerState<ItemCard> {
             ? () => ref
                 .read(selectionProvider.notifier)
                 .toggleItem(widget.item.itemId)
-            : () => _showEditDialog(context, ref),
+            : () => _navigateToEditScreen(context),
         child: Stack(
           children: [
             Column(
@@ -219,10 +220,12 @@ class _ItemCardState extends ConsumerState<ItemCard> {
     }
   }
 
-  void _showEditDialog(BuildContext context, WidgetRef ref) {
-    showCupertinoDialog(
-      context: context,
-      builder: (context) => _EditItemDialog(item: widget.item),
+  void _navigateToEditScreen(BuildContext context) {
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+        builder: (context) => EditItemScreen(item: widget.item),
+      ),
     );
   }
 }
@@ -265,228 +268,5 @@ class _StateChip extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class _EditItemDialog extends ConsumerStatefulWidget {
-  final Item item;
-
-  const _EditItemDialog({required this.item});
-
-  @override
-  ConsumerState<_EditItemDialog> createState() => _EditItemDialogState();
-}
-
-class _EditItemDialogState extends ConsumerState<_EditItemDialog> {
-  late String selectedState;
-  late TextEditingController commentController;
-
-  @override
-  void initState() {
-    super.initState();
-    selectedState = widget.item.state;
-    commentController = TextEditingController(text: widget.item.notes ?? '');
-  }
-
-  @override
-  void dispose() {
-    commentController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isArchived = widget.item.archived;
-    final states = ['Unanswered', 'Chuck', 'Keep', 'Sell', 'Undecided'];
-    final stateIndex = states.indexOf(selectedState);
-
-    return CupertinoAlertDialog(
-      title: const Text('Edit Item'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const SizedBox(height: 16),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.network(widget.item.imageUrl, fit: BoxFit.contain),
-          ),
-          const SizedBox(height: 16),
-          if (!isArchived) ...[
-            const Text(
-              'State',
-              style: TextStyle(
-                fontSize: 13,
-                color: CupertinoColors.secondaryLabel,
-              ),
-            ),
-            const SizedBox(height: 8),
-            GestureDetector(
-              onTap: () => _showStatePicker(context, states, stateIndex),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  border: Border.all(color: CupertinoColors.systemGrey4),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      selectedState,
-                      style: const TextStyle(color: CupertinoColors.label),
-                    ),
-                    const Icon(
-                      CupertinoIcons.chevron_down,
-                      size: 16,
-                      color: CupertinoColors.systemGrey,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
-          const Text(
-            'Notes',
-            style: TextStyle(
-              fontSize: 13,
-              color: CupertinoColors.secondaryLabel,
-            ),
-          ),
-          const SizedBox(height: 8),
-          CupertinoTextField(
-            controller: commentController,
-            placeholder: 'Add notes...',
-            maxLines: 3,
-            padding: const EdgeInsets.all(12),
-          ),
-          if (isArchived) ...[
-            const SizedBox(height: 16),
-            CupertinoButton(
-              onPressed: () => _unarchive(),
-              color: CupertinoColors.activeBlue,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(CupertinoIcons.tray_arrow_up, size: 20),
-                  SizedBox(width: 8),
-                  Text('Unarchive'),
-                ],
-              ),
-            ),
-          ],
-        ],
-      ),
-      actions: [
-        CupertinoDialogAction(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-        CupertinoDialogAction(
-          isDefaultAction: true,
-          onPressed: () => _save(),
-          child: const Text('Save'),
-        ),
-      ],
-    );
-  }
-
-  void _showStatePicker(BuildContext context, List<String> states, int initialIndex) {
-    showCupertinoModalPopup<void>(
-      context: context,
-      builder: (BuildContext context) => Container(
-        height: 216,
-        padding: const EdgeInsets.only(top: 6.0),
-        margin: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        color: CupertinoColors.systemBackground.resolveFrom(context),
-        child: SafeArea(
-          top: false,
-          child: CupertinoPicker(
-            magnification: 1.22,
-            squeeze: 1.2,
-            useMagnifier: true,
-            itemExtent: 32,
-            scrollController: FixedExtentScrollController(
-              initialItem: initialIndex >= 0 ? initialIndex : 0,
-            ),
-            onSelectedItemChanged: (int selectedItem) {
-              setState(() {
-                selectedState = states[selectedItem];
-              });
-            },
-            children: List<Widget>.generate(states.length, (int index) {
-              return Center(child: Text(states[index]));
-            }),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _save() async {
-    try {
-      await ref.read(itemsProvider.notifier).updateItem(
-            widget.item.itemId,
-            state: selectedState != widget.item.state ? selectedState : null,
-            notes: commentController.text != widget.item.notes
-                ? commentController.text
-                : null,
-          );
-
-      if (mounted) {
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      print('Update item error: $e');
-      if (mounted) {
-        showCupertinoDialog<void>(
-          context: context,
-          builder: (context) => CupertinoAlertDialog(
-            title: const Text('Error'),
-            content: const Text('Unable to update item'),
-            actions: [
-              CupertinoDialogAction(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
-      }
-    }
-  }
-
-  void _unarchive() async {
-    try {
-      await ref.read(itemsProvider.notifier).unarchiveItem(widget.item.itemId);
-
-      if (mounted) {
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      print('Unarchive item error: $e');
-      if (mounted) {
-        showCupertinoDialog<void>(
-          context: context,
-          builder: (context) => CupertinoAlertDialog(
-            title: const Text('Error'),
-            content: const Text('Unable to unarchive item'),
-            actions: [
-              CupertinoDialogAction(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
-      }
-    }
   }
 }

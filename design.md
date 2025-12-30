@@ -30,8 +30,7 @@ the AppBar. Default: Main View tab with "ALL" filter, sorted by
 updatedAt descending.
 
 **Main View:**
-- Grid view using thumbnail images, with token-based pagination. A future
-  detail view will use full-size images.
+- Grid view using thumbnail images, with token-based pagination.
 - Sort: by `createdAt`, `updatedAt` or `state`
 - Filter: by state (Chuck, Keep, Sell, Undecided, Unanswered). The "ALL"
   filter excludes archived items.
@@ -40,23 +39,25 @@ updatedAt descending.
 - Archive button per item. Archived items retain their last known state.
 - State selection available to all users
 
-**Detail View:**
+**Edit Item Screen:**
+- Separate screen (not dialog) accessed by tapping an item card
 - View full-size images
-- Add and edit multi-line notes about an item
+- Edit state (Chuck, Keep, Sell, Undecided, Unanswered)
+- Add and edit multi-line notes
 
 **Admin Page:**
 - All users have permission to perform all actions, including admin tasks.
 - Insert items: image upload (drag-drop/picker). Supports sequential
   file uploads with an overall progress indicator and thumbnail
   previews. Failed uploads auto-retry with exponential backoff.
-- Update items: modify state and notes only. Images are immutable
-  after creation.
+- Update items: modify state and notes via Edit Item Screen. Images
+  are immutable after creation.
 - Bulk archive: toggle button activates checkbox selection mode.
   Supports up to 25 items per batch. Partial success acceptable with
   failure indicators.
 - Archive individual items via archive button
 - Unarchive items: access archived items via main grid filter="archived",
-  then unarchive using item update interface
+  then unarchive using Edit Item Screen
 
 **In-App Camera (iOS only):**
 
