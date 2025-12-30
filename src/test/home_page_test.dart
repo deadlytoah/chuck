@@ -142,6 +142,7 @@ void main() {
       await tester.tap(find.text('Admin'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump();  // Ensure menu close completes
 
       // FABs should be hidden
       expect(find.byIcon(Icons.camera_alt), findsNothing);
