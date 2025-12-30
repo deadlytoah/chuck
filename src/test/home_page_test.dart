@@ -64,10 +64,9 @@ void main() {
       expect(find.text('2'), findsOneWidget);
       expect(find.byType(FloatingActionButton), findsNWidgets(2));
 
-      // Allow MainView's async loadItems and FailedUploadBanner timer to complete
-      await tester.runAsync(() async {
-        await Future.delayed(const Duration(seconds: 3));
-      });
+      // Wait for FailedUploadBanner's 2s timer to complete
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pump();
     });
 
     testWidgets('Camera FAB is always visible', (
@@ -143,7 +142,8 @@ void main() {
       await tester.tap(find.text('Admin'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
-      await tester.pump();  // Ensure menu close completes
+      await tester.pump();
+      await tester.pump();  // Extra pump for overlay removal callback
 
       // FABs should be hidden
       expect(find.byIcon(Icons.camera_alt), findsNothing);
