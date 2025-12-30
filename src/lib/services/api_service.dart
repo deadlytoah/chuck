@@ -136,7 +136,7 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body) as Map<String, dynamic>;
-      return BulkArchiveResult.fromJson(json);
+      return BulkArchiveResult.fromJson(json['data']);
     } else {
       throw Exception('Failed to bulk archive: ${response.statusCode}');
     }
