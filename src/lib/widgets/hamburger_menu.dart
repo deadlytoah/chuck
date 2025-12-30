@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 class HamburgerMenu extends StatefulWidget {
   final int selectedIndex;
@@ -81,7 +81,9 @@ class _HamburgerMenuState extends State<HamburgerMenu>
                 onTap: _closeMenu,
                 child: FadeTransition(
                   opacity: _controller,
-                  child: Container(color: Colors.black.withOpacity(0.5)),
+                  child: Container(
+                    color: CupertinoColors.black.withOpacity(0.5),
+                  ),
                 ),
               ),
             ),
@@ -94,21 +96,32 @@ class _HamburgerMenuState extends State<HamburgerMenu>
                 offset: const Offset(-152, 48),
                 child: FadeTransition(
                   opacity: _controller,
-                  child: Material(
-                    elevation: 8,
-                    borderRadius: BorderRadius.circular(8),
-                    color: Theme.of(context).cardColor,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: CupertinoColors.systemBackground,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: CupertinoColors.black.withOpacity(0.2),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         _buildMenuItem(
-                          icon: Icons.home,
+                          icon: CupertinoIcons.home,
                           label: 'Home',
                           index: 0,
                         ),
-                        const Divider(height: 1),
+                        Container(
+                          height: 1,
+                          color: CupertinoColors.separator,
+                        ),
                         _buildMenuItem(
-                          icon: Icons.settings,
+                          icon: CupertinoIcons.settings,
                           label: 'Admin',
                           index: 1,
                         ),
@@ -130,27 +143,37 @@ class _HamburgerMenuState extends State<HamburgerMenu>
     required int index,
   }) {
     final isSelected = widget.selectedIndex == index;
-    final colorScheme = Theme.of(context).colorScheme;
 
-    return InkWell(
+    return GestureDetector(
       onTap: () {
         widget.onItemSelected(index);
         _closeMenu();
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        color: isSelected ? colorScheme.primaryContainer : null,
+        decoration: BoxDecoration(
+          color: isSelected
+              ? CupertinoColors.activeBlue.withOpacity(0.1)
+              : null,
+          borderRadius: BorderRadius.circular(
+            index == 0 ? 12 : 0,
+          ),
+        ),
         child: Row(
           children: [
             Icon(
               icon,
-              color: isSelected ? colorScheme.primary : colorScheme.onSurface,
+              color: isSelected
+                  ? CupertinoColors.activeBlue
+                  : CupertinoColors.label,
             ),
             const SizedBox(width: 12),
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? colorScheme.primary : colorScheme.onSurface,
+                color: isSelected
+                    ? CupertinoColors.activeBlue
+                    : CupertinoColors.label,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
@@ -164,12 +187,17 @@ class _HamburgerMenuState extends State<HamburgerMenu>
   Widget build(BuildContext context) {
     return CompositedTransformTarget(
       link: _layerLink,
-      child: IconButton(
-        icon: AnimatedIcon(
-          icon: AnimatedIcons.menu_close,
-          progress: _controller,
-        ),
+      child: CupertinoButton(
+        padding: const EdgeInsets.all(12),
         onPressed: _toggleMenu,
+        child: AnimatedRotation(
+          turns: _isOpen ? 0.25 : 0,
+          duration: const Duration(milliseconds: 300),
+          child: const Icon(
+            CupertinoIcons.line_horizontal_3,
+            size: 24,
+          ),
+        ),
       ),
     );
   }

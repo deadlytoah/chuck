@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/queued_photo.dart';
 import '../providers/app_providers.dart';
@@ -17,21 +17,28 @@ class QueueReviewScreen extends ConsumerWidget {
     final failedPhotos = queue.where((p) => p.state == PhotoState.failed).toList();
     final uploadingPhotos = queue.where((p) => p.state == PhotoState.uploading).toList();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Upload Queue'),
+    return CupertinoPageScaffold(
+      navigationBar: const CupertinoNavigationBar(
+        middle: Text('Upload Queue'),
       ),
-      body: queue.isEmpty
-          ? const Center(
-              child: Text('No photos in queue'),
-            )
-          : Column(
-              children: [
+      child: SafeArea(
+        child: queue.isEmpty
+            ? const Center(
+                child: Text('No photos in queue'),
+              )
+            : Column(
+                children: [
                 if (failedPhotos.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Card(
-                      color: Colors.orange.shade50,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: CupertinoColors.systemOrange.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: CupertinoColors.systemOrange.withOpacity(0.3),
+                        ),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Column(
@@ -39,13 +46,16 @@ class QueueReviewScreen extends ConsumerWidget {
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.warning, color: Colors.orange.shade700),
+                                const Icon(
+                                  CupertinoIcons.exclamationmark_triangle,
+                                  color: CupertinoColors.systemOrange,
+                                ),
                                 const SizedBox(width: 8),
                                 Text(
                                   '${failedPhotos.length} failed upload${failedPhotos.length == 1 ? '' : 's'}',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.orange.shade900,
+                                    color: CupertinoColors.systemOrange,
                                   ),
                                 ),
                               ],
@@ -53,20 +63,30 @@ class QueueReviewScreen extends ConsumerWidget {
                             const SizedBox(height: 8),
                             const Text(
                               'Check your WiFi connection and retry.',
-                              style: TextStyle(fontSize: 12),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: CupertinoColors.systemGrey,
+                              ),
                             ),
                             const SizedBox(height: 8),
-                            ElevatedButton.icon(
+                            CupertinoButton(
                               onPressed: () {
                                 for (final photo in failedPhotos) {
                                   queueService.retryFailed(photo.id);
                                 }
                               },
-                              icon: const Icon(Icons.refresh, size: 18),
-                              label: const Text('Retry All'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.orange.shade700,
-                                foregroundColor: Colors.white,
+                              color: CupertinoColors.systemOrange,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(CupertinoIcons.refresh, size: 18),
+                                  SizedBox(width: 8),
+                                  Text('Retry All'),
+                                ],
                               ),
                             ),
                           ],
@@ -82,8 +102,8 @@ class QueueReviewScreen extends ConsumerWidget {
                         _buildSectionHeader('Uploading', uploadingPhotos.length),
                         ...uploadingPhotos.map((photo) => _buildPhotoItem(
                               photo,
-                              Icons.cloud_upload,
-                              Colors.blue,
+                              CupertinoIcons.cloud_upload,
+                              CupertinoColors.activeBlue,
                               queueService,
                             )),
                         const SizedBox(height: 16),
@@ -92,8 +112,8 @@ class QueueReviewScreen extends ConsumerWidget {
                         _buildSectionHeader('Pending', pendingPhotos.length),
                         ...pendingPhotos.map((photo) => _buildPhotoItem(
                               photo,
-                              Icons.schedule,
-                              Colors.grey,
+                              CupertinoIcons.clock,
+                              CupertinoColors.systemGrey,
                               queueService,
                             )),
                         const SizedBox(height: 16),
@@ -102,8 +122,8 @@ class QueueReviewScreen extends ConsumerWidget {
                         _buildSectionHeader('Failed', failedPhotos.length),
                         ...failedPhotos.map((photo) => _buildPhotoItem(
                               photo,
-                              Icons.error,
-                              Colors.red,
+                              CupertinoIcons.exclamationmark_circle,
+                              CupertinoColors.systemRed,
                               queueService,
                               showRetry: true,
                             )),
@@ -113,6 +133,7 @@ class QueueReviewScreen extends ConsumerWidget {
                 ),
               ],
             ),
+      ),
     );
   }
 
@@ -136,38 +157,75 @@ class QueueReviewScreen extends ConsumerWidget {
     dynamic queueService, {
     bool showRetry = false,
   }) {
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 8.0),
-      child: ListTile(
-        leading: SizedBox(
-          width: 50,
-          height: 50,
-          child: File(photo.path).existsSync()
-              ? Image.file(
-                  File(photo.path),
-                  fit: BoxFit.cover,
-                )
-              : Container(
-                  color: Colors.grey.shade300,
-                  child: const Icon(Icons.image),
-                ),
+      decoration: BoxDecoration(
+        color: CupertinoColors.systemBackground,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: CupertinoColors.systemGrey.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: SizedBox(
+                width: 50,
+                height: 50,
+                child: File(photo.path).existsSync()
+                    ? Image.file(
+                        File(photo.path),
+                        fit: BoxFit.cover,
+                      )
+                    : Container(
+                        color: CupertinoColors.systemGrey5,
+                        child: const Icon(
+                          CupertinoIcons.photo,
+                          color: CupertinoColors.systemGrey,
+                        ),
+                      ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    photo.path.split('/').last,
+                    style: const TextStyle(fontSize: 14),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _formatTimestamp(photo.timestamp),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: CupertinoColors.systemGrey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            showRetry
+                ? CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: () => queueService.retryFailed(photo.id),
+                    child: const Icon(
+                      CupertinoIcons.refresh,
+                      color: CupertinoColors.activeBlue,
+                    ),
+                  )
+                : Icon(icon, color: color),
+          ],
         ),
-        title: Text(
-          photo.path.split('/').last,
-          style: const TextStyle(fontSize: 14),
-          overflow: TextOverflow.ellipsis,
-        ),
-        subtitle: Text(
-          _formatTimestamp(photo.timestamp),
-          style: const TextStyle(fontSize: 12),
-        ),
-        trailing: showRetry
-            ? IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: () => queueService.retryFailed(photo.id),
-                tooltip: 'Retry',
-              )
-            : Icon(icon, color: color),
       ),
     );
   }
