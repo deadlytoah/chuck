@@ -58,6 +58,9 @@ void main() {
       expect(find.byType(QueueStatusButton), findsOneWidget);
       expect(find.text('2'), findsOneWidget);
       expect(find.byType(FloatingActionButton), findsNWidgets(2));
+
+      // Allow pending async operations to complete
+      await tester.pump();
     });
 
     testWidgets('Camera FAB is always visible', (
