@@ -73,6 +73,7 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
     : super(ItemsState(items: [], isLoading: false));
 
   Future<void> loadItems({String? filter, String? sort, int limit = 20}) async {
+    print('DEBUG loadItems: start, current items: ${state.items.map((i) => i.itemId).toList()}');
     final currentItems = state.items;
     state = state.copyWith(isLoading: true);
 
@@ -82,6 +83,7 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
       limit: limit,
     );
 
+    print('DEBUG loadItems: backend returned ${response.items.length} items');
     // Preserve items that were added locally but aren't in backend response yet
     final backendItemIds = response.items.map((item) => item.itemId).toSet();
     final localOnlyItems = currentItems.where((item) => !backendItemIds.contains(item.itemId)).toList();
@@ -89,11 +91,13 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
     // Merge: local-only items first, then backend items
     final mergedItems = [...localOnlyItems, ...response.items];
 
+    print('DEBUG loadItems: mergedItems: ${mergedItems.map((i) => i.itemId).toList()}');
     state = state.copyWith(
       items: mergedItems,
       nextToken: response.nextToken,
       isLoading: false,
     );
+    print('DEBUG loadItems: final items: ${state.items.map((i) => i.itemId).toList()}');
   }
 
   Future<void> loadMore({String? filter, String? sort}) async {
@@ -144,7 +148,9 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
   void addItem(Item item) {
     // Only add item if not archived (camera uploads are always non-archived)
     if (!item.archived) {
+      print('DEBUG addItem: adding ${item.itemId}, current items: ${state.items.map((i) => i.itemId).toList()}');
       state = state.copyWith(items: [item, ...state.items]);
+      print('DEBUG addItem: after add, items: ${state.items.map((i) => i.itemId).toList()}');
     }
   }
 }
