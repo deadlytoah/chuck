@@ -27,53 +27,35 @@ class BulkActions extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            ElevatedButton.icon(
-              onPressed: () {
-                ref.read(selectionProvider.notifier).toggleSelectionMode();
-              },
-              icon: Icon(
-                selectionState.isSelectionMode
-                    ? Icons.check_box
-                    : Icons.check_box_outline_blank,
+            if (!selectionState.isSelectionMode)
+              ElevatedButton.icon(
+                onPressed: () {
+                  ref.read(selectionProvider.notifier).toggleSelectionMode();
+                },
+                icon: const Icon(Icons.check_box_outline_blank),
+                label: const Text('Bulk Archive'),
               ),
-              label: Text(
-                selectionState.isSelectionMode
-                    ? 'Exit Selection Mode'
-                    : 'Bulk Archive',
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: selectionState.isSelectionMode
-                    ? Colors.orange
-                    : null,
-              ),
-            ),
             if (selectionState.isSelectionMode) ...[
-              const SizedBox(width: 16),
-              Text(
-                '$selectedCount selected (max 25)',
-                style: Theme.of(context).textTheme.titleMedium,
+              ElevatedButton.icon(
+                onPressed: selectedCount > 0 ? () => _bulkArchive(context, ref) : null,
+                icon: const Icon(Icons.archive),
+                label: const Text('Archive Selected'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
               ),
-              const Spacer(),
-              if (selectedCount > 0) ...[
-                TextButton(
-                  onPressed: () {
-                    ref.read(selectionProvider.notifier).clearSelection();
-                  },
-                  child: const Text('Clear'),
+              const SizedBox(width: 8),
+              ElevatedButton.icon(
+                onPressed: () {
+                  ref.read(selectionProvider.notifier).toggleSelectionMode();
+                },
+                icon: const Icon(Icons.close),
+                label: const Text('Cancel'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
                 ),
-                const SizedBox(width: 8),
-                ElevatedButton.icon(
-                  onPressed: selectedCount > 0
-                      ? () => _bulkArchive(context, ref)
-                      : null,
-                  icon: const Icon(Icons.archive),
-                  label: Text('Archive $selectedCount items'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                  ),
-                ),
-              ],
+              ),
             ],
           ],
         ),
