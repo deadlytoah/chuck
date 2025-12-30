@@ -13,9 +13,11 @@ class QueueReviewScreen extends ConsumerWidget {
     final queue = ref.watch(cameraQueueServiceProvider);
     final queueService = ref.read(cameraQueueServiceProvider.notifier);
 
-    final pendingPhotos = queue.where((p) => p.state == PhotoState.pending).toList();
+    final pendingPhotos = queue.where((p) => p.state == PhotoState.pending && p.retryCount == 0).toList();
+    final retryingPhotos = queue.where((p) => p.state == PhotoState.pending && p.retryCount > 0).toList();
     final failedPhotos = queue.where((p) => p.state == PhotoState.failed).toList();
     final uploadingPhotos = queue.where((p) => p.state == PhotoState.uploading).toList();
+    final hasRetriablePhotos = retryingPhotos.isNotEmpty || failedPhotos.isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(
@@ -27,7 +29,7 @@ class QueueReviewScreen extends ConsumerWidget {
             )
           : Column(
               children: [
-                if (failedPhotos.isNotEmpty)
+                if (hasRetriablePhotos)
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Card(
@@ -42,7 +44,7 @@ class QueueReviewScreen extends ConsumerWidget {
                                 Icon(Icons.warning, color: Colors.orange.shade700),
                                 const SizedBox(width: 8),
                                 Text(
-                                  '${failedPhotos.length} failed upload${failedPhotos.length == 1 ? '' : 's'}',
+                                  '${retryingPhotos.length + failedPhotos.length} upload${retryingPhotos.length + failedPhotos.length == 1 ? '' : 's'} ${failedPhotos.isNotEmpty ? 'failed' : 'retrying'}',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.orange.shade900,
@@ -58,7 +60,7 @@ class QueueReviewScreen extends ConsumerWidget {
                             const SizedBox(height: 8),
                             ElevatedButton.icon(
                               onPressed: () {
-                                for (final photo in failedPhotos) {
+                                for (final photo in [...retryingPhotos, ...failedPhotos]) {
                                   queueService.retryFailed(photo.id);
                                 }
                               },
@@ -94,6 +96,16 @@ class QueueReviewScreen extends ConsumerWidget {
                               photo,
                               Icons.schedule,
                               Colors.grey,
+                              queueService,
+                            )),
+                        const SizedBox(height: 16),
+                      ],
+                      if (retryingPhotos.isNotEmpty) ...[
+                        _buildSectionHeader('Retrying', retryingPhotos.length),
+                        ...retryingPhotos.map((photo) => _buildPhotoItem(
+                              photo,
+                              Icons.refresh,
+                              Colors.orange,
                               queueService,
                             )),
                         const SizedBox(height: 16),
