@@ -49,14 +49,7 @@ class BulkActions extends ConsumerWidget {
             ),
             if (selectionState.isSelectionMode) ...[
               const Spacer(),
-              if (selectedCount > 0) ...[
-                TextButton(
-                  onPressed: () {
-                    ref.read(selectionProvider.notifier).clearSelection();
-                  },
-                  child: const Text('Clear'),
-                ),
-                const SizedBox(width: 8),
+              if (selectedCount > 0)
                 ElevatedButton.icon(
                   onPressed: selectedCount > 0
                       ? () => _bulkArchive(context, ref)
@@ -68,7 +61,6 @@ class BulkActions extends ConsumerWidget {
                     foregroundColor: Colors.white,
                   ),
                 ),
-              ],
             ],
           ],
         ),
