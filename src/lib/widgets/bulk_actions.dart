@@ -37,6 +37,16 @@ class BulkActions extends ConsumerWidget {
               ),
             if (selectionState.isSelectionMode) ...[
               ElevatedButton.icon(
+                onPressed: selectedCount > 0 ? () => _bulkArchive(context, ref) : null,
+                icon: const Icon(Icons.archive),
+                label: const Text('Archive Selected'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton.icon(
                 onPressed: () {
                   ref.read(selectionProvider.notifier).toggleSelectionMode();
                 },
@@ -44,16 +54,6 @@ class BulkActions extends ConsumerWidget {
                 label: const Text('Cancel'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
-                ),
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton.icon(
-                onPressed: selectedCount > 0 ? () => _bulkArchive(context, ref) : null,
-                icon: const Icon(Icons.archive),
-                label: const Text('Archive Selected'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
                 ),
               ),
             ],
