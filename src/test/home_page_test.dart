@@ -143,7 +143,8 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump();
-      await tester.pump();  // Extra pump for overlay removal callback
+      await tester.pump();
+      await tester.pump();  // Ensure overlay fully removed
 
       // FABs should be hidden
       expect(find.byIcon(Icons.camera_alt), findsNothing);
