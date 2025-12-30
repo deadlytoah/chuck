@@ -177,7 +177,11 @@ void main() {
     testWidgets('Queue counter updates reactively when photos are added', (
       WidgetTester tester,
     ) async {
-      final container = ProviderContainer();
+      final container = ProviderContainer(
+        overrides: [
+          networkMonitorProvider.overrideWith((ref) => NetworkMonitor(skipInit: true)),
+        ],
+      );
       addTearDown(container.dispose);
 
       await tester.pumpWidget(
@@ -214,8 +218,6 @@ void main() {
 
       // Counter should still show 2 (pending + failed)
       expect(find.text('2'), findsOneWidget);
-
-      await tester.pumpAndSettle(const Duration(seconds: 3));
     });
   });
 }
