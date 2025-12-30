@@ -37,14 +37,15 @@ class MockCameraUploadService extends CameraUploadService {
   @override
   Future<Item> uploadPhoto(String path) async {
     uploadCallCount++;
+    final itemNumber = uploadCallCount;
     uploadedPaths.add(path);
     await Future.delayed(const Duration(milliseconds: 10));
     if (shouldFail) {
       throw Exception('Upload failed');
     }
     return Item(
-      itemId: 'test-item-${uploadCallCount}',
-      imageUrl: 'images/test-${uploadCallCount}/full.jpg',
+      itemId: 'test-item-$itemNumber',
+      imageUrl: 'images/test-$itemNumber/full.jpg',
       state: 'Unanswered',
       archived: false,
       createdAt: DateTime.now(),
