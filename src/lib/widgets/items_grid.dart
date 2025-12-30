@@ -34,7 +34,7 @@ class ItemsGrid extends ConsumerWidget {
     }
 
     final gridView = GridView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
       shrinkWrap: shrinkWrap,
       physics: shrinkWrap ? const NeverScrollableScrollPhysics() : null,
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
