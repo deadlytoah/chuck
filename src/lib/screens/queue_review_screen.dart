@@ -63,7 +63,7 @@ class QueueReviewScreen extends ConsumerWidget {
                                 }
                               },
                               icon: const Icon(Icons.refresh, size: 18),
-                              label: const Text('Retry All'),
+                              label: const Text('Retry'),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.orange.shade700,
                                 foregroundColor: Colors.white,
@@ -105,7 +105,6 @@ class QueueReviewScreen extends ConsumerWidget {
                               Icons.error,
                               Colors.red,
                               queueService,
-                              showRetry: true,
                             )),
                       ],
                     ],
@@ -133,9 +132,8 @@ class QueueReviewScreen extends ConsumerWidget {
     QueuedPhoto photo,
     IconData icon,
     Color color,
-    dynamic queueService, {
-    bool showRetry = false,
-  }) {
+    dynamic queueService,
+  ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 8.0),
       child: ListTile(
@@ -161,13 +159,7 @@ class QueueReviewScreen extends ConsumerWidget {
           _formatTimestamp(photo.timestamp),
           style: const TextStyle(fontSize: 12),
         ),
-        trailing: showRetry
-            ? IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: () => queueService.retryFailed(photo.id),
-                tooltip: 'Retry',
-              )
-            : Icon(icon, color: color),
+        trailing: Icon(icon, color: color),
       ),
     );
   }
