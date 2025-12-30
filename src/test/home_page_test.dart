@@ -64,9 +64,9 @@ void main() {
       expect(find.text('2'), findsOneWidget);
       expect(find.byType(FloatingActionButton), findsNWidgets(2));
 
-      // Allow MainView's async loadItems to complete
+      // Allow MainView's async loadItems and FailedUploadBanner timer to complete
       await tester.runAsync(() async {
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future.delayed(const Duration(seconds: 3));
       });
     });
 
@@ -119,6 +119,7 @@ void main() {
       await tester.tap(find.text('Admin'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump();  // Ensure menu close completes
 
       // FABs should NOT be visible on Admin Page
       expect(find.byIcon(Icons.camera_alt), findsNothing);
@@ -154,6 +155,7 @@ void main() {
       await tester.tap(find.text('Home'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump();  // Ensure menu close completes
 
       // FABs should reappear
       expect(find.byIcon(Icons.camera_alt), findsOneWidget);
