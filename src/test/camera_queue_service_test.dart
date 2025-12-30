@@ -62,6 +62,17 @@ class _MockApiService extends ApiService {
       'imageUrl': 'https://example.com/image.jpg'
     };
   }
+
+  @override
+  Future<ItemsResponse> getItems({
+    String? nextToken,
+    int limit = 20,
+    String? sort,
+    String? filter,
+  }) async {
+    // Return empty list - no items in backend yet
+    return ItemsResponse(items: [], nextToken: null);
+  }
 }
 
 class _MockImageService extends ImageService {
@@ -388,6 +399,7 @@ void main() {
   test('Upload success adds item to itemsProvider', () async {
     final mockUploadService = MockCameraUploadService();
     final mockNetworkMonitor = MockNetworkMonitor(NetworkType.wifi);
+    final mockApiService = _MockApiService();
 
     final testContainer = ProviderContainer(
       overrides: [
@@ -395,6 +407,7 @@ void main() {
         networkMonitorProvider.overrideWith(
           (ref) => mockNetworkMonitor,
         ),
+        apiServiceProvider.overrideWithValue(mockApiService),
       ],
     );
 
@@ -421,6 +434,7 @@ void main() {
   test('Multiple uploads add items in order to itemsProvider', () async {
     final mockUploadService = MockCameraUploadService();
     final mockNetworkMonitor = MockNetworkMonitor(NetworkType.wifi);
+    final mockApiService = _MockApiService();
 
     final testContainer = ProviderContainer(
       overrides: [
@@ -428,6 +442,7 @@ void main() {
         networkMonitorProvider.overrideWith(
           (ref) => mockNetworkMonitor,
         ),
+        apiServiceProvider.overrideWithValue(mockApiService),
       ],
     );
 
@@ -451,6 +466,7 @@ void main() {
     final mockUploadService = MockCameraUploadService();
     mockUploadService.shouldFail = true;
     final mockNetworkMonitor = MockNetworkMonitor(NetworkType.wifi);
+    final mockApiService = _MockApiService();
 
     final testContainer = ProviderContainer(
       overrides: [
@@ -458,6 +474,7 @@ void main() {
         networkMonitorProvider.overrideWith(
           (ref) => mockNetworkMonitor,
         ),
+        apiServiceProvider.overrideWithValue(mockApiService),
       ],
     );
 
