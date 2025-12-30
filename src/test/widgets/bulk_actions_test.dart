@@ -66,12 +66,18 @@ void main() {
 
       // Archive Selected should appear but be disabled (grayed out)
       expect(find.text('Archive Selected'), findsOneWidget);
-      final archiveButton = tester.widget<ElevatedButton>(
-        find.ancestor(
-          of: find.text('Archive Selected'),
-          matching: find.byType(ElevatedButton),
-        ),
+
+      // Verify the button with archive icon is disabled
+      final archiveIconButtons = find.byIcon(Icons.archive);
+      expect(archiveIconButtons, findsOneWidget);
+
+      final archiveButtonFinder = find.ancestor(
+        of: archiveIconButtons,
+        matching: find.byWidgetPredicate((w) => w is ElevatedButton),
       );
+      expect(archiveButtonFinder, findsOneWidget);
+
+      final archiveButton = tester.widget<ElevatedButton>(archiveButtonFinder);
       expect(archiveButton.onPressed, isNull); // Disabled when no items selected
     });
   });
