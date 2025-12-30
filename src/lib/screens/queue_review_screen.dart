@@ -63,11 +63,11 @@ class QueueReviewScreen extends ConsumerWidget {
                               ],
                             ),
                             const SizedBox(height: 8),
-                            const Text(
+                            Text(
                               'Check your WiFi connection and retry.',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: CupertinoColors.secondaryLabel,
+                                color: CupertinoColors.secondaryLabel.resolveFrom(context),
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -170,10 +170,10 @@ class QueueReviewScreen extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 8.0),
       decoration: BoxDecoration(
-        color: CupertinoColors.systemBackground,
+        color: CupertinoColors.systemBackground.resolveFrom(context),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: CupertinoColors.separator,
+          color: CupertinoColors.separator.resolveFrom(context),
           width: 0.5,
         ),
         boxShadow: [
@@ -220,9 +220,9 @@ class QueueReviewScreen extends ConsumerWidget {
                   const SizedBox(height: 4),
                   Text(
                     _formatTimestamp(photo.timestamp),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: CupertinoColors.secondaryLabel,
+                      color: CupertinoColors.secondaryLabel.resolveFrom(context),
                     ),
                   ),
                 ],

@@ -49,10 +49,10 @@ class _ItemCardState extends ConsumerState<ItemCard> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: CupertinoColors.systemBackground,
+        color: CupertinoColors.systemBackground.resolveFrom(context),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: CupertinoColors.separator,
+          color: CupertinoColors.separator.resolveFrom(context),
           width: 0.5,
         ),
         boxShadow: [
@@ -126,9 +126,9 @@ class _ItemCardState extends ConsumerState<ItemCard> {
                         const SizedBox(height: 4),
                         Text(
                           widget.item.notes!,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
-                            color: CupertinoColors.secondaryLabel,
+                            color: CupertinoColors.secondaryLabel.resolveFrom(context),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -153,11 +153,11 @@ class _ItemCardState extends ConsumerState<ItemCard> {
                     decoration: BoxDecoration(
                       color: widget.isSelected
                           ? CupertinoColors.activeBlue
-                          : CupertinoColors.secondarySystemBackground,
+                          : CupertinoColors.secondarySystemBackground.resolveFrom(context),
                       border: Border.all(
                         color: widget.isSelected
                             ? CupertinoColors.activeBlue
-                            : CupertinoColors.systemGrey3,
+                            : CupertinoColors.systemGrey3.resolveFrom(context),
                         width: 2,
                       ),
                       borderRadius: BorderRadius.circular(14),
