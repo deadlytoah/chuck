@@ -170,11 +170,11 @@ class QueueReviewScreen extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 8.0),
       decoration: BoxDecoration(
-        color: CupertinoColors.systemBackground,
+        color: CupertinoColors.secondarySystemBackground,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: CupertinoColors.systemGrey.withOpacity(0.2),
+            color: CupertinoColors.black.withOpacity(0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

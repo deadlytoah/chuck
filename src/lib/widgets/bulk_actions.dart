@@ -25,10 +25,10 @@ class BulkActions extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: CupertinoColors.systemBackground,
+        color: CupertinoColors.secondarySystemBackground,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: CupertinoColors.systemGrey4,
+          color: CupertinoColors.separator,
           width: 1,
         ),
       ),

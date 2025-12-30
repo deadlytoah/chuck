@@ -25,10 +25,10 @@ class FilterBar extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: CupertinoColors.systemBackground,
+        color: CupertinoColors.secondarySystemBackground,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: CupertinoColors.systemGrey4,
+          color: CupertinoColors.separator,
           width: 1,
         ),
       ),
@@ -49,7 +49,7 @@ class FilterBar extends ConsumerWidget {
                 const SizedBox(height: 4),
                 CupertinoButton(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  color: CupertinoColors.systemGrey6,
+                  color: CupertinoColors.tertiarySystemFill,
                   borderRadius: BorderRadius.circular(8),
                   onPressed: () => _showFilterPicker(context, ref),
                   child: Row(
@@ -67,7 +67,7 @@ class FilterBar extends ConsumerWidget {
                       const Icon(
                         CupertinoIcons.chevron_down,
                         size: 16,
-                        color: CupertinoColors.systemGrey,
+                        color: CupertinoColors.secondaryLabel,
                       ),
                     ],
                   ),
@@ -91,7 +91,7 @@ class FilterBar extends ConsumerWidget {
                 const SizedBox(height: 4),
                 CupertinoButton(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  color: CupertinoColors.systemGrey6,
+                  color: CupertinoColors.tertiarySystemFill,
                   borderRadius: BorderRadius.circular(8),
                   onPressed: () => _showSortPicker(context, ref),
                   child: Row(
@@ -109,7 +109,7 @@ class FilterBar extends ConsumerWidget {
                       const Icon(
                         CupertinoIcons.chevron_down,
                         size: 16,
-                        color: CupertinoColors.systemGrey,
+                        color: CupertinoColors.secondaryLabel,
                       ),
                     ],
                   ),
