@@ -48,7 +48,7 @@ updatedAt descending.
 - All users have permission to perform all actions, including admin tasks.
 - Insert items: image upload (drag-drop/picker). Supports sequential
   file uploads with an overall progress indicator and thumbnail
-  previews. Failed uploads auto-retry twice, then show retry button.
+  previews. Failed uploads auto-retry with exponential backoff.
 - Update items: modify state and notes only. Images are immutable
   after creation.
 - Bulk archive: toggle button activates checkbox selection mode.
@@ -83,10 +83,11 @@ updatedAt descending.
   user notification
 - Retry limit: 3 attempts per photo
 - Subtle indicator: queue status button shows total queued items
-- Persistent failure notification: consolidated message after retry
-  exhaustion directs user to queue status button
-- Manual review screen: current status, pending/failed items, retry
-  option, actionable guidance
+- Persistent failure notification: consolidated message directs user to
+  queue status button for review
+- Manual review screen: current status, pending/retrying/failed items,
+  Retry button to trigger upload for all queued photos, actionable
+  guidance
 
 **Error Messages:**
 

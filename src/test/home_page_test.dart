@@ -67,6 +67,9 @@ void main() {
       // Wait for FailedUploadBanner's 2s timer to complete
       await tester.pump(const Duration(seconds: 2));
       await tester.pump();
+
+      // Dispose container before test ends to cancel periodic timer
+      container.dispose();
     });
 
     testWidgets('Camera FAB is always visible', (
