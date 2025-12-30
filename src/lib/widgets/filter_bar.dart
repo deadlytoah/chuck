@@ -43,7 +43,7 @@ class FilterBar extends ConsumerWidget {
                   'Filter',
                   style: TextStyle(
                     fontSize: 12,
-                    color: CupertinoColors.systemGrey,
+                    color: CupertinoColors.secondaryLabel,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -85,7 +85,7 @@ class FilterBar extends ConsumerWidget {
                   'Sort',
                   style: TextStyle(
                     fontSize: 12,
-                    color: CupertinoColors.systemGrey,
+                    color: CupertinoColors.secondaryLabel,
                   ),
                 ),
                 const SizedBox(height: 4),

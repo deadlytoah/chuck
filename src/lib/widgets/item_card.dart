@@ -123,7 +123,7 @@ class _ItemCardState extends ConsumerState<ItemCard> {
                           widget.item.notes!,
                           style: const TextStyle(
                             fontSize: 13,
-                            color: CupertinoColors.systemGrey,
+                            color: CupertinoColors.secondaryLabel,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -148,7 +148,7 @@ class _ItemCardState extends ConsumerState<ItemCard> {
                     decoration: BoxDecoration(
                       color: widget.isSelected
                           ? CupertinoColors.activeBlue
-                          : CupertinoColors.white,
+                          : CupertinoColors.secondarySystemBackground,
                       border: Border.all(
                         color: widget.isSelected
                             ? CupertinoColors.activeBlue
@@ -317,7 +317,7 @@ class _EditItemDialogState extends ConsumerState<_EditItemDialog> {
               'State',
               style: TextStyle(
                 fontSize: 13,
-                color: CupertinoColors.systemGrey,
+                color: CupertinoColors.secondaryLabel,
               ),
             ),
             const SizedBox(height: 8),
@@ -335,7 +335,10 @@ class _EditItemDialogState extends ConsumerState<_EditItemDialog> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(selectedState),
+                    Text(
+                      selectedState,
+                      style: const TextStyle(color: CupertinoColors.label),
+                    ),
                     const Icon(
                       CupertinoIcons.chevron_down,
                       size: 16,
@@ -351,7 +354,7 @@ class _EditItemDialogState extends ConsumerState<_EditItemDialog> {
             'Notes',
             style: TextStyle(
               fontSize: 13,
-              color: CupertinoColors.systemGrey,
+              color: CupertinoColors.secondaryLabel,
             ),
           ),
           const SizedBox(height: 8),

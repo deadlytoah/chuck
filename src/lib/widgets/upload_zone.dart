@@ -154,7 +154,7 @@ class _UploadZoneState extends ConsumerState<UploadZone> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Text('or', style: TextStyle(color: CupertinoColors.systemGrey)),
+                        Text('or', style: TextStyle(color: CupertinoColors.secondaryLabel)),
                         const SizedBox(height: 8),
                         CupertinoButton(
                           color: CupertinoColors.activeBlue,
@@ -238,7 +238,7 @@ class _UploadProgressList extends ConsumerWidget {
               const SizedBox(height: 8),
               Text(
                 'In progress: $inProgress | Failed: $failed',
-                style: const TextStyle(fontSize: 12, color: CupertinoColors.systemGrey),
+                style: const TextStyle(fontSize: 12, color: CupertinoColors.secondaryLabel),
               ),
             ],
           ),

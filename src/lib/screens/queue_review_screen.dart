@@ -67,7 +67,7 @@ class QueueReviewScreen extends ConsumerWidget {
                               'Check your WiFi connection and retry.',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: CupertinoColors.systemGrey,
+                                color: CupertinoColors.secondaryLabel,
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -218,7 +218,7 @@ class QueueReviewScreen extends ConsumerWidget {
                     _formatTimestamp(photo.timestamp),
                     style: const TextStyle(
                       fontSize: 12,
-                      color: CupertinoColors.systemGrey,
+                      color: CupertinoColors.secondaryLabel,
                     ),
                   ),
                 ],
