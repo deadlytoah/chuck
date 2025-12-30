@@ -19,9 +19,6 @@ When you scan the directory, skip `.git/` and `log/`.
 - Flutter source code: `src/`
 - Lambda (golang) source: `lambda/`
 - Deploy lambda: `cd lambda/ && make update`
-- Find all go files: `fd -e go`
-- Find all dart files: `fd -e dart`
-- Find all markdown files: `fd -e md -E 'log/' -E CLAUDE.md -E GEMINI.md`
 
 # Plans
 
