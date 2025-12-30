@@ -59,8 +59,10 @@ void main() {
       expect(find.text('2'), findsOneWidget);
       expect(find.byType(FloatingActionButton), findsNWidgets(2));
 
-      // Allow pending async operations to complete
-      await tester.pump();
+      // Allow MainView's async loadItems to complete
+      await tester.runAsync(() async {
+        await Future.delayed(Duration.zero);
+      });
     });
 
     testWidgets('Camera FAB is always visible', (
@@ -105,11 +107,11 @@ void main() {
 
       // Open hamburger menu
       await tester.tap(find.byType(HamburgerMenu));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       // Tap "Admin" to switch to Admin Page
       await tester.tap(find.text('Admin'));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       // FABs should NOT be visible on Admin Page
       expect(find.byIcon(Icons.camera_alt), findsNothing);
@@ -128,18 +130,18 @@ void main() {
 
       // Switch to Admin Page
       await tester.tap(find.byType(HamburgerMenu));
-      await tester.pumpAndSettle();
+      await tester.pump();
       await tester.tap(find.text('Admin'));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       // FABs should be hidden
       expect(find.byIcon(Icons.camera_alt), findsNothing);
 
       // Switch back to Home
       await tester.tap(find.byType(HamburgerMenu));
-      await tester.pumpAndSettle();
+      await tester.pump();
       await tester.tap(find.text('Home'));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       // FABs should reappear
       expect(find.byIcon(Icons.camera_alt), findsOneWidget);
