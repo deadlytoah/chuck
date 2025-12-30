@@ -173,6 +173,11 @@ func createItem(ctx context.Context, req events.APIGatewayV2HTTPRequest) (interf
 		return nil, err
 	}
 
+	// Transform S3 key to full URL (same as queryItems does)
+	if item.ImageURL != "" {
+		item.ImageURL = constructS3URL(item.ImageURL)
+	}
+
 	return ItemResponse{Data: *item}, nil
 }
 
@@ -186,6 +191,11 @@ func updateItem(ctx context.Context, itemID string, req events.APIGatewayV2HTTPR
 	item, err := updateItemRecord(ctx, itemID, updateReq)
 	if err != nil {
 		return nil, err
+	}
+
+	// Transform S3 key to full URL (same as queryItems does)
+	if item.ImageURL != "" {
+		item.ImageURL = constructS3URL(item.ImageURL)
 	}
 
 	return ItemResponse{Data: *item}, nil
