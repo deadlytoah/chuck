@@ -132,6 +132,13 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
     final newItems = state.items.where((i) => i.itemId != itemId).toList();
     state = state.copyWith(items: newItems);
   }
+
+  void addItem(Item item) {
+    // Only add item if not archived (camera uploads are always non-archived)
+    if (!item.archived) {
+      state = state.copyWith(items: [item, ...state.items]);
+    }
+  }
 }
 
 final itemsProvider = StateNotifierProvider<ItemsNotifier, ItemsState>((ref) {

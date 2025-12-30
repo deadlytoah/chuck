@@ -188,14 +188,17 @@ void main() {
       );
     });
 
-    test('uploadPhoto calls createItem with imageUrl and state=Unanswered', () async {
+    test('uploadPhoto calls createItem and returns Item', () async {
       final testFile = File('${tempDir.path}/test.jpg');
       await testFile.writeAsBytes([0xFF, 0xD8, 0xFF, 0xE0]);
 
       final result = await uploadService.uploadPhoto(testFile.path);
 
       expect(mockApiService.createItemCallCount, 1);
-      // Service doesn't return item, so we just verify the call was made
+      expect(result, isA<Item>());
+      expect(result.itemId, 'test-item-id');
+      expect(result.state, 'Unanswered');
+      expect(result.archived, false);
     });
 
     test('uploadPhoto throws if processImage fails', () async {
