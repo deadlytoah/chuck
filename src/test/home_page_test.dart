@@ -218,6 +218,10 @@ void main() {
 
       // Counter should still show 2 (pending + failed)
       expect(find.text('2'), findsOneWidget);
+
+      // Wait for FailedUploadBanner's 2s timer to complete
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pump();
     });
   });
 }
