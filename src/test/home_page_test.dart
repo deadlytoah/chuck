@@ -116,7 +116,13 @@ void main() {
 
       // Tap "Admin" to switch to Admin Page
       await tester.tap(find.text('Admin'));
-      await tester.pumpAndSettle(const Duration(milliseconds: 100));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      // Multiple pumps for overlay removal callbacks and rebuilds
+      for (int i = 0; i < 50; i++) {
+        await tester.pump(const Duration(milliseconds: 10));
+      }
 
       // FABs should NOT be visible on Admin Page
       expect(find.byIcon(Icons.camera_alt), findsNothing);
@@ -138,7 +144,13 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       await tester.tap(find.text('Admin'));
-      await tester.pumpAndSettle(const Duration(milliseconds: 100));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      // Multiple pumps for overlay removal callbacks and rebuilds
+      for (int i = 0; i < 50; i++) {
+        await tester.pump(const Duration(milliseconds: 10));
+      }
 
       // FABs should be hidden
       expect(find.byIcon(Icons.camera_alt), findsNothing);
@@ -148,7 +160,13 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       await tester.tap(find.text('Home'));
-      await tester.pumpAndSettle(const Duration(milliseconds: 100));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      // Multiple pumps for overlay removal callbacks and rebuilds
+      for (int i = 0; i < 50; i++) {
+        await tester.pump(const Duration(milliseconds: 10));
+      }
 
       // FABs should reappear
       expect(find.byIcon(Icons.camera_alt), findsOneWidget);
