@@ -13,45 +13,41 @@ due to competing elements:
 - "Archive X items" button (rightmost, overflows)
 
 ## Solution
-Remove "X selected (max 25)" label and Clear button to make room for
-archive button
+Redesign button layout to swap "Bulk Archive" with "Cancel" and
+"Archive Selected" buttons in selection mode
 
 ## Implementation Steps
 
 1. **Remove selection count text** (bulk_actions.dart:52-55)
    - Delete Text widget showing "$selectedCount selected (max 25)"
-   - Remove associated SizedBox spacing
+   - Frees horizontal space
 
 2. **Remove Clear button** (bulk_actions.dart:53-59)
    - Delete TextButton for clearing selection
-   - Users can exit selection mode to clear instead
-   - Simplifies layout to just Exit and Archive buttons
+   - Functionality replaced by Cancel button
 
-3. **Shorten button labels** (bulk_actions.dart:40)
-   - "Bulk Archive" => "Archive"
-   - "Exit Selection Mode" => "Cancel"
-   - Reduces button width significantly
+3. **Redesign button interaction** (bulk_actions.dart:30-60)
+   - Initial state: Show "Bulk Archive" button only
+   - Click "Bulk Archive": Hide it, show "Cancel" and "Archive Selected"
+   - "Cancel" button exits selection mode (restores "Bulk Archive")
+   - "Archive Selected" performs the archive operation
+   - No Spacer needed - buttons naturally flow left
 
-4. **Update layout spacing**
-   - Keep Spacer() between buttons
-   - Minimal elements for maximum mobile space
+4. **Add test case** (test/widgets/bulk_actions_test.dart)
+   - Test Bulk Archive button shown initially
+   - Test Bulk Archive hidden when in selection mode
+   - Test Cancel and Archive Selected appear in selection mode
 
-5. **Add test case** (test/widgets/bulk_actions_test.dart)
-   - Test that selection count text is not present in widget tree
-   - Test that Clear button is not present
-   - Verify Archive button is rendered when items selected
-
-6. **Test on mobile**
+5. **Test on mobile**
    - Verify all buttons visible on narrow screens
    - Ensure button text doesn't wrap/truncate
    - Check spacing is adequate for touch targets
 
 ## Files Modified
-- `src/lib/widgets/bulk_actions.dart` (lines 50-64)
+- `src/lib/widgets/bulk_actions.dart` (lines 30-64)
 - `src/test/widgets/bulk_actions_test.dart` (new test case)
 
 ## Expected Result
-Archive button visible on mobile with compact layout:
-- Initial: "Archive" button (enters selection mode)
-- Selection mode: "Cancel" button (left), "Archive X items" (right)
-- No overflow on narrow mobile screens
+Compact mobile layout with button swap interaction:
+- Initial: "Bulk Archive" button
+- Selection mode: "Cancel" + "Archive Selected" buttons (no overflow)

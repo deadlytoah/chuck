@@ -27,33 +27,31 @@ class BulkActions extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            ElevatedButton.icon(
-              onPressed: () {
-                ref.read(selectionProvider.notifier).toggleSelectionMode();
-              },
-              icon: Icon(
-                selectionState.isSelectionMode
-                    ? Icons.check_box
-                    : Icons.check_box_outline_blank,
+            if (!selectionState.isSelectionMode)
+              ElevatedButton.icon(
+                onPressed: () {
+                  ref.read(selectionProvider.notifier).toggleSelectionMode();
+                },
+                icon: const Icon(Icons.check_box_outline_blank),
+                label: const Text('Bulk Archive'),
               ),
-              label: Text(
-                selectionState.isSelectionMode ? 'Cancel' : 'Archive',
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: selectionState.isSelectionMode
-                    ? Colors.orange
-                    : null,
-              ),
-            ),
             if (selectionState.isSelectionMode) ...[
-              const Spacer(),
+              ElevatedButton.icon(
+                onPressed: () {
+                  ref.read(selectionProvider.notifier).toggleSelectionMode();
+                },
+                icon: const Icon(Icons.close),
+                label: const Text('Cancel'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                ),
+              ),
+              const SizedBox(width: 8),
               if (selectedCount > 0)
                 ElevatedButton.icon(
-                  onPressed: selectedCount > 0
-                      ? () => _bulkArchive(context, ref)
-                      : null,
+                  onPressed: () => _bulkArchive(context, ref),
                   icon: const Icon(Icons.archive),
-                  label: Text('Archive $selectedCount items'),
+                  label: const Text('Archive Selected'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.white,

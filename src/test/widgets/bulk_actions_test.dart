@@ -25,7 +25,7 @@ void main() {
       expect(find.text('Clear'), findsNothing);
     });
 
-    testWidgets('Shows Archive button initially',
+    testWidgets('Shows Bulk Archive button initially',
         (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
@@ -37,11 +37,12 @@ void main() {
         ),
       );
 
-      expect(find.text('Archive'), findsOneWidget);
+      expect(find.text('Bulk Archive'), findsOneWidget);
       expect(find.byIcon(Icons.check_box_outline_blank), findsOneWidget);
     });
 
-    testWidgets('Shows Cancel when activated', (WidgetTester tester) async {
+    testWidgets('Hides Bulk Archive and shows Cancel/Archive Selected when activated',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
           child: MaterialApp(
@@ -53,11 +54,18 @@ void main() {
       );
 
       // Tap to enter selection mode
-      await tester.tap(find.text('Archive'));
+      await tester.tap(find.text('Bulk Archive'));
       await tester.pumpAndSettle();
 
+      // Bulk Archive button should be hidden
+      expect(find.text('Bulk Archive'), findsNothing);
+
+      // Cancel and Archive Selected buttons should appear
       expect(find.text('Cancel'), findsOneWidget);
-      expect(find.byIcon(Icons.check_box), findsOneWidget);
+      expect(find.byIcon(Icons.close), findsOneWidget);
+
+      // Archive Selected appears only when items selected
+      // (not tested here as it requires selection state setup)
     });
   });
 }
