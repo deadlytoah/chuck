@@ -155,15 +155,15 @@ images/{uuid}/thumb.jpg
 
 **Status & Notification:**
 - Queue status button shows total queued items (pending + failed)
-- Consolidated notification after retry exhaustion: "Some photos have
-  failed to upload. Tap the queue button next to the camera to review."
+- Consolidated notification: "Some photos have failed to upload. Tap
+  the queue button next to the camera to review."
 - Single message for all failed items (not per-photo alerts)
 
 **Manual Review Screen:**
 - Access via queue status button
-- Display: pending/failed items with status
-- Actions: "Retry" button (resets retry count for all failed items),
-  clear completed items
+- Display: pending/retrying/failed items with status and retry count
+- Actions: "Retry" button (resets retry count and immediately retries
+  all queued photos)
 - Guidance: error resolution steps
 
 ## Error Message Display

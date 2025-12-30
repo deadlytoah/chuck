@@ -263,7 +263,7 @@ void main() {
     testContainer.dispose();
   });
 
-  test('Stream marks failed on upload exception', () async {
+  test('Stream schedules retry after first failure', () async {
     final mockUploadService = MockCameraUploadService();
     mockUploadService.shouldFail = true;
     final mockNetworkMonitor = MockNetworkMonitor(NetworkType.wifi);
@@ -283,10 +283,12 @@ void main() {
     // Wait for stream to process
     await Future.delayed(const Duration(milliseconds: 50));
 
-    // Item should be marked as failed
+    // Item should be pending with retry scheduled, not failed
     final queue = testContainer.read(cameraQueueServiceProvider);
     expect(queue.length, 1);
-    expect(queue.first.state, PhotoState.failed);
+    expect(queue.first.state, PhotoState.pending);
+    expect(queue.first.retryCount, 1);
+    expect(queue.first.nextRetryTime, isNotNull);
 
     testContainer.dispose();
   });
@@ -445,10 +447,11 @@ void main() {
     final itemsState = testContainer.read(itemsProvider);
     expect(itemsState.items.length, 0);
 
-    // Verify photo is marked as failed in queue
+    // Verify photo is pending with retry scheduled (not failed yet)
     final queue = testContainer.read(cameraQueueServiceProvider);
     expect(queue.length, 1);
-    expect(queue.first.state, PhotoState.failed);
+    expect(queue.first.state, PhotoState.pending);
+    expect(queue.first.retryCount, 1);
 
     testContainer.dispose();
   });
