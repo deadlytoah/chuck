@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
@@ -10,9 +10,9 @@ import '../services/upload_service.dart';
 @Preview()
 Widget uploadZonePreview() {
   return const ProviderScope(
-    child: MaterialApp(
-      home: Scaffold(
-        body: Padding(padding: EdgeInsets.all(16.0), child: UploadZone()),
+    child: CupertinoApp(
+      home: CupertinoPageScaffold(
+        child: Padding(padding: EdgeInsets.all(16.0), child: UploadZone()),
       ),
     ),
   );
@@ -85,10 +85,18 @@ class _UploadZoneState extends ConsumerState<UploadZone> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: Center(
-              child: ElevatedButton.icon(
+              child: CupertinoButton(
+                color: CupertinoColors.activeBlue,
+                borderRadius: BorderRadius.circular(8),
                 onPressed: _pickFiles,
-                icon: const Icon(Icons.folder_open),
-                label: const Text('Choose Images'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(CupertinoIcons.folder, color: CupertinoColors.white),
+                    SizedBox(width: 8),
+                    Text('Choose Images'),
+                  ],
+                ),
               ),
             ),
           )
@@ -98,12 +106,12 @@ class _UploadZoneState extends ConsumerState<UploadZone> {
             height: 200,
             decoration: BoxDecoration(
               border: Border.all(
-                color: isDragging ? Colors.blue : Colors.grey,
+                color: isDragging ? CupertinoColors.activeBlue : CupertinoColors.systemGrey4,
                 width: 2,
                 style: BorderStyle.solid,
               ),
               borderRadius: BorderRadius.circular(8),
-              color: isDragging ? Colors.blue.withValues(alpha: 0.1) : null,
+              color: isDragging ? CupertinoColors.activeBlue.withOpacity(0.1) : null,
             ),
             child: Stack(
               children: [
@@ -127,31 +135,42 @@ class _UploadZoneState extends ConsumerState<UploadZone> {
                   onLeave: () => setState(() => isDragging = false),
                 ),
                 Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.cloud_upload,
-                        size: 64,
-                        color: isDragging ? Colors.blue : Colors.grey,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Drag & drop images here',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: isDragging ? Colors.blue : Colors.grey[700],
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          CupertinoIcons.cloud_upload,
+                          size: 64,
+                          color: isDragging ? CupertinoColors.activeBlue : CupertinoColors.systemGrey,
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text('or', style: TextStyle(color: Colors.grey[600])),
-                      const SizedBox(height: 8),
-                      ElevatedButton.icon(
-                        onPressed: _pickFiles,
-                        icon: const Icon(Icons.folder_open),
-                        label: const Text('Choose Images'),
-                      ),
-                    ],
+                        const SizedBox(height: 16),
+                        Text(
+                          'Drag & drop images here',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: isDragging ? CupertinoColors.activeBlue : CupertinoColors.systemGrey,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text('or', style: TextStyle(color: CupertinoColors.systemGrey)),
+                        const SizedBox(height: 8),
+                        CupertinoButton(
+                          color: CupertinoColors.activeBlue,
+                          borderRadius: BorderRadius.circular(8),
+                          onPressed: _pickFiles,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Icon(CupertinoIcons.folder, color: CupertinoColors.white),
+                              SizedBox(width: 8),
+                              Text('Choose Images'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -183,36 +202,45 @@ class _UploadProgressList extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Upload Progress',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    Text(
-                      '$completed/${items.length} completed',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                LinearProgressIndicator(
-                  value: items.isEmpty ? 0 : completed / items.length,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'In progress: $inProgress | Failed: $failed',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: CupertinoColors.systemBackground,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: CupertinoColors.systemGrey4,
+              width: 1,
             ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Upload Progress',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '$completed/${items.length} completed',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              _CupertinoProgressBar(
+                value: items.isEmpty ? 0 : completed / items.length,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'In progress: $inProgress | Failed: $failed',
+                style: const TextStyle(fontSize: 12, color: CupertinoColors.systemGrey),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 16),
@@ -232,6 +260,33 @@ class _UploadProgressList extends ConsumerWidget {
   }
 }
 
+class _CupertinoProgressBar extends StatelessWidget {
+  final double value;
+
+  const _CupertinoProgressBar({required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 4,
+      decoration: BoxDecoration(
+        color: CupertinoColors.systemGrey5,
+        borderRadius: BorderRadius.circular(2),
+      ),
+      child: FractionallySizedBox(
+        alignment: Alignment.centerLeft,
+        widthFactor: value,
+        child: Container(
+          decoration: BoxDecoration(
+            color: CupertinoColors.activeBlue,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _UploadThumbnail extends StatelessWidget {
   final UploadProgress progress;
 
@@ -242,39 +297,51 @@ class _UploadThumbnail extends StatelessWidget {
     return Container(
       width: 120,
       margin: const EdgeInsets.only(right: 8),
-      child: Card(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: Container(
-                color: Colors.grey[300],
-                child: progress.thumbnailDataUrl != null
-                    ? Image.network(
+      decoration: BoxDecoration(
+        color: CupertinoColors.systemBackground,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: CupertinoColors.systemGrey4,
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: CupertinoColors.systemGrey5,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+              ),
+              child: progress.thumbnailDataUrl != null
+                  ? ClipRRect(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                      child: Image.network(
                         progress.thumbnailDataUrl!,
                         fit: BoxFit.cover,
-                      )
-                    : Center(child: _buildStatusIcon()),
-              ),
+                      ),
+                    )
+                  : Center(child: _buildStatusIcon()),
             ),
-            Padding(
-              padding: const EdgeInsets.all(4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    progress.fileName,
-                    style: const TextStyle(fontSize: 10),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  _buildStatusWidget(),
-                ],
-              ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  progress.fileName,
+                  style: const TextStyle(fontSize: 10),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                _buildStatusWidget(),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -282,14 +349,14 @@ class _UploadThumbnail extends StatelessWidget {
   Widget _buildStatusIcon() {
     switch (progress.status) {
       case UploadStatus.pending:
-        return const Icon(Icons.schedule, color: Colors.grey);
+        return const Icon(CupertinoIcons.time, color: CupertinoColors.systemGrey);
       case UploadStatus.uploading:
       case UploadStatus.processing:
-        return const CircularProgressIndicator();
+        return const CupertinoActivityIndicator();
       case UploadStatus.success:
-        return const Icon(Icons.check_circle, color: Colors.green);
+        return const Icon(CupertinoIcons.check_mark_circled, color: CupertinoColors.activeGreen);
       case UploadStatus.failed:
-        return const Icon(Icons.error, color: Colors.red);
+        return const Icon(CupertinoIcons.exclamationmark_circle, color: CupertinoColors.destructiveRed);
     }
   }
 
@@ -298,13 +365,13 @@ class _UploadThumbnail extends StatelessWidget {
       case UploadStatus.pending:
         return const Text('Pending...', style: TextStyle(fontSize: 10));
       case UploadStatus.uploading:
-        return LinearProgressIndicator(value: progress.progress);
+        return _CupertinoProgressBar(value: progress.progress);
       case UploadStatus.processing:
         return const Text('Processing...', style: TextStyle(fontSize: 10));
       case UploadStatus.success:
         return const Text(
           'Success',
-          style: TextStyle(fontSize: 10, color: Colors.green),
+          style: TextStyle(fontSize: 10, color: CupertinoColors.activeGreen),
         );
       case UploadStatus.failed:
         return Column(
@@ -312,12 +379,12 @@ class _UploadThumbnail extends StatelessWidget {
           children: [
             const Text(
               'Failed',
-              style: TextStyle(fontSize: 10, color: Colors.red),
+              style: TextStyle(fontSize: 10, color: CupertinoColors.destructiveRed),
             ),
             if (progress.needsManualRetry)
               const Text(
                 'Manual retry needed',
-                style: TextStyle(fontSize: 8, color: Colors.red),
+                style: TextStyle(fontSize: 8, color: CupertinoColors.destructiveRed),
               ),
           ],
         );
