@@ -23,7 +23,7 @@ class FilterBar extends ConsumerWidget {
     final sort = ref.watch(sortProvider);
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: CupertinoColors.systemBackground,
         borderRadius: BorderRadius.circular(12),
