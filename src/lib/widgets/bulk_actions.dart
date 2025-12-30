@@ -44,7 +44,7 @@ class BulkActions extends ConsumerWidget {
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [
+                children: const [
                   Icon(CupertinoIcons.check_mark_circled, size: 20),
                   SizedBox(width: 8),
                   Text('Bulk Archive'),
@@ -59,7 +59,7 @@ class BulkActions extends ConsumerWidget {
               onPressed: selectedCount > 0 ? () => _bulkArchive(context, ref) : null,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [
+                children: const [
                   Icon(CupertinoIcons.archivebox, size: 20, color: CupertinoColors.white),
                   SizedBox(width: 8),
                   Text('Archive Selected', style: TextStyle(color: CupertinoColors.white)),
@@ -76,7 +76,7 @@ class BulkActions extends ConsumerWidget {
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [
+                children: const [
                   Icon(CupertinoIcons.xmark, size: 20, color: CupertinoColors.white),
                   SizedBox(width: 8),
                   Text('Cancel', style: TextStyle(color: CupertinoColors.white)),

@@ -91,7 +91,7 @@ class _UploadZoneState extends ConsumerState<UploadZone> {
                 onPressed: _pickFiles,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: [
+                  children: const [
                     Icon(CupertinoIcons.folder, color: CupertinoColors.white),
                     SizedBox(width: 8),
                     Text('Choose Images'),
@@ -169,7 +169,7 @@ class _UploadZoneState extends ConsumerState<UploadZone> {
                           onPressed: _pickFiles,
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
-                            children: [
+                            children: const [
                               Icon(CupertinoIcons.folder, color: CupertinoColors.white),
                               SizedBox(width: 8),
                               Text('Choose Images'),
