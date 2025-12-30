@@ -17,7 +17,7 @@ class QueueReviewScreen extends ConsumerWidget {
     final retryingPhotos = queue.where((p) => p.state == PhotoState.pending && p.retryCount > 0).toList();
     final failedPhotos = queue.where((p) => p.state == PhotoState.failed).toList();
     final uploadingPhotos = queue.where((p) => p.state == PhotoState.uploading).toList();
-    final hasRetriablePhotos = retryingPhotos.isNotEmpty || failedPhotos.isNotEmpty;
+    final hasRetriablePhotos = pendingPhotos.isNotEmpty || retryingPhotos.isNotEmpty || failedPhotos.isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(
@@ -44,7 +44,7 @@ class QueueReviewScreen extends ConsumerWidget {
                                 Icon(Icons.warning, color: Colors.orange.shade700),
                                 const SizedBox(width: 8),
                                 Text(
-                                  '${retryingPhotos.length + failedPhotos.length} upload${retryingPhotos.length + failedPhotos.length == 1 ? '' : 's'} ${failedPhotos.isNotEmpty ? 'failed' : 'retrying'}',
+                                  '${pendingPhotos.length + retryingPhotos.length + failedPhotos.length} queued photo${pendingPhotos.length + retryingPhotos.length + failedPhotos.length == 1 ? '' : 's'}',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.orange.shade900,
@@ -60,7 +60,7 @@ class QueueReviewScreen extends ConsumerWidget {
                             const SizedBox(height: 8),
                             ElevatedButton.icon(
                               onPressed: () {
-                                for (final photo in [...retryingPhotos, ...failedPhotos]) {
+                                for (final photo in [...pendingPhotos, ...retryingPhotos, ...failedPhotos]) {
                                   queueService.retryFailed(photo.id);
                                 }
                               },
