@@ -13,9 +13,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const CupertinoApp(
       title: 'Chuck',
-      theme: CupertinoThemeData(
-        primaryColor: CupertinoColors.systemBlue,
-      ),
       home: HomePage(),
     );
   }

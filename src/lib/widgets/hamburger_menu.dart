@@ -98,7 +98,7 @@ class _HamburgerMenuState extends State<HamburgerMenu>
                   opacity: _controller,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: CupertinoColors.systemBackground,
+                      color: CupertinoColors.secondarySystemBackground.resolveFrom(context),
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
@@ -112,15 +112,17 @@ class _HamburgerMenuState extends State<HamburgerMenu>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         _buildMenuItem(
+                          context: context,
                           icon: CupertinoIcons.home,
                           label: 'Home',
                           index: 0,
                         ),
                         Container(
                           height: 1,
-                          color: CupertinoColors.separator,
+                          color: CupertinoColors.separator.resolveFrom(context),
                         ),
                         _buildMenuItem(
+                          context: context,
                           icon: CupertinoIcons.settings,
                           label: 'Admin',
                           index: 1,
@@ -138,6 +140,7 @@ class _HamburgerMenuState extends State<HamburgerMenu>
   }
 
   Widget _buildMenuItem({
+    required BuildContext context,
     required IconData icon,
     required String label,
     required int index,
@@ -165,7 +168,7 @@ class _HamburgerMenuState extends State<HamburgerMenu>
               icon,
               color: isSelected
                   ? CupertinoColors.activeBlue
-                  : CupertinoColors.label,
+                  : CupertinoColors.label.resolveFrom(context),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -174,7 +177,7 @@ class _HamburgerMenuState extends State<HamburgerMenu>
                 style: TextStyle(
                   color: isSelected
                       ? CupertinoColors.activeBlue
-                      : CupertinoColors.label,
+                      : CupertinoColors.label.resolveFrom(context),
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
               ),

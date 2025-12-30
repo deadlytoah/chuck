@@ -63,11 +63,11 @@ class QueueReviewScreen extends ConsumerWidget {
                               ],
                             ),
                             const SizedBox(height: 8),
-                            const Text(
+                            Text(
                               'Check your WiFi connection and retry.',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: CupertinoColors.systemGrey,
+                                color: CupertinoColors.secondaryLabel.resolveFrom(context),
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -103,6 +103,7 @@ class QueueReviewScreen extends ConsumerWidget {
                       if (uploadingPhotos.isNotEmpty) ...[
                         _buildSectionHeader('Uploading', uploadingPhotos.length),
                         ...uploadingPhotos.map((photo) => _buildPhotoItem(
+                              context,
                               photo,
                               CupertinoIcons.cloud_upload,
                               CupertinoColors.activeBlue,
@@ -113,6 +114,7 @@ class QueueReviewScreen extends ConsumerWidget {
                       if (pendingPhotos.isNotEmpty) ...[
                         _buildSectionHeader('Pending', pendingPhotos.length),
                         ...pendingPhotos.map((photo) => _buildPhotoItem(
+                              context,
                               photo,
                               CupertinoIcons.clock,
                               CupertinoColors.systemGrey,
@@ -123,6 +125,7 @@ class QueueReviewScreen extends ConsumerWidget {
                       if (retryingPhotos.isNotEmpty) ...[
                         _buildSectionHeader('Retrying', retryingPhotos.length),
                         ...retryingPhotos.map((photo) => _buildPhotoItem(
+                              context,
                               photo,
                               CupertinoIcons.refresh,
                               CupertinoColors.systemOrange,
@@ -133,6 +136,7 @@ class QueueReviewScreen extends ConsumerWidget {
                       if (failedPhotos.isNotEmpty) ...[
                         _buildSectionHeader('Failed', failedPhotos.length),
                         ...failedPhotos.map((photo) => _buildPhotoItem(
+                              context,
                               photo,
                               CupertinoIcons.exclamationmark_circle,
                               CupertinoColors.systemRed,
@@ -162,6 +166,7 @@ class QueueReviewScreen extends ConsumerWidget {
   }
 
   Widget _buildPhotoItem(
+    BuildContext context,
     QueuedPhoto photo,
     IconData icon,
     Color color,
@@ -170,13 +175,17 @@ class QueueReviewScreen extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 8.0),
       decoration: BoxDecoration(
-        color: CupertinoColors.systemBackground,
+        color: CupertinoColors.systemBackground.resolveFrom(context),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: CupertinoColors.separator.resolveFrom(context),
+          width: 0.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: CupertinoColors.systemGrey.withOpacity(0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: CupertinoColors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
@@ -216,9 +225,9 @@ class QueueReviewScreen extends ConsumerWidget {
                   const SizedBox(height: 4),
                   Text(
                     _formatTimestamp(photo.timestamp),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: CupertinoColors.systemGrey,
+                      color: CupertinoColors.secondaryLabel.resolveFrom(context),
                     ),
                   ),
                 ],
