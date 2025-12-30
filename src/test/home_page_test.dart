@@ -61,7 +61,7 @@ void main() {
 
       // Allow MainView's async loadItems to complete
       await tester.runAsync(() async {
-        await Future.delayed(Duration.zero);
+        await Future.delayed(const Duration(milliseconds: 100));
       });
     });
 
@@ -108,9 +108,11 @@ void main() {
       // Open hamburger menu
       await tester.tap(find.byType(HamburgerMenu));
       await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
 
       // Tap "Admin" to switch to Admin Page
       await tester.tap(find.text('Admin'));
+      await tester.pump();
       await tester.pump();
 
       // FABs should NOT be visible on Admin Page
@@ -131,7 +133,9 @@ void main() {
       // Switch to Admin Page
       await tester.tap(find.byType(HamburgerMenu));
       await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
       await tester.tap(find.text('Admin'));
+      await tester.pump();
       await tester.pump();
 
       // FABs should be hidden
@@ -140,7 +144,9 @@ void main() {
       // Switch back to Home
       await tester.tap(find.byType(HamburgerMenu));
       await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
       await tester.tap(find.text('Home'));
+      await tester.pump();
       await tester.pump();
 
       // FABs should reappear
