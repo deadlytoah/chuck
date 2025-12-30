@@ -49,7 +49,7 @@ class _ItemCardState extends ConsumerState<ItemCard> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: CupertinoColors.systemBackground.resolveFrom(context),
+        color: CupertinoColors.secondarySystemBackground.resolveFrom(context),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: CupertinoColors.separator.resolveFrom(context),
