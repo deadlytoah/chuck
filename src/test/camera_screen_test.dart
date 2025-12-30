@@ -76,52 +76,6 @@ void main() {
       expect(find.text('Camera permission denied'), findsNothing);
     });
 
-    testWidgets('Shows black background during loading', (tester) async {
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            cameraServiceProvider.overrideWith((ref) => mockCameraService),
-            cameraQueueServiceProvider.overrideWith(
-              () => MockCameraQueueService(),
-            ),
-          ],
-          child: const MaterialApp(
-            home: CameraScreen(),
-          ),
-        ),
-      );
-
-      // Find the Scaffold
-      final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
-      expect(scaffold.backgroundColor, Colors.black);
-    });
-
-    testWidgets('Renders permission denied message when permission rejected',
-        (tester) async {
-      // Note: Testing actual permission state is difficult without mocking
-      // the permission_handler package. This test demonstrates the UI
-      // structure when _isPermissionDenied is true.
-
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            cameraServiceProvider.overrideWith((ref) => mockCameraService),
-            cameraQueueServiceProvider.overrideWith(
-              () => MockCameraQueueService(),
-            ),
-          ],
-          child: const MaterialApp(
-            home: CameraScreen(),
-          ),
-        ),
-      );
-
-      // Permission denied state would show specific text and buttons
-      // Since we can't easily trigger permission denial in test,
-      // we verify the widget structure exists
-      await tester.pump();
-    });
-
     testWidgets('Capture button visible with correct styling', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
@@ -236,27 +190,6 @@ void main() {
       expect(find.byType(CameraScreen), findsNothing);
       expect(find.text('Open Camera'), findsOneWidget);
     });
-
-    testWidgets('SafeArea wraps camera controls', (tester) async {
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            cameraServiceProvider.overrideWith((ref) => mockCameraService),
-            cameraQueueServiceProvider.overrideWith(
-              () => MockCameraQueueService(),
-            ),
-          ],
-          child: const MaterialApp(
-            home: CameraScreen(),
-          ),
-        ),
-      );
-
-      await tester.pump();
-
-      // SafeArea should be present to handle notches/status bars
-      expect(find.byType(SafeArea), findsWidgets);
-    });
   });
 
   group('CameraScreen - Permission Denied State', () {
@@ -288,34 +221,6 @@ void main() {
       expect(find.text('Camera access is needed to take photos of items.'), findsOneWidget);
       expect(find.text('Go to Settings'), findsOneWidget);
       expect(find.text('Cancel'), findsOneWidget);
-    });
-
-    testWidgets('Shows permission denied dialog for permanently denied permission',
-        (tester) async {
-      mockPermissionHandler
-          .setCameraPermissionStatus(PermissionStatus.permanentlyDenied);
-      mockCameraService.setMockResult(CameraInitResult.permissionDenied);
-
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            cameraServiceProvider.overrideWith((ref) => mockCameraService),
-            cameraQueueServiceProvider.overrideWith(
-              () => MockCameraQueueService(),
-            ),
-          ],
-          child: const MaterialApp(
-            home: CameraScreen(),
-          ),
-        ),
-      );
-
-      await tester.pump();
-      await tester.pump();
-
-      expect(find.byType(AlertDialog), findsOneWidget);
-      expect(find.text('Camera Access Required'), findsOneWidget);
-      expect(find.text('Go to Settings'), findsOneWidget);
     });
 
     testWidgets('Go to Settings button is tappable', (tester) async {

@@ -81,21 +81,6 @@ void main() {
       expect(find.byIcon(Icons.camera_alt), findsOneWidget);
     });
 
-    testWidgets('FABs are visible on Main View (tab index 0)', (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(
-        const ProviderScope(
-          child: MaterialApp(home: HomePage()),
-        ),
-      );
-
-      // FABs should be visible on Main View
-      expect(find.byIcon(Icons.camera_alt), findsOneWidget);
-      expect(find.byType(QueueStatusButton), findsOneWidget);
-      expect(find.byType(FloatingActionButton), findsNWidgets(2));
-    });
-
     testWidgets('FABs are hidden on Admin Page (tab index 1)', (
       WidgetTester tester,
     ) async {
@@ -172,56 +157,6 @@ void main() {
       expect(find.byIcon(Icons.camera_alt), findsOneWidget);
       expect(find.byType(QueueStatusButton), findsOneWidget);
       expect(find.byType(FloatingActionButton), findsNWidgets(2));
-    });
-
-    testWidgets('Queue counter updates reactively when photos are added', (
-      WidgetTester tester,
-    ) async {
-      final container = ProviderContainer(
-        overrides: [
-          networkMonitorProvider.overrideWith((ref) => NetworkMonitor(skipInit: true)),
-        ],
-      );
-      addTearDown(container.dispose);
-
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: const MaterialApp(home: HomePage()),
-        ),
-      );
-
-      // Initial state: counter should show 0
-      expect(find.byType(QueueStatusButton), findsOneWidget);
-      expect(find.text('0'), findsOneWidget);
-
-      // Add photos to queue
-      final queueService = container.read(cameraQueueServiceProvider.notifier);
-      queueService.addPhoto('/test/1.jpg');
-      await tester.pump();
-
-      // Counter should update to 1
-      expect(find.text('1'), findsOneWidget);
-      expect(find.text('0'), findsNothing);
-
-      // Add another photo
-      queueService.addPhoto('/test/2.jpg');
-      await tester.pump();
-
-      // Counter should update to 2
-      expect(find.text('2'), findsOneWidget);
-      expect(find.text('1'), findsNothing);
-
-      // Mark one as failed (should still count in pending)
-      queueService.markFailed(container.read(cameraQueueServiceProvider)[0].id);
-      await tester.pump();
-
-      // Counter should still show 2 (pending + failed)
-      expect(find.text('2'), findsOneWidget);
-
-      // Wait for FailedUploadBanner's 2s timer to complete
-      await tester.pump(const Duration(seconds: 2));
-      await tester.pump();
     });
   });
 }

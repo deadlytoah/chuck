@@ -80,20 +80,6 @@ void main() {
       expect(item.updatedAt, isNull);
     });
 
-    test('should handle null createdAt and updatedAt', () {
-      final item = Item.fromJson({
-        'itemId': '1',
-        'imageUrl': 'url',
-        'state': 'active',
-        'comment': null,
-        'archived': false,
-        'createdAt': null,
-        'updatedAt': null,
-      });
-      expect(item.createdAt, isNull);
-      expect(item.updatedAt, isNull);
-    });
-
     test('should handle invalid date strings for createdAt and updatedAt', () {
       final item = Item.fromJson({
         'itemId': '1',

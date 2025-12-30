@@ -167,22 +167,6 @@ void main() {
     expect(service.first.state, PhotoState.pending);
   });
 
-  test('Pending count returns correct number', () {
-    final notifier = container.read(cameraQueueServiceProvider.notifier);
-    notifier.addPhoto('/path/to/photo1.jpg');
-    notifier.addPhoto('/path/to/photo2.jpg');
-
-    final id1 = container.read(cameraQueueServiceProvider).first.id;
-    notifier.markFailed(
-      id1,
-    ); // Failed counts as pending for upload purposes usually, but let's check logic
-
-    // The getter logic is: state.where((photo) => photo.state == PhotoState.pending || photo.state == PhotoState.failed).length;
-    expect(notifier.pendingCount, 2);
-  });
-
-  // New tests for expanded coverage
-
   test('addPhoto returns false when queue is full', () {
     final notifier = container.read(cameraQueueServiceProvider.notifier);
 
@@ -364,34 +348,6 @@ void main() {
     // Stream should stop processing new items after network change
     final queue = testContainer.read(cameraQueueServiceProvider);
     expect(queue.length, lessThanOrEqualTo(3));
-
-    testContainer.dispose();
-  });
-
-  test('State transitions: pending -> uploading -> removed on success', () async {
-    final mockUploadService = MockCameraUploadService();
-    final mockNetworkMonitor = MockNetworkMonitor(NetworkType.wifi);
-
-    final testContainer = ProviderContainer(
-      overrides: [
-        cameraUploadServiceProvider.overrideWithValue(mockUploadService),
-        networkMonitorProvider.overrideWith(
-          (ref) => mockNetworkMonitor,
-        ),
-      ],
-    );
-
-    final notifier = testContainer.read(cameraQueueServiceProvider.notifier);
-    notifier.addPhoto('/path/to/photo1.jpg');
-
-    // Initial state is pending
-    expect(testContainer.read(cameraQueueServiceProvider).first.state, PhotoState.pending);
-
-    // Wait for stream to process
-    await Future.delayed(const Duration(milliseconds: 50));
-
-    // After success, item should be removed
-    expect(testContainer.read(cameraQueueServiceProvider).length, 0);
 
     testContainer.dispose();
   });

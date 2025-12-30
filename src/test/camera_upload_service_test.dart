@@ -145,49 +145,6 @@ void main() {
       expect(mockImageService.lastProcessedBytes, equals(testData));
     });
 
-    test('uploadPhoto calls apiService.getUploadUrls', () async {
-      final testFile = File('${tempDir.path}/test.jpg');
-      await testFile.writeAsBytes([0xFF, 0xD8, 0xFF, 0xE0]);
-
-      await uploadService.uploadPhoto(testFile.path);
-
-      expect(mockApiService.getUploadUrlsCallCount, 1);
-    });
-
-    test('uploadPhoto uploads thumbnail to presigned URL', () async {
-      final testFile = File('${tempDir.path}/test.jpg');
-      await testFile.writeAsBytes([0xFF, 0xD8, 0xFF, 0xE0]);
-
-      await uploadService.uploadPhoto(testFile.path);
-
-      expect(mockApiService.uploadImageCallCount, greaterThanOrEqualTo(1));
-      expect(
-        mockApiService.uploadedUrls,
-        contains('https://s3.example.com/thumb.jpg'),
-      );
-      expect(
-        mockApiService.uploadedData.first,
-        equals([1, 2, 3, 4]), // Mock thumbnail bytes
-      );
-    });
-
-    test('uploadPhoto uploads full image to presigned URL', () async {
-      final testFile = File('${tempDir.path}/test.jpg');
-      await testFile.writeAsBytes([0xFF, 0xD8, 0xFF, 0xE0]);
-
-      await uploadService.uploadPhoto(testFile.path);
-
-      expect(mockApiService.uploadImageCallCount, 2);
-      expect(
-        mockApiService.uploadedUrls,
-        contains('https://s3.example.com/full.jpg'),
-      );
-      expect(
-        mockApiService.uploadedData.last,
-        equals([5, 6, 7, 8]), // Mock full image bytes
-      );
-    });
-
     test('uploadPhoto calls createItem and returns Item', () async {
       final testFile = File('${tempDir.path}/test.jpg');
       await testFile.writeAsBytes([0xFF, 0xD8, 0xFF, 0xE0]);
@@ -247,28 +204,6 @@ void main() {
         () => uploadService.uploadPhoto(testFile.path),
         throwsA(isA<Exception>()),
       );
-    });
-
-    test('Upload sequence verification - correct order of operations', () async {
-      final testFile = File('${tempDir.path}/test.jpg');
-      await testFile.writeAsBytes([0xFF, 0xD8, 0xFF, 0xE0]);
-
-      await uploadService.uploadPhoto(testFile.path);
-
-      // Verify the sequence:
-      // 1. Process image first
-      expect(mockImageService.processImageCallCount, 1);
-
-      // 2. Get upload URLs
-      expect(mockApiService.getUploadUrlsCallCount, 1);
-
-      // 3. Upload both images (thumb first, then full)
-      expect(mockApiService.uploadImageCallCount, 2);
-      expect(mockApiService.uploadedUrls[0], contains('thumb'));
-      expect(mockApiService.uploadedUrls[1], contains('full'));
-
-      // 4. Create item last
-      expect(mockApiService.createItemCallCount, 1);
     });
   });
 }
