@@ -49,13 +49,17 @@ class _ItemCardState extends ConsumerState<ItemCard> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: CupertinoColors.secondarySystemBackground,
+        color: CupertinoColors.systemBackground,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: CupertinoColors.separator,
+          width: 0.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: CupertinoColors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: CupertinoColors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
           ),
         ],
       ),

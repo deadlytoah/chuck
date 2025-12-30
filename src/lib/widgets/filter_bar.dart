@@ -25,7 +25,7 @@ class FilterBar extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: CupertinoColors.secondarySystemBackground,
+        color: CupertinoColors.systemBackground,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: CupertinoColors.separator,
