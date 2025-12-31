@@ -75,6 +75,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                     const SizedBox(width: 16),
                   ],
                   Container(
+                    width: 56,
+                    height: 56,
                     decoration: BoxDecoration(
                       color: CupertinoColors.secondarySystemBackground.resolveFrom(context),
                       shape: BoxShape.circle,
@@ -96,9 +98,16 @@ class _HomePageState extends ConsumerState<HomePage> {
                     Container(
                       width: 56,
                       height: 56,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: CupertinoColors.activeBlue,
                         shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: CupertinoColors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                       child: CupertinoButton(
                         padding: EdgeInsets.zero,
