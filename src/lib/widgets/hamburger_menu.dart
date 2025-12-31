@@ -3,11 +3,13 @@ import 'package:flutter/cupertino.dart';
 class HamburgerMenu extends StatefulWidget {
   final int selectedIndex;
   final Function(int) onItemSelected;
+  final Offset menuOffset;
 
   const HamburgerMenu({
     super.key,
     required this.selectedIndex,
     required this.onItemSelected,
+    this.menuOffset = const Offset(-152, -120),
   });
 
   @override
@@ -93,7 +95,7 @@ class _HamburgerMenuState extends State<HamburgerMenu>
               child: CompositedTransformFollower(
                 link: _layerLink,
                 showWhenUnlinked: false,
-                offset: const Offset(-152, 48),
+                offset: widget.menuOffset,
                 child: FadeTransition(
                   opacity: _controller,
                   child: Container(
