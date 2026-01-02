@@ -30,10 +30,12 @@ class ItemsGrid extends ConsumerWidget {
     }
 
     if (itemsState.items.isEmpty) {
-      const message = Center(child: Text('No items match your filter.'));
       return shrinkWrap
-          ? message
-          : const SizedBox.expand(child: message);
+          ? const Center(child: Text('No items match your filter.'))
+          : const Align(
+              alignment: Alignment.center,
+              child: Text('No items match your filter.'),
+            );
     }
 
     final gridView = GridView.builder(
