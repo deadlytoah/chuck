@@ -60,13 +60,16 @@ func queryItems(ctx context.Context, nextToken, filter, sortBy string, limit int
 		archivedValue = "true"
 	}
 
+	// Build expression attribute values
+	exprAttrValues := map[string]types.AttributeValue{
+		":archived": &types.AttributeValueMemberS{Value: archivedValue},
+	}
+
 	// Build query input
 	input := &dynamodb.QueryInput{
 		TableName:              aws.String(tableName),
 		KeyConditionExpression: aws.String("archived = :archived"),
-		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":archived": &types.AttributeValueMemberS{Value: archivedValue},
-		},
+		ExpressionAttributeValues: exprAttrValues,
 		ScanIndexForward: aws.Bool(false), // Descending order by createdAt
 		Limit:            aws.Int32(int32(limit)),
 	}
@@ -77,7 +80,7 @@ func queryItems(ctx context.Context, nextToken, filter, sortBy string, limit int
 		input.ExpressionAttributeNames = map[string]string{
 			"#state": "state",
 		}
-		input.ExpressionAttributeValues[":state"] = &types.AttributeValueMemberS{Value: filter}
+		exprAttrValues[":state"] = &types.AttributeValueMemberS{Value: filter}
 	}
 
 	// Handle pagination token
