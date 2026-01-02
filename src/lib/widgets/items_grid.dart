@@ -32,9 +32,9 @@ class ItemsGrid extends ConsumerWidget {
     if (itemsState.items.isEmpty) {
       return shrinkWrap
           ? const Center(child: Text('No items match your filter.'))
-          : const Align(
+          : Container(
               alignment: Alignment.center,
-              child: Text('No items match your filter.'),
+              child: const Text('No items match your filter.'),
             );
     }
 
