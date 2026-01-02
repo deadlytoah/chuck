@@ -207,6 +207,19 @@ class BulkActions extends ConsumerWidget {
         );
       }
 
+      // Remove successfully archived items from local state
+      if (result.archived.isNotEmpty) {
+        final currentState = ref.read(itemsProvider);
+        final remainingItems = currentState.items
+            .where((item) => !result.archived.contains(item.itemId))
+            .toList();
+
+        // Update state with remaining items before refresh
+        ref.read(itemsProvider.notifier).state = currentState.copyWith(
+          items: remainingItems,
+        );
+      }
+
       // Clear selection and refresh
       ref.read(selectionProvider.notifier).clearSelection();
       ref.read(selectionProvider.notifier).toggleSelectionMode();
