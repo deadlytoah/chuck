@@ -55,39 +55,13 @@ class _HomePageState extends ConsumerState<HomePage> {
             ],
           ),
           Positioned(
-            top: 0,
-            right: 0,
+            bottom: 16,
+            right: 16,
             child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: CupertinoColors.secondarySystemBackground.resolveFrom(context),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: CupertinoColors.black.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: HamburgerMenu(
-                    selectedIndex: _selectedIndex,
-                    onItemSelected: _onItemSelected,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          if (_selectedIndex == 0)
-            Positioned(
-              bottom: 16,
-              right: 16,
-              child: SafeArea(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (_selectedIndex == 0) ...[
                     QueueStatusButton(
                       count: queueCount,
                       onPressed: () {
@@ -99,12 +73,41 @@ class _HomePageState extends ConsumerState<HomePage> {
                       },
                     ),
                     const SizedBox(width: 16),
+                  ],
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: CupertinoColors.activeBlue,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: CupertinoColors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: HamburgerMenu(
+                      selectedIndex: _selectedIndex,
+                      onItemSelected: _onItemSelected,
+                    ),
+                  ),
+                  if (_selectedIndex == 0) ...[
+                    const SizedBox(width: 16),
                     Container(
                       width: 56,
                       height: 56,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: CupertinoColors.activeBlue,
                         shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: CupertinoColors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                       child: CupertinoButton(
                         padding: EdgeInsets.zero,
@@ -122,9 +125,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ),
                     ),
                   ],
-                ),
+                ],
               ),
             ),
+          ),
         ],
       ),
     );
