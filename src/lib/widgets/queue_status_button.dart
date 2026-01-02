@@ -15,9 +15,16 @@ class QueueStatusButton extends StatelessWidget {
     return Container(
       width: 56,
       height: 56,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: CupertinoColors.activeBlue,
         shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: CupertinoColors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: CupertinoButton(
         padding: EdgeInsets.zero,
