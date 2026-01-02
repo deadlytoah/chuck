@@ -83,8 +83,11 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
     );
 
     // Preserve items that were added locally but aren't in backend response yet
+    // Only preserve non-archived items to avoid re-adding archived items
     final backendItemIds = response.items.map((item) => item.itemId).toSet();
-    final localOnlyItems = currentItems.where((item) => !backendItemIds.contains(item.itemId)).toList();
+    final localOnlyItems = currentItems
+        .where((item) => !backendItemIds.contains(item.itemId) && !item.archived)
+        .toList();
 
     // Merge: local-only items first, then backend items
     final mergedItems = [...localOnlyItems, ...response.items];
