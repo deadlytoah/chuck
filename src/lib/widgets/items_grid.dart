@@ -26,7 +26,13 @@ class ItemsGrid extends ConsumerWidget {
     final selectionState = ref.watch(selectionProvider);
 
     if (itemsState.isLoading && itemsState.items.isEmpty) {
-      return const Center(child: CupertinoActivityIndicator());
+      return const Padding(
+        padding: EdgeInsets.only(top: 120),
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: CupertinoActivityIndicator(),
+        ),
+      );
     }
 
     if (itemsState.items.isEmpty) {
