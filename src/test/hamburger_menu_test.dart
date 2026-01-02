@@ -33,6 +33,7 @@ void main() {
               trailing: HamburgerMenu(
                 selectedIndex: selectedIndex,
                 onItemSelected: (index) {},
+                menuOffset: const Offset(-152, 48),
               ),
             ),
             child: Container(),
@@ -60,6 +61,7 @@ void main() {
                 onItemSelected: (index) {
                   tappedIndex = index;
                 },
+                menuOffset: const Offset(-152, 48),
               ),
             ),
             child: Container(),

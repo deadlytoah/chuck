@@ -26,6 +26,13 @@ void main() {
     testWidgets('QueueStatusButton shows 0 when queue is empty', (
       WidgetTester tester,
     ) async {
+      tester.view.physicalSize = const Size(1200, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
       await tester.pumpWidget(
         const ProviderScope(
           child: CupertinoApp(home: HomePage()),
@@ -41,6 +48,13 @@ void main() {
     testWidgets('QueueStatusButton shows count when queue has items', (
       WidgetTester tester,
     ) async {
+      tester.view.physicalSize = const Size(1200, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
       final container = ProviderContainer(
         overrides: [
           networkMonitorProvider.overrideWith((ref) => NetworkMonitor(skipInit: true)),
@@ -75,6 +89,13 @@ void main() {
     testWidgets('Camera FAB is always visible', (
       WidgetTester tester,
     ) async {
+      tester.view.physicalSize = const Size(1200, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
       await tester.pumpWidget(
         const ProviderScope(
           child: CupertinoApp(home: HomePage()),
@@ -87,6 +108,13 @@ void main() {
     testWidgets('FABs are hidden on Admin Page (tab index 1)', (
       WidgetTester tester,
     ) async {
+      tester.view.physicalSize = const Size(1200, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
       await tester.pumpWidget(
         const ProviderScope(
           child: CupertinoApp(home: HomePage()),
@@ -120,6 +148,13 @@ void main() {
     testWidgets('FABs reappear when switching back to Main View', (
       WidgetTester tester,
     ) async {
+      tester.view.physicalSize = const Size(1200, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
       await tester.pumpWidget(
         const ProviderScope(
           child: CupertinoApp(home: HomePage()),
