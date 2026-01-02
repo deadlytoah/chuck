@@ -203,6 +203,7 @@ class _HamburgerMenuState extends State<HamburgerMenu>
           child: const Icon(
             CupertinoIcons.line_horizontal_3,
             size: 24,
+            color: CupertinoColors.white,
           ),
         ),
       ),

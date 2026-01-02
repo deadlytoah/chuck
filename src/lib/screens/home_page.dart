@@ -78,7 +78,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     width: 56,
                     height: 56,
                     decoration: BoxDecoration(
-                      color: CupertinoColors.secondarySystemBackground.resolveFrom(context),
+                      color: CupertinoColors.activeBlue,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
