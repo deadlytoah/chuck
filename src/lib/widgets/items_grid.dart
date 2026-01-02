@@ -34,7 +34,10 @@ class ItemsGrid extends ConsumerWidget {
         padding: shrinkWrap
             ? const EdgeInsets.only(top: 60)
             : const EdgeInsets.only(bottom: 100),
-        child: const Center(child: Text('No items match your filter.')),
+        child: const SizedBox(
+          width: double.infinity,
+          child: Center(child: Text('No items match your filter.')),
+        ),
       );
     }
 
