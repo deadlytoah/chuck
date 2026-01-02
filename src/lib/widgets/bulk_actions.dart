@@ -83,6 +83,8 @@ class BulkActions extends ConsumerWidget {
   Future<void> _bulkArchive(BuildContext context, WidgetRef ref) async {
     final selectedCount = ref.read(selectionProvider).selectedIds.length;
 
+    if (!context.mounted) return;
+
     final confirmed = await showCupertinoDialog<bool>(
       context: context,
       builder: (context) => CupertinoAlertDialog(
@@ -105,43 +107,72 @@ class BulkActions extends ConsumerWidget {
     if (confirmed != true) return;
 
     final selectedIds = ref.read(selectionProvider).selectedIds.toList();
+
+    if (selectedIds.isEmpty) {
+      print('Bulk archive: No items selected');
+      return;
+    }
+
+    print('Bulk archive: Archiving ${selectedIds.length} items: $selectedIds');
+
     final apiService = ref.read(apiServiceProvider);
 
     try {
       final result = await apiService.bulkArchive(selectedIds);
 
-      if (context.mounted) {
-        if (result.failed.isEmpty) {
-          await showCupertinoDialog(
-            context: context,
-            builder: (context) => CupertinoAlertDialog(
-              title: const Text('Success'),
-              content: Text('Successfully archived ${result.archived.length} items'),
-              actions: [
-                CupertinoDialogAction(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
-          );
-        } else {
-          await showCupertinoDialog(
-            context: context,
-            builder: (context) => CupertinoAlertDialog(
-              title: const Text('Partial Success'),
-              content: Text(
-                'Archived ${result.archived.length} items.\n'
-                'Failed: ${result.failed.length}',
+      print('Bulk archive result: archived=${result.archived.length}, failed=${result.failed.length}');
+
+      if (!context.mounted) {
+        print('Bulk archive: Context unmounted after API call');
+        return;
+      }
+
+      if (result.failed.isEmpty) {
+        await showCupertinoDialog(
+          context: context,
+          builder: (context) => CupertinoAlertDialog(
+            title: const Text('Success'),
+            content: Text('Successfully archived ${result.archived.length} items'),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
               ),
-              actions: [
-                CupertinoDialogAction(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('OK'),
-                ),
-                CupertinoDialogAction(
-                  onPressed: () {
-                    Navigator.pop(context);
+            ],
+          ),
+        );
+      } else if (result.archived.isEmpty) {
+        await showCupertinoDialog(
+          context: context,
+          builder: (context) => CupertinoAlertDialog(
+            title: const Text('Error'),
+            content: Text('Failed to archive all ${result.failed.length} items'),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      } else {
+        await showCupertinoDialog(
+          context: context,
+          builder: (context) => CupertinoAlertDialog(
+            title: const Text('Partial Success'),
+            content: Text(
+              'Archived ${result.archived.length} items.\n'
+              'Failed: ${result.failed.length}',
+            ),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+              CupertinoDialogAction(
+                onPressed: () {
+                  Navigator.pop(context);
+                  if (context.mounted) {
                     showCupertinoDialog(
                       context: context,
                       builder: (context) => CupertinoAlertDialog(
@@ -167,13 +198,13 @@ class BulkActions extends ConsumerWidget {
                         ],
                       ),
                     );
-                  },
-                  child: const Text('Details'),
-                ),
-              ],
-            ),
-          );
-        }
+                  }
+                },
+                child: const Text('Details'),
+              ),
+            ],
+          ),
+        );
       }
 
       // Clear selection and refresh
@@ -182,14 +213,15 @@ class BulkActions extends ConsumerWidget {
 
       final filter = ref.read(filterProvider);
       final sort = ref.read(sortProvider);
-      ref.read(itemsProvider.notifier).loadItems(filter: filter, sort: sort);
+      await ref.read(itemsProvider.notifier).loadItems(filter: filter, sort: sort);
     } catch (e) {
+      print('Bulk archive error: $e');
       if (context.mounted) {
         await showCupertinoDialog(
           context: context,
           builder: (context) => CupertinoAlertDialog(
             title: const Text('Error'),
-            content: Text('Error: $e'),
+            content: Text('Failed to archive items: $e'),
             actions: [
               CupertinoDialogAction(
                 onPressed: () => Navigator.pop(context),
