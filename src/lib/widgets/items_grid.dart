@@ -30,9 +30,11 @@ class ItemsGrid extends ConsumerWidget {
     }
 
     if (itemsState.items.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.only(top: 60),
-        child: Center(child: Text('No items match your filter.')),
+      return Padding(
+        padding: shrinkWrap
+            ? const EdgeInsets.only(top: 60)
+            : const EdgeInsets.only(bottom: 100),
+        child: const Center(child: Text('No items match your filter.')),
       );
     }
 
