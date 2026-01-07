@@ -19,6 +19,9 @@ When you scan the directory, skip `.git/` and `log/`.
 - Flutter source code: `src/`
 - Lambda (golang) source: `lambda/`
 - Deploy lambda: `cd lambda/ && make update`
+- Deploy web: `./deploy-web.sh` (builds and syncs to S3, preserves
+  images/ and lambda/ directories)
+- IMPORTANT: Always confirm destructive actions before executing
 
 # Plans
 
