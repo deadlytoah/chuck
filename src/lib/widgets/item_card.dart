@@ -130,7 +130,7 @@ class _ItemCardState extends ConsumerState<ItemCard> {
                             fontSize: 13,
                             color: CupertinoColors.secondaryLabel.resolveFrom(context),
                           ),
-                          maxLines: 1,
+                          maxLines: 3,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],
