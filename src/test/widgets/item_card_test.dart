@@ -25,7 +25,9 @@ void main() {
         ProviderScope(
           child: CupertinoApp(
             home: CupertinoPageScaffold(
-              child: ItemCard(item: testItem),
+              child: SingleChildScrollView(
+                child: ItemCard(item: testItem),
+              ),
             ),
           ),
         ),
@@ -57,7 +59,9 @@ void main() {
         ProviderScope(
           child: CupertinoApp(
             home: CupertinoPageScaffold(
-              child: ItemCard(item: testItem),
+              child: SingleChildScrollView(
+                child: ItemCard(item: testItem),
+              ),
             ),
           ),
         ),
@@ -89,7 +93,9 @@ void main() {
         ProviderScope(
           child: CupertinoApp(
             home: CupertinoPageScaffold(
-              child: ItemCard(item: testItem),
+              child: SingleChildScrollView(
+                child: ItemCard(item: testItem),
+              ),
             ),
           ),
         ),
