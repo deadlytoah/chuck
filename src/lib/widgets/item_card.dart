@@ -75,20 +75,22 @@ class _ItemCardState extends ConsumerState<ItemCard> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                AspectRatio(
-                  aspectRatio: 4 / 3,
-                  child: Image.network(
-                    widget.item.thumbnailUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: CupertinoColors.systemGrey5,
-                        child: const Icon(
-                          CupertinoIcons.photo,
-                          color: CupertinoColors.systemGrey,
-                        ),
-                      );
-                    },
+                Expanded(
+                  child: AspectRatio(
+                    aspectRatio: 4 / 3,
+                    child: Image.network(
+                      widget.item.thumbnailUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: CupertinoColors.systemGrey5,
+                          child: const Icon(
+                            CupertinoIcons.photo,
+                            color: CupertinoColors.systemGrey,
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
                 Padding(
