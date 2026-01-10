@@ -29,14 +29,25 @@ between Main View and Admin. Filter, sort and refresh controls are in
 the AppBar. Default: Main View tab with "ALL" filter, sorted by
 updatedAt descending.
 
+**Folder Organization:**
+- Items organized into folders (flat structure, no nesting)
+- Default folder: "entryway" (pre-created)
+- Folder selector at top center of home screen (icon + name + dropdown)
+- Click to open bottom sheet with folder list
+- Selecting folder switches current view to that folder
+- All filters and operations work within currently selected folder
+- Create folder: "+" in folder list or hamburger menu
+- Manage folders (rename/delete): long-press in list or hamburger menu
+
 **Main View:**
 - Grid view using thumbnail images, with token-based pagination.
 - Sort: by `createdAt`, `updatedAt` or `state`
 - Filter: by state (Chuck, Keep, Sell, Undecided, Unanswered). The "ALL"
-  filter excludes archived items.
+  filter excludes archived items within current folder.
 - Manual refresh for updates. Newly uploaded items appear automatically
   after backend confirmation.
-- Archive button per item. Archived items retain their last known state.
+- Archive button per item. Archived items retain their last known state
+  and remain in their folder (hidden unless filtered).
 - State selection available to all users
 
 **Edit Item Screen:**
@@ -72,6 +83,7 @@ updatedAt descending.
   in/out with haptic feedback when photo added to queue
 - Queue processes immediately when non-metered network available,
   regardless of app state
+- Uploads go to currently selected folder (folder context preserved)
 - New items appear in Main View grid after backend confirms creation
   (POST /items completes)
 - Camera exit: back button only, returns user to home page
