@@ -46,12 +46,6 @@ images/{uuid}/thumb.jpg
   - `name`: display name
   - `createdAt`: timestamp
 
-**GSI: ArchivedIndex**
-- Purpose: Query all archived items across folders
-- Partition key: `archived` (boolean: true/false)
-- Sort key: `createdAt` (timestamp, descending)
-- Preserves existing "archived" filter functionality
-
 **Query Patterns:**
 - Items in folder (active): `PK = "FOLDER#inbox" AND SK begins_with
   "ITEM#false#"`
@@ -59,7 +53,13 @@ images/{uuid}/thumb.jpg
   "ITEM#true#"`
 - All items in folder: `PK = "FOLDER#inbox" AND SK begins_with "ITEM#"`
 - Folder metadata: `PK = "FOLDER#inbox" AND SK = "METADATA"`
-- All archived items (cross-folder): Query GSI with `archived = true`
+
+**Initial Folder Setup:**
+- On first launch (no folders exist): auto-create "Clothes", "Blankets",
+  "Books"
+- Default selection: "Clothes"
+- Subsequent launches: use last-selected folder from local storage,
+  fallback to first alphabetically if not found
 
 **Migration:**
 - Old table (chuck-items) remains during transition
@@ -244,4 +244,3 @@ Handling section)
 - S3 bucket name: chuck.overcomingsh.in
 - DynamoDB: on-demand
 - PITR: disabled
-- GSI: ArchivedIndex (archived, createdAt)

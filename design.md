@@ -31,7 +31,9 @@ updatedAt descending.
 
 **Folder Organization:**
 - Items organized into folders (flat structure, no nesting)
-- Default folder: "entryway" (pre-created)
+- First launch: auto-create "Clothes", "Blankets", "Books"; select
+  "Clothes"
+- Subsequent launches: restore last-selected folder from local storage
 - Folder selector at top center of home screen (icon + name + dropdown)
 - Click to open bottom sheet with folder list
 - Selecting folder switches current view to that folder
