@@ -47,12 +47,12 @@ images/{uuid}/thumb.jpg
   - `createdAt`: timestamp
 
 **Query Patterns:**
-- Items in folder (active): `PK = "FOLDER#inbox" AND SK begins_with
-  "ITEM#false#"`
-- Items in folder (archived): `PK = "FOLDER#inbox" AND SK begins_with
+- Items in folder (active): `PK = "FOLDER#clothes" AND SK begins_with
+  "ITEM#false#"` (clothes is example folderId)
+- Items in folder (archived): `PK = "FOLDER#clothes" AND SK begins_with
   "ITEM#true#"`
-- All items in folder: `PK = "FOLDER#inbox" AND SK begins_with "ITEM#"`
-- Folder metadata: `PK = "FOLDER#inbox" AND SK = "METADATA"`
+- All items in folder: `PK = "FOLDER#clothes" AND SK begins_with "ITEM#"`
+- Folder metadata: `PK = "FOLDER#clothes" AND SK = "METADATA"`
 
 **Initial Folder Setup:**
 - On first launch (no folders exist): auto-create "Clothes", "Blankets",
@@ -86,7 +86,7 @@ images/{uuid}/thumb.jpg
   "createdAt": "..."}]}`
 
 ### POST /folders
-- Request: `{"folderId": "inbox", "name": "Inbox"}`
+- Request: `{"folderId": "clothes", "name": "Clothes"}` (example)
 - Creates new folder
 - Response: created folder object
 
