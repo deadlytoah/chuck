@@ -429,38 +429,43 @@ func updateItemRecord(ctx context.Context, itemID string, req UpdateItemRequest)
 
 	// Handle unarchive - requires moving item (changing SK)
 	if req.Archived != nil && !*req.Archived && existingItem.Archived {
-		// Delete old item
-		_, err := dynamoClient.DeleteItem(ctx, &dynamodb.DeleteItemInput{
-			TableName: aws.String(tableName),
-			Key: map[string]types.AttributeValue{
-				"PK": &types.AttributeValueMemberS{Value: existingItem.PK},
-				"SK": &types.AttributeValueMemberS{Value: existingItem.SK},
+		// Create new item with updated SK
+		newItem := *existingItem
+		newItem.SK = fmt.Sprintf("item#false#%s", existingItem.CreatedAt)
+		newItem.Archived = false
+		newItem.ArchivedAt = ""
+		newItem.UpdatedAt = now
+
+		av, err := attributevalue.MarshalMap(newItem)
+		if err != nil {
+			return nil, err
+		}
+
+		// Use transaction to atomically delete old and create new
+		_, err = dynamoClient.TransactWriteItems(ctx, &dynamodb.TransactWriteItemsInput{
+			TransactItems: []types.TransactWriteItem{
+				{
+					Delete: &types.Delete{
+						TableName: aws.String(tableName),
+						Key: map[string]types.AttributeValue{
+							"PK": &types.AttributeValueMemberS{Value: existingItem.PK},
+							"SK": &types.AttributeValueMemberS{Value: existingItem.SK},
+						},
+					},
+				},
+				{
+					Put: &types.Put{
+						TableName: aws.String(tableName),
+						Item:      av,
+					},
+				},
 			},
 		})
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to unarchive item: %w", err)
 		}
 
-		// Create new item with updated SK
-		existingItem.SK = fmt.Sprintf("item#false#%s", existingItem.CreatedAt)
-		existingItem.Archived = false
-		existingItem.ArchivedAt = ""
-		existingItem.UpdatedAt = now
-
-		av, err := attributevalue.MarshalMap(existingItem)
-		if err != nil {
-			return nil, err
-		}
-
-		_, err = dynamoClient.PutItem(ctx, &dynamodb.PutItemInput{
-			TableName: aws.String(tableName),
-			Item:      av,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		return existingItem, nil
+		return &newItem, nil
 	}
 
 	// Build update expression
@@ -533,35 +538,43 @@ func archiveItemRecord(ctx context.Context, itemID string) error {
 
 	now := time.Now().UTC().Format(time.RFC3339)
 
-	// Delete from current location
-	_, err = dynamoClient.DeleteItem(ctx, &dynamodb.DeleteItemInput{
-		TableName: aws.String(tableName),
-		Key: map[string]types.AttributeValue{
-			"PK": &types.AttributeValueMemberS{Value: existingItem.PK},
-			"SK": &types.AttributeValueMemberS{Value: existingItem.SK},
+	// Create archived version with new SK
+	archivedItem := *existingItem
+	archivedItem.SK = fmt.Sprintf("item#true#%s", existingItem.CreatedAt)
+	archivedItem.Archived = true
+	archivedItem.ArchivedAt = now
+	archivedItem.UpdatedAt = now
+
+	av, err := attributevalue.MarshalMap(archivedItem)
+	if err != nil {
+		return err
+	}
+
+	// Use transaction to atomically delete old and create archived version
+	_, err = dynamoClient.TransactWriteItems(ctx, &dynamodb.TransactWriteItemsInput{
+		TransactItems: []types.TransactWriteItem{
+			{
+				Delete: &types.Delete{
+					TableName: aws.String(tableName),
+					Key: map[string]types.AttributeValue{
+						"PK": &types.AttributeValueMemberS{Value: existingItem.PK},
+						"SK": &types.AttributeValueMemberS{Value: existingItem.SK},
+					},
+				},
+			},
+			{
+				Put: &types.Put{
+					TableName: aws.String(tableName),
+					Item:      av,
+				},
+			},
 		},
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to archive item: %w", err)
 	}
 
-	// Create in archived location with new SK
-	existingItem.SK = fmt.Sprintf("item#true#%s", existingItem.CreatedAt)
-	existingItem.Archived = true
-	existingItem.ArchivedAt = now
-	existingItem.UpdatedAt = now
-
-	av, err := attributevalue.MarshalMap(existingItem)
-	if err != nil {
-		return err
-	}
-
-	_, err = dynamoClient.PutItem(ctx, &dynamodb.PutItemInput{
-		TableName: aws.String(tableName),
-		Item:      av,
-	})
-
-	return err
+	return nil
 }
 
 // batchArchiveItems archives multiple items
