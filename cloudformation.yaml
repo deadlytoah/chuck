@@ -100,6 +100,24 @@ Resources:
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: false
 
+  DynamoDBTableV2:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: chuck-items-v2
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: false
+
   LambdaLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
@@ -130,10 +148,13 @@ Resources:
               - Effect: Allow
                 Action:
                   - dynamodb:Query
+                  - dynamodb:Scan
                   - dynamodb:PutItem
                   - dynamodb:UpdateItem
                   - dynamodb:DeleteItem
-                Resource: !GetAtt DynamoDBTable.Arn
+                Resource:
+                  - !GetAtt DynamoDBTable.Arn
+                  - !GetAtt DynamoDBTableV2.Arn
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -155,7 +176,7 @@ Resources:
       Environment:
         Variables:
           BUCKET_NAME: !Ref S3Bucket
-          TABLE_NAME: !Ref DynamoDBTable
+          TABLE_NAME: !Ref DynamoDBTableV2
           REGION: !Ref AWS::Region
       Timeout: 30
       MemorySize: 512
@@ -208,7 +229,10 @@ Outputs:
     Description: Name of the S3 bucket
   TableName:
     Value: !Ref DynamoDBTable
-    Description: Name of the DynamoDB table
+    Description: Name of the DynamoDB table (legacy)
+  TableNameV2:
+    Value: !Ref DynamoDBTableV2
+    Description: Name of the DynamoDB table (v2)
   FunctionUrl:
     Value: !GetAtt ChuckApiFunctionUrl.FunctionUrl
     Description: Lambda Function URL for API access

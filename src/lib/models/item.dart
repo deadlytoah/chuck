@@ -1,5 +1,6 @@
 class Item {
   final String itemId;
+  final String folderId;
   final String imageUrl;
   final String state;
   final String? notes;
@@ -9,6 +10,7 @@ class Item {
 
   Item({
     required this.itemId,
+    required this.folderId,
     required this.imageUrl,
     required this.state,
     this.notes,
@@ -20,6 +22,7 @@ class Item {
   factory Item.fromJson(Map<String, dynamic> json) {
     return Item(
       itemId: json['itemId'] as String,
+      folderId: json['folderId'] as String,
       imageUrl: json['imageUrl'] as String,
       state: json['state'] as String,
       notes: json['notes'] as String?,
@@ -36,6 +39,7 @@ class Item {
   Map<String, dynamic> toJson() {
     return {
       'itemId': itemId,
+      'folderId': folderId,
       'imageUrl': imageUrl,
       'state': state,
       'notes': notes,
@@ -47,6 +51,7 @@ class Item {
 
   Item copyWith({
     String? itemId,
+    String? folderId,
     String? imageUrl,
     String? state,
     String? notes,
@@ -56,6 +61,7 @@ class Item {
   }) {
     return Item(
       itemId: itemId ?? this.itemId,
+      folderId: folderId ?? this.folderId,
       imageUrl: imageUrl ?? this.imageUrl,
       state: state ?? this.state,
       notes: notes ?? this.notes,

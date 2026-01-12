@@ -41,6 +41,16 @@ func handler(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.AP
 	statusCode := http.StatusOK
 
 	switch {
+	case method == "GET" && path == "/folders":
+		response, err = getFolders(ctx)
+	case method == "POST" && path == "/folders":
+		response, err = createFolder(ctx, req)
+	case method == "PUT" && strings.HasPrefix(path, "/folders/"):
+		folderID := strings.TrimPrefix(path, "/folders/")
+		response, err = updateFolder(ctx, folderID, req)
+	case method == "DELETE" && strings.HasPrefix(path, "/folders/"):
+		folderID := strings.TrimPrefix(path, "/folders/")
+		response, err = deleteFolder(ctx, folderID)
 	case method == "GET" && path == "/items":
 		response, err = getItems(ctx, req)
 	case method == "POST" && path == "/items/upload":
@@ -91,6 +101,11 @@ func errorResponse(headers map[string]string, err error, statusCode int) events.
 // getItems handles GET /items
 func getItems(ctx context.Context, req events.APIGatewayV2HTTPRequest) (interface{}, error) {
 	// Parse query params
+	folderID := req.QueryStringParameters["folderId"]
+	if folderID == "" {
+		return nil, fmt.Errorf("folderId is required")
+	}
+
 	nextToken := req.QueryStringParameters["nextToken"]
 	filter := req.QueryStringParameters["filter"]
 	if filter == "" {
@@ -113,7 +128,7 @@ func getItems(ctx context.Context, req events.APIGatewayV2HTTPRequest) (interfac
 	}
 
 	// Query items
-	items, newToken, err := queryItems(ctx, nextToken, filter, sortBy, limit)
+	items, newToken, err := queryItems(ctx, folderID, nextToken, filter, sortBy, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -160,6 +175,10 @@ func createItem(ctx context.Context, req events.APIGatewayV2HTTPRequest) (interf
 		return nil, fmt.Errorf("invalid request body: %w", err)
 	}
 
+	if createReq.FolderID == "" {
+		return nil, fmt.Errorf("folderId is required")
+	}
+
 	if createReq.ImageURL == "" {
 		return nil, fmt.Errorf("imageUrl is required")
 	}
@@ -168,7 +187,7 @@ func createItem(ctx context.Context, req events.APIGatewayV2HTTPRequest) (interf
 		createReq.State = "Unanswered"
 	}
 
-	item, err := createItemRecord(ctx, createReq.ImageURL, createReq.State)
+	item, err := createItemRecord(ctx, createReq.FolderID, createReq.ImageURL, createReq.State)
 	if err != nil {
 		return nil, err
 	}
@@ -234,6 +253,68 @@ func batchArchive(ctx context.Context, req events.APIGatewayV2HTTPRequest) (inte
 			"failed":   failed,
 		},
 	}, nil
+}
+
+// getFolders handles GET /folders
+func getFolders(ctx context.Context) (interface{}, error) {
+	folders, err := GetFolders(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return GetFoldersResponse{Data: folders}, nil
+}
+
+// createFolder handles POST /folders
+func createFolder(ctx context.Context, req events.APIGatewayV2HTTPRequest) (interface{}, error) {
+	var createReq CreateFolderRequest
+	if err := json.Unmarshal([]byte(req.Body), &createReq); err != nil {
+		return nil, fmt.Errorf("invalid request body: %w", err)
+	}
+
+	if createReq.FolderID == "" {
+		return nil, fmt.Errorf("folderId is required")
+	}
+
+	if createReq.Name == "" {
+		return nil, fmt.Errorf("name is required")
+	}
+
+	folder, err := CreateFolder(ctx, createReq.FolderID, createReq.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return FolderResponse{Data: *folder}, nil
+}
+
+// updateFolder handles PUT /folders/{folderId}
+func updateFolder(ctx context.Context, folderID string, req events.APIGatewayV2HTTPRequest) (interface{}, error) {
+	var updateReq UpdateFolderRequest
+	if err := json.Unmarshal([]byte(req.Body), &updateReq); err != nil {
+		return nil, fmt.Errorf("invalid request body: %w", err)
+	}
+
+	if updateReq.Name == "" {
+		return nil, fmt.Errorf("name is required")
+	}
+
+	folder, err := UpdateFolder(ctx, folderID, updateReq.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return FolderResponse{Data: *folder}, nil
+}
+
+// deleteFolder handles DELETE /folders/{folderId}
+func deleteFolder(ctx context.Context, folderID string) (interface{}, error) {
+	err := DeleteFolder(ctx, folderID)
+	if err != nil {
+		return nil, err
+	}
+
+	return EmptyResponse{Data: map[string]interface{}{}}, nil
 }
 
 func main() {

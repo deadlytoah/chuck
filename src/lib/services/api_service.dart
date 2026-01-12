@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/item.dart';
+import '../models/folder.dart';
 import '../models/upload_progress.dart';
 
 class ApiService {
@@ -9,12 +10,16 @@ class ApiService {
   ApiService({required this.baseUrl});
 
   Future<ItemsResponse> getItems({
+    required String folderId,
     String? nextToken,
     int limit = 20,
     String? sort,
     String? filter,
   }) async {
-    final queryParams = <String, String>{'limit': limit.toString()};
+    final queryParams = <String, String>{
+      'folderId': folderId,
+      'limit': limit.toString(),
+    };
     if (nextToken != null) queryParams['nextToken'] = nextToken;
     if (sort != null) queryParams['sort'] = sort;
     if (filter != null) queryParams['filter'] = filter;
@@ -61,6 +66,7 @@ class ApiService {
   }
 
   Future<Item> createItem({
+    required String folderId,
     required String imageUrl,
     String state = 'Unanswered',
   }) async {
@@ -69,7 +75,11 @@ class ApiService {
     final response = await http.post(
       uri,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'imageUrl': imageUrl, 'state': state}),
+      body: jsonEncode({
+        'folderId': folderId,
+        'imageUrl': imageUrl,
+        'state': state,
+      }),
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
@@ -139,6 +149,72 @@ class ApiService {
       return BulkArchiveResult.fromJson(json['data']);
     } else {
       throw Exception('Failed to bulk archive: ${response.statusCode}');
+    }
+  }
+
+  Future<List<Folder>> getFolders() async {
+    final uri = Uri.parse(baseUrl).replace(path: '/folders');
+
+    final response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      return FoldersResponse.fromJson(json).folders;
+    } else {
+      throw Exception('Failed to load folders: ${response.statusCode}');
+    }
+  }
+
+  Future<Folder> createFolder({
+    required String folderId,
+    required String name,
+  }) async {
+    final uri = Uri.parse(baseUrl).replace(path: '/folders');
+
+    final response = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'folderId': folderId,
+        'name': name,
+      }),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      return Folder.fromJson(json['data']);
+    } else {
+      throw Exception('Failed to create folder: ${response.statusCode}');
+    }
+  }
+
+  Future<Folder> updateFolder(
+    String folderId, {
+    required String name,
+  }) async {
+    final uri = Uri.parse(baseUrl).replace(path: '/folders/$folderId');
+
+    final response = await http.put(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'name': name}),
+    );
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      return Folder.fromJson(json['data']);
+    } else {
+      throw Exception('Failed to update folder: ${response.statusCode}');
+    }
+  }
+
+  Future<void> deleteFolder(String folderId) async {
+    final uri = Uri.parse(baseUrl).replace(path: '/folders/$folderId');
+
+    final response = await http.delete(uri);
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to delete folder: ${response.statusCode}');
     }
   }
 }

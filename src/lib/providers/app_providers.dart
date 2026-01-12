@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/item.dart';
+import '../models/folder.dart';
 import '../models/upload_progress.dart';
 import '../services/api_service.dart';
 import '../services/camera_service.dart';
@@ -41,6 +42,118 @@ final cameraUploadServiceProvider = Provider<CameraUploadService>((ref) {
   );
 });
 
+// Folder state
+class FoldersState {
+  final List<Folder> folders;
+  final String? currentFolderId;
+  final bool isLoading;
+
+  FoldersState({
+    required this.folders,
+    this.currentFolderId,
+    this.isLoading = false,
+  });
+
+  Folder? get currentFolder {
+    if (currentFolderId == null) return null;
+    return folders.where((f) => f.folderId == currentFolderId).firstOrNull;
+  }
+
+  FoldersState copyWith({
+    List<Folder>? folders,
+    String? currentFolderId,
+    bool? isLoading,
+  }) {
+    return FoldersState(
+      folders: folders ?? this.folders,
+      currentFolderId: currentFolderId ?? this.currentFolderId,
+      isLoading: isLoading ?? this.isLoading,
+    );
+  }
+}
+
+class FoldersNotifier extends StateNotifier<FoldersState> {
+  final ApiService apiService;
+
+  FoldersNotifier(this.apiService)
+      : super(FoldersState(folders: [], isLoading: false));
+
+  Future<void> loadFolders() async {
+    state = state.copyWith(isLoading: true);
+
+    final folders = await apiService.getFolders();
+
+    // Auto-select first folder if none selected
+    String? selectedId = state.currentFolderId;
+    if (selectedId == null && folders.isNotEmpty) {
+      selectedId = folders.first.folderId;
+    }
+
+    state = FoldersState(
+      folders: folders,
+      currentFolderId: selectedId,
+      isLoading: false,
+    );
+  }
+
+  void selectFolder(String folderId) {
+    state = state.copyWith(currentFolderId: folderId);
+  }
+
+  Future<void> createFolder({
+    required String folderId,
+    required String name,
+  }) async {
+    final folder = await apiService.createFolder(
+      folderId: folderId,
+      name: name,
+    );
+
+    state = state.copyWith(
+      folders: [...state.folders, folder],
+    );
+  }
+
+  Future<void> updateFolder({
+    required String folderId,
+    required String name,
+  }) async {
+    final updatedFolder = await apiService.updateFolder(folderId, name: name);
+
+    final index = state.folders.indexWhere((f) => f.folderId == folderId);
+    if (index != -1) {
+      final newFolders = List<Folder>.from(state.folders);
+      newFolders[index] = updatedFolder;
+      state = state.copyWith(folders: newFolders);
+    }
+  }
+
+  Future<void> deleteFolder(String folderId) async {
+    await apiService.deleteFolder(folderId);
+
+    final newFolders =
+        state.folders.where((f) => f.folderId != folderId).toList();
+
+    // If deleted folder was selected, select first available
+    String? newSelection = state.currentFolderId;
+    if (state.currentFolderId == folderId) {
+      newSelection = newFolders.isNotEmpty ? newFolders.first.folderId : null;
+    }
+
+    state = FoldersState(
+      folders: newFolders,
+      currentFolderId: newSelection,
+      isLoading: false,
+    );
+  }
+}
+
+final foldersProvider =
+    StateNotifierProvider<FoldersNotifier, FoldersState>((ref) {
+  final apiService = ref.watch(apiServiceProvider);
+  return FoldersNotifier(apiService);
+});
+
 // Items state
 class ItemsState {
   final List<Item> items;
@@ -72,11 +185,17 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
   ItemsNotifier(this.apiService)
     : super(ItemsState(items: [], isLoading: false));
 
-  Future<void> loadItems({String? filter, String? sort, int limit = 20}) async {
+  Future<void> loadItems({
+    required String folderId,
+    String? filter,
+    String? sort,
+    int limit = 20,
+  }) async {
     final currentItems = state.items;
     state = state.copyWith(isLoading: true);
 
     final response = await apiService.getItems(
+      folderId: folderId,
       filter: filter,
       sort: sort,
       limit: limit,
@@ -88,7 +207,10 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
     final backendItemIds = response.items.map((item) => item.itemId).toSet();
     final localOnlyItems = (filter == null || filter == 'all')
         ? currentItems
-            .where((item) => !backendItemIds.contains(item.itemId) && !item.archived)
+            .where((item) =>
+                !backendItemIds.contains(item.itemId) &&
+                !item.archived &&
+                item.folderId == folderId)
             .toList()
         : <Item>[];
 
@@ -102,12 +224,17 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
     );
   }
 
-  Future<void> loadMore({String? filter, String? sort}) async {
+  Future<void> loadMore({
+    required String folderId,
+    String? filter,
+    String? sort,
+  }) async {
     if (state.nextToken == null || state.isLoading) return;
 
     state = state.copyWith(isLoading: true);
 
     final response = await apiService.getItems(
+      folderId: folderId,
       nextToken: state.nextToken,
       filter: filter,
       sort: sort,
