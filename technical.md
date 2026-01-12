@@ -21,23 +21,51 @@ images/{uuid}/thumb.jpg
   then auto-delete via S3 lifecycle policy.
 
 ## DynamoDB Schema
-- Partition key: `archived` (boolean: true/false)
-- Sort key: `createdAt` (timestamp, descending)
-- Attributes:
+
+**Table: chuck-items-v2** (replaces chuck-items)
+
+**Main Table:**
+- Partition key: `PK` = `folder#{folderId}`
+- Sort key: `SK` = `item#{archived}#{createdAt}` (items) or `metadata`
+  (folder metadata)
+- Entity types stored: folders and items (single-table design)
+- Attributes for items:
+  - `entityType`: "item"
   - `itemId`: UUID
-  - `imageUrl`: S3 object key for full-size
-    image (e.g., `items/{id}/full/img.jpg`)
-  - `state`: Chuck/Keep/Sell/Undecided/Unanswered
-    (default: Unanswered)
+  - `folderId`: string (e.g., "entryway", "living-room")
+  - `imageUrl`: S3 object key for full-size image
+  - `state`: Chuck/Keep/Sell/Undecided/Unanswered (default: Unanswered)
   - `notes`: string (for multi-line notes)
+  - `archived`: boolean (true/false)
   - `archivedAt`: timestamp when archived
   - `createdAt`: timestamp (set on creation)
   - `updatedAt`: last modification time
-- Design rationale: At 50-100 items, partition key by archived status
-  provides efficient queries (active items = one partition) with no
-  GSI complexity. Soft delete via archived flag; S3 lifecycle deletes
-  images after 30 days.
-- No GSI as tiny workload.
+- Attributes for folders:
+  - `entityType`: "folder"
+  - `folderId`: string (unique identifier)
+  - `name`: display name
+  - `createdAt`: timestamp
+
+**Query Patterns:**
+- Items in folder (active): `PK = "folder#clothes" AND SK begins_with
+  "item#false#"` (clothes is example folderId)
+- Items in folder (archived): `PK = "folder#clothes" AND SK begins_with
+  "item#true#"`
+- All items in folder: `PK = "folder#clothes" AND SK begins_with "item#"`
+- Folder metadata: `PK = "folder#clothes" AND SK = "metadata"`
+
+**Initial Folder Setup:**
+- On first launch (no folders exist): auto-create "Clothes", "Blankets",
+  "Books"
+- Default selection: "Clothes"
+- Subsequent launches: use last-selected folder from local storage,
+  fallback to first alphabetically if not found
+
+**Migration:**
+- Old table (chuck-items) remains during transition
+- Migration script moves data from chuck-items to chuck-items-v2
+- All old items go into "entryway" folder
+- Migration runs manually post-deployment
 
 ## API Specification
 - Deployment: Single Lambda with Lambda Function URL (anonymous mode)
@@ -52,13 +80,32 @@ images/{uuid}/thumb.jpg
 - Error format: `{"error": "message",
   "code": "ERROR_CODE"}`
 
+### GET /folders
+- Returns list of all folders
+- Response: `{"data": [{"folderId": "...", "name": "...",
+  "createdAt": "..."}]}`
+
+### POST /folders
+- Request: `{"folderId": "clothes", "name": "Clothes"}` (example)
+- Creates new folder
+- Response: created folder object
+
+### PUT /folders/{folderId}
+- Request: `{"name": "New Name"}`
+- Renames folder
+- Response: updated folder object
+
+### DELETE /folders/{folderId}
+- Deletes folder (must be empty)
+- Response: `{}`
+
 ### GET /items
-- Query params: `nextToken`, `limit` (default
-  20, max 50), `sort` (createdAt/state),
-  `filter` (Chuck/Keep/Sell/Undecided/Unanswered/
-  archived/all)
+- Query params: `folderId` (required), `nextToken`, `limit` (default
+  20, max 50), `sort` (createdAt/state), `filter` (Chuck/Keep/Sell/
+  Undecided/Unanswered/archived/all)
 - Filter behavior: `archived` shows archived items only; `all` excludes
   archived items
+- All queries scoped to specified folder: PK=folder#{folderId}
 - Uses token-based pagination (LastEvaluatedKey)
 - Response: array of items + nextToken if more
 
@@ -71,8 +118,8 @@ images/{uuid}/thumb.jpg
 
 ### POST /items
 - Request: `{"imageUrl": "items/.../full/img.jpg",
-  "state": "Unanswered"}`
-- Creates DynamoDB record with generated itemId
+  "folderId": "entryway", "state": "Unanswered"}`
+- Creates DynamoDB record with generated itemId in specified folder
 - Response: created item with itemId
 - If this call fails, dangling S3 images require manual cleanup
 
@@ -193,7 +240,7 @@ Note: Upload failures use silent retry (see Upload Retry & Failure
 Handling section)
 
 ## Infrastructure
-- DynamoDB table name: chuck-items
+- DynamoDB table name: chuck-items-v2 (v1: chuck-items deprecated)
 - S3 bucket name: chuck.overcomingsh.in
 - DynamoDB: on-demand
 - PITR: disabled
