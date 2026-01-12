@@ -25,8 +25,8 @@ images/{uuid}/thumb.jpg
 **Table: chuck-items-v2** (replaces chuck-items)
 
 **Main Table:**
-- Partition key: `PK` = `FOLDER#{folderId}`
-- Sort key: `SK` = `ITEM#{archived}#{createdAt}` (items) or `METADATA`
+- Partition key: `PK` = `folder#{folderId}`
+- Sort key: `SK` = `item#{archived}#{createdAt}` (items) or `metadata`
   (folder metadata)
 - Entity types stored: folders and items (single-table design)
 - Attributes for items:
@@ -47,12 +47,12 @@ images/{uuid}/thumb.jpg
   - `createdAt`: timestamp
 
 **Query Patterns:**
-- Items in folder (active): `PK = "FOLDER#clothes" AND SK begins_with
-  "ITEM#false#"` (clothes is example folderId)
-- Items in folder (archived): `PK = "FOLDER#clothes" AND SK begins_with
-  "ITEM#true#"`
-- All items in folder: `PK = "FOLDER#clothes" AND SK begins_with "ITEM#"`
-- Folder metadata: `PK = "FOLDER#clothes" AND SK = "METADATA"`
+- Items in folder (active): `PK = "folder#clothes" AND SK begins_with
+  "item#false#"` (clothes is example folderId)
+- Items in folder (archived): `PK = "folder#clothes" AND SK begins_with
+  "item#true#"`
+- All items in folder: `PK = "folder#clothes" AND SK begins_with "item#"`
+- Folder metadata: `PK = "folder#clothes" AND SK = "metadata"`
 
 **Initial Folder Setup:**
 - On first launch (no folders exist): auto-create "Clothes", "Blankets",
@@ -105,7 +105,7 @@ images/{uuid}/thumb.jpg
   Undecided/Unanswered/archived/all)
 - Filter behavior: `archived` shows archived items only; `all` excludes
   archived items
-- All queries scoped to specified folder
+- All queries scoped to specified folder: PK=folder#{folderId}
 - Uses token-based pagination (LastEvaluatedKey)
 - Response: array of items + nextToken if more
 

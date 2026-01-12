@@ -43,9 +43,9 @@ DynamoDB schema, folder management API, and UI for folder selection.
 ## New Schema (chuck-items-v2 table)
 
 **Table: chuck-items-v2**
-- Partition key: `PK` (string) = `FOLDER#{folderId}`
-- Sort key: `SK` (string) = `ITEM#{archived}#{createdAt}` (items) or
-  `METADATA` (folders)
+- Partition key: `PK` (string) = `folder#{folderId}`
+- Sort key: `SK` (string) = `item#{archived}#{createdAt}` (items) or
+  `metadata` (folders)
 - No GSI
 - Single-table design: both folders and items
 
@@ -68,13 +68,13 @@ DynamoDB schema, folder management API, and UI for folder selection.
 - `createdAt`: timestamp (ISO string)
 
 **New Query Patterns:**
-- Get active items in folder: Query PK=FOLDER#clothes, SK
-  begins_with ITEM#false#
-- Get archived items in folder: Query PK=FOLDER#clothes, SK
-  begins_with ITEM#true#
-- Get all items in folder: Query PK=FOLDER#clothes, SK begins_with
-  ITEM#
-- Get folder metadata: Query PK=FOLDER#clothes, SK=METADATA
+- Get active items in folder: Query PK=folder#clothes, SK
+  begins_with item#false#
+- Get archived items in folder: Query PK=folder#clothes, SK
+  begins_with item#true#
+- Get all items in folder: Query PK=folder#clothes, SK begins_with
+  item#
+- Get folder metadata: Query PK=folder#clothes, SK=metadata
 - List all folders: Scan with filter entityType=folder
 
 **Key Changes:**
@@ -87,8 +87,8 @@ DynamoDB schema, folder management API, and UI for folder selection.
 
 **Schema:**
 - Single-table design: folders and items in chuck-items-v2
-- PK: `FOLDER#{folderId}`, SK: `ITEM#{archived}#{createdAt}` or
-  `METADATA`
+- PK: `folder#{folderId}`, SK: `item#{archived}#{createdAt}` or
+  `metadata`
 - No GSI (archived filter scoped to current folder)
 
 **Folder Initialization:**
@@ -130,7 +130,7 @@ DynamoDB schema, folder management API, and UI for folder selection.
 **POST /folders**
 - Request: `{"folderId": "clothes", "name": "Clothes"}`
 - Response: created folder object
-- Creates folder METADATA entity
+- Creates folder metadata entity
 
 **PUT /folders/{folderId}**
 - Request: `{"name": "New Name"}`
@@ -148,7 +148,7 @@ DynamoDB schema, folder management API, and UI for folder selection.
 - NEW: `?folderId=clothes&filter=all&sort=createdAt&limit=20&
   nextToken=...`
 - Added required folderId parameter
-- Query now scoped to folder: PK=FOLDER#{folderId}
+- Query now scoped to folder: PK=folder#{folderId}
 
 **POST /items**
 - OLD: `{"imageUrl": "...", "state": "Unanswered"}`
@@ -272,8 +272,8 @@ chuck-items-v2, placing them in "entryway" folder.
 
 **Steps:**
 1. Create "entryway" folder in chuck-items-v2:
-   - PK: `FOLDER#entryway`
-   - SK: `METADATA`
+   - PK: `folder#entryway`
+   - SK: `metadata`
    - entityType: "folder"
    - name: "Entryway"
    - folderId: "entryway"
@@ -282,8 +282,8 @@ chuck-items-v2, placing them in "entryway" folder.
 2. Scan chuck-items table (all items)
 
 3. For each item, transform and write to chuck-items-v2:
-   - PK: `FOLDER#entryway`
-   - SK: `ITEM#{archived}#{createdAt}` (e.g., "ITEM#false#2024-01-
+   - PK: `folder#entryway`
+   - SK: `item#{archived}#{createdAt}` (e.g., "item#false#2024-01-
      15T10:30:00Z")
    - Copy all attributes: itemId, imageUrl, state, notes, archived,
      archivedAt, createdAt, updatedAt
@@ -304,8 +304,8 @@ createdAt: "2024-01-15T10:30:00Z"
 
 New item (chuck-items-v2):
 ```
-PK: "FOLDER#entryway"
-SK: "ITEM#false#2024-01-15T10:30:00Z"
+PK: "folder#entryway"
+SK: "item#false#2024-01-15T10:30:00Z"
 entityType: "item"
 folderId: "entryway"
 itemId: "abc-123"
