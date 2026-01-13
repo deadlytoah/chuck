@@ -1,3 +1,5 @@
+// +build migrate
+
 package main
 
 import (
