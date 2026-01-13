@@ -12,8 +12,8 @@ FLUTTER_VERSION="stable"
 # Install GitHub CLI if not present
 if ! command -v gh &> /dev/null; then
   echo "Installing GitHub CLI..."
-  sudo apt-get update -qq
-  sudo apt-get install -y gh
+  apt-get update -qq
+  apt-get install -y gh
 fi
 
 # Install Flutter if not present
