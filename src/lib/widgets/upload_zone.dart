@@ -46,16 +46,25 @@ class _UploadZoneState extends ConsumerState<UploadZone> {
 
     if (filesToUpload.isEmpty) return;
 
+    final currentFolderId = ref.read(foldersProvider).currentFolderId;
+    if (currentFolderId == null) {
+      // Show error - no folder selected
+      return;
+    }
+
     final uploadService = ref.read(uploadServiceProvider);
 
-    await for (final progressMap in uploadService.uploadFiles(filesToUpload)) {
+    await for (final progressMap
+        in uploadService.uploadFiles(filesToUpload, folderId: currentFolderId)) {
       ref.read(uploadProgressProvider.notifier).state = progressMap;
     }
 
     // Refresh items after upload
     final filter = ref.read(filterProvider);
     final sort = ref.read(sortProvider);
-    ref.read(itemsProvider.notifier).loadItems(filter: filter, sort: sort);
+    ref
+        .read(itemsProvider.notifier)
+        .loadItems(folderId: currentFolderId, filter: filter, sort: sort);
   }
 
   Future<void> _pickFiles() async {

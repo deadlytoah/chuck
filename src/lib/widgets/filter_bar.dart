@@ -227,9 +227,15 @@ class FilterBar extends ConsumerWidget {
 
   void _refresh(WidgetRef ref, BuildContext context, {String? filterOverride, String? sortOverride}) async {
     try {
+      final folderId = ref.read(foldersProvider).currentFolderId;
+      if (folderId == null) return;
       final filter = filterOverride ?? ref.read(filterProvider);
       final sort = sortOverride ?? ref.read(sortProvider);
-      await ref.read(itemsProvider.notifier).loadItems(filter: filter, sort: sort);
+      await ref.read(itemsProvider.notifier).loadItems(
+        folderId: folderId,
+        filter: filter,
+        sort: sort,
+      );
     } catch (e) {
       print('Load items error: $e');
       if (context.mounted) {

@@ -48,6 +48,7 @@ class MockApiService extends ApiService {
 
   @override
   Future<Item> createItem({
+    required String folderId,
     required String imageUrl,
     String state = 'Unanswered',
   }) async {
@@ -57,6 +58,7 @@ class MockApiService extends ApiService {
     }
     return Item(
       itemId: 'test-item-id',
+      folderId: folderId,
       imageUrl: imageUrl,
       state: state,
       createdAt: DateTime.now(),
@@ -116,7 +118,7 @@ void main() {
       final testFile = File('${tempDir.path}/test.jpg');
       await testFile.writeAsBytes([0xFF, 0xD8, 0xFF, 0xE0]); // JPEG header
 
-      await uploadService.uploadPhoto(testFile.path);
+      await uploadService.uploadPhoto(testFile.path, folderId: 'test-folder');
 
       // Verify all service calls were made
       expect(mockImageService.processImageCallCount, 1);
@@ -129,7 +131,7 @@ void main() {
       final nonExistentPath = '${tempDir.path}/nonexistent.jpg';
 
       expect(
-        () => uploadService.uploadPhoto(nonExistentPath),
+        () => uploadService.uploadPhoto(nonExistentPath, folderId: 'test-folder'),
         throwsA(isA<Exception>()),
       );
     });
@@ -139,7 +141,7 @@ void main() {
       final testData = Uint8List.fromList([0xFF, 0xD8, 0xFF, 0xE0]);
       await testFile.writeAsBytes(testData);
 
-      await uploadService.uploadPhoto(testFile.path);
+      await uploadService.uploadPhoto(testFile.path, folderId: 'test-folder');
 
       expect(mockImageService.processImageCallCount, 1);
       expect(mockImageService.lastProcessedBytes, equals(testData));
@@ -149,11 +151,12 @@ void main() {
       final testFile = File('${tempDir.path}/test.jpg');
       await testFile.writeAsBytes([0xFF, 0xD8, 0xFF, 0xE0]);
 
-      final result = await uploadService.uploadPhoto(testFile.path);
+      final result = await uploadService.uploadPhoto(testFile.path, folderId: 'test-folder');
 
       expect(mockApiService.createItemCallCount, 1);
       expect(result, isA<Item>());
       expect(result.itemId, 'test-item-id');
+      expect(result.folderId, 'test-folder');
       expect(result.state, 'Unanswered');
       expect(result.archived, false);
     });
@@ -165,7 +168,7 @@ void main() {
       mockImageService.shouldFail = true;
 
       expect(
-        () => uploadService.uploadPhoto(testFile.path),
+        () => uploadService.uploadPhoto(testFile.path, folderId: 'test-folder'),
         throwsA(isA<Exception>()),
       );
     });
@@ -177,7 +180,7 @@ void main() {
       mockApiService.shouldFailGetUrls = true;
 
       expect(
-        () => uploadService.uploadPhoto(testFile.path),
+        () => uploadService.uploadPhoto(testFile.path, folderId: 'test-folder'),
         throwsA(isA<Exception>()),
       );
     });
@@ -189,7 +192,7 @@ void main() {
       mockApiService.shouldFailUpload = true;
 
       expect(
-        () => uploadService.uploadPhoto(testFile.path),
+        () => uploadService.uploadPhoto(testFile.path, folderId: 'test-folder'),
         throwsA(isA<Exception>()),
       );
     });
@@ -201,7 +204,7 @@ void main() {
       mockApiService.shouldFailCreateItem = true;
 
       expect(
-        () => uploadService.uploadPhoto(testFile.path),
+        () => uploadService.uploadPhoto(testFile.path, folderId: 'test-folder'),
         throwsA(isA<Exception>()),
       );
     });

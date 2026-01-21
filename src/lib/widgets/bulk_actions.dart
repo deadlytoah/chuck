@@ -224,9 +224,15 @@ class BulkActions extends ConsumerWidget {
       ref.read(selectionProvider.notifier).clearSelection();
       ref.read(selectionProvider.notifier).toggleSelectionMode();
 
+      final folderId = ref.read(foldersProvider).currentFolderId;
+      if (folderId == null) return;
       final filter = ref.read(filterProvider);
       final sort = ref.read(sortProvider);
-      await ref.read(itemsProvider.notifier).loadItems(filter: filter, sort: sort);
+      await ref.read(itemsProvider.notifier).loadItems(
+        folderId: folderId,
+        filter: filter,
+        sort: sort,
+      );
     } catch (e) {
       print('Bulk archive error: $e');
       if (context.mounted) {

@@ -19,9 +19,15 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
+        final folderId = ref.read(foldersProvider).currentFolderId;
+        if (folderId == null) return;
         final filter = ref.read(filterProvider);
         final sort = ref.read(sortProvider);
-        await ref.read(itemsProvider.notifier).loadItems(filter: filter, sort: sort);
+        await ref.read(itemsProvider.notifier).loadItems(
+          folderId: folderId,
+          filter: filter,
+          sort: sort,
+        );
       } catch (e) {
         // Silent failure on initial load - user can tap refresh button to retry
         print('Initial load failed: $e');

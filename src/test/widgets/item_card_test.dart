@@ -10,6 +10,7 @@ void main() {
         (WidgetTester tester) async {
       final testItem = Item(
         itemId: 'test-123',
+        folderId: 'test-folder',
         imageUrl: 'https://example.com/image.jpg',
         state: 'Keep',
         notes: 'This is a long comment that should wrap to multiple lines. '
@@ -48,6 +49,7 @@ void main() {
         (WidgetTester tester) async {
       final testItem = Item(
         itemId: 'test-456',
+        folderId: 'test-folder',
         imageUrl: 'https://example.com/image.jpg',
         state: 'Chuck',
         notes: '',
@@ -83,6 +85,7 @@ void main() {
         (WidgetTester tester) async {
       final testItem = Item(
         itemId: 'test-789',
+        folderId: 'test-folder',
         imageUrl: 'https://example.com/image.jpg',
         state: 'Sell',
         notes: null,

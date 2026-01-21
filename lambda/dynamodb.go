@@ -46,29 +46,211 @@ func parseSortParam(sortBy string) (string, string) {
 	return sortBy, ""
 }
 
-// queryItems queries items from DynamoDB with pagination and filters
-func queryItems(ctx context.Context, nextToken, filter, sortBy string, limit int) ([]Item, string, error) {
+// GetFolders retrieves all folders
+func GetFolders(ctx context.Context) ([]Folder, error) {
+	if dynamoClient == nil {
+		if err := initDynamoDBClient(ctx); err != nil {
+			return nil, err
+		}
+	}
+
+	input := &dynamodb.ScanInput{
+		TableName:        aws.String(tableName),
+		FilterExpression: aws.String("entityType = :entityType"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":entityType": &types.AttributeValueMemberS{Value: "folder"},
+		},
+	}
+
+	result, err := dynamoClient.Scan(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	var folders []Folder
+	err = attributevalue.UnmarshalListOfMaps(result.Items, &folders)
+	if err != nil {
+		return nil, err
+	}
+
+	return folders, nil
+}
+
+// CreateFolder creates a new folder
+func CreateFolder(ctx context.Context, folderID, name string) (*Folder, error) {
+	if dynamoClient == nil {
+		if err := initDynamoDBClient(ctx); err != nil {
+			return nil, err
+		}
+	}
+
+	now := time.Now().UTC().Format(time.RFC3339)
+	folder := Folder{
+		PK:         fmt.Sprintf("folder#%s", folderID),
+		SK:         "metadata",
+		EntityType: "folder",
+		FolderID:   folderID,
+		Name:       name,
+		CreatedAt:  now,
+	}
+
+	av, err := attributevalue.MarshalMap(folder)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = dynamoClient.PutItem(ctx, &dynamodb.PutItemInput{
+		TableName: aws.String(tableName),
+		Item:      av,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &folder, nil
+}
+
+// GetFolder retrieves a single folder by ID
+func GetFolder(ctx context.Context, folderID string) (*Folder, error) {
+	if dynamoClient == nil {
+		if err := initDynamoDBClient(ctx); err != nil {
+			return nil, err
+		}
+	}
+
+	input := &dynamodb.GetItemInput{
+		TableName: aws.String(tableName),
+		Key: map[string]types.AttributeValue{
+			"PK": &types.AttributeValueMemberS{Value: fmt.Sprintf("folder#%s", folderID)},
+			"SK": &types.AttributeValueMemberS{Value: "metadata"},
+		},
+	}
+
+	result, err := dynamoClient.GetItem(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	if result.Item == nil {
+		return nil, nil
+	}
+
+	var folder Folder
+	err = attributevalue.UnmarshalMap(result.Item, &folder)
+	if err != nil {
+		return nil, err
+	}
+
+	return &folder, nil
+}
+
+// UpdateFolder updates a folder's name
+func UpdateFolder(ctx context.Context, folderID, name string) (*Folder, error) {
+	if dynamoClient == nil {
+		if err := initDynamoDBClient(ctx); err != nil {
+			return nil, err
+		}
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		TableName: aws.String(tableName),
+		Key: map[string]types.AttributeValue{
+			"PK": &types.AttributeValueMemberS{Value: fmt.Sprintf("folder#%s", folderID)},
+			"SK": &types.AttributeValueMemberS{Value: "metadata"},
+		},
+		UpdateExpression: aws.String("SET #name = :name"),
+		ExpressionAttributeNames: map[string]string{
+			"#name": "name",
+		},
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":name": &types.AttributeValueMemberS{Value: name},
+		},
+		ConditionExpression: aws.String("attribute_exists(PK)"),
+		ReturnValues:        types.ReturnValueAllNew,
+	}
+
+	result, err := dynamoClient.UpdateItem(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	var folder Folder
+	err = attributevalue.UnmarshalMap(result.Attributes, &folder)
+	if err != nil {
+		return nil, err
+	}
+
+	return &folder, nil
+}
+
+// DeleteFolder deletes a folder (must be empty)
+func DeleteFolder(ctx context.Context, folderID string) error {
+	if dynamoClient == nil {
+		if err := initDynamoDBClient(ctx); err != nil {
+			return err
+		}
+	}
+
+	// Check if folder has items
+	queryInput := &dynamodb.QueryInput{
+		TableName:              aws.String(tableName),
+		KeyConditionExpression: aws.String("PK = :pk AND begins_with(SK, :sk)"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":pk": &types.AttributeValueMemberS{Value: fmt.Sprintf("folder#%s", folderID)},
+			":sk": &types.AttributeValueMemberS{Value: "item#"},
+		},
+		Limit: aws.Int32(1),
+	}
+
+	result, err := dynamoClient.Query(ctx, queryInput)
+	if err != nil {
+		return err
+	}
+
+	if len(result.Items) > 0 {
+		return fmt.Errorf("folder is not empty")
+	}
+
+	// Delete folder metadata
+	_, err = dynamoClient.DeleteItem(ctx, &dynamodb.DeleteItemInput{
+		TableName: aws.String(tableName),
+		Key: map[string]types.AttributeValue{
+			"PK": &types.AttributeValueMemberS{Value: fmt.Sprintf("folder#%s", folderID)},
+			"SK": &types.AttributeValueMemberS{Value: "metadata"},
+		},
+	})
+
+	return err
+}
+
+// queryItems queries items from a folder with pagination and filters
+func queryItems(ctx context.Context, folderID, nextToken, filter, sortBy string, limit int) ([]Item, string, error) {
 	if dynamoClient == nil {
 		if err := initDynamoDBClient(ctx); err != nil {
 			return nil, "", err
 		}
 	}
 
-	// Determine partition key value based on filter
-	archivedValue := "false"
+	// Build sort key condition based on filter
+	var skCondition string
 	if filter == "archived" {
-		archivedValue = "true"
+		skCondition = "item#true#"
+	} else if filter == "all" {
+		skCondition = "item#"
+	} else {
+		skCondition = "item#false#"
 	}
 
 	// Build expression attribute values
 	exprAttrValues := map[string]types.AttributeValue{
-		":archived": &types.AttributeValueMemberS{Value: archivedValue},
+		":pk": &types.AttributeValueMemberS{Value: fmt.Sprintf("folder#%s", folderID)},
+		":sk": &types.AttributeValueMemberS{Value: skCondition},
 	}
 
 	// Build query input
 	input := &dynamodb.QueryInput{
 		TableName:              aws.String(tableName),
-		KeyConditionExpression: aws.String("archived = :archived"),
+		KeyConditionExpression: aws.String("PK = :pk AND begins_with(SK, :sk)"),
 		ExpressionAttributeValues: exprAttrValues,
 		ScanIndexForward: aws.Bool(false), // Descending order by createdAt
 		Limit:            aws.Int32(int32(limit)),
@@ -149,7 +331,7 @@ func queryItems(ctx context.Context, nextToken, filter, sortBy string, limit int
 	return items, newToken, nil
 }
 
-// getItemByID retrieves a single item by scanning both partitions
+// getItemByID retrieves a single item by scanning the folder
 func getItemByID(ctx context.Context, itemID string) (*Item, error) {
 	if dynamoClient == nil {
 		if err := initDynamoDBClient(ctx); err != nil {
@@ -157,29 +339,16 @@ func getItemByID(ctx context.Context, itemID string) (*Item, error) {
 		}
 	}
 
-	// Try archived=false first
-	item, err := queryItemByID(ctx, itemID, "false")
-	if err == nil && item != nil {
-		return item, nil
-	}
-
-	// Try archived=true
-	return queryItemByID(ctx, itemID, "true")
-}
-
-// queryItemByID queries for an item in a specific partition
-func queryItemByID(ctx context.Context, itemID, archived string) (*Item, error) {
-	input := &dynamodb.QueryInput{
-		TableName:              aws.String(tableName),
-		KeyConditionExpression: aws.String("archived = :archived"),
-		FilterExpression:       aws.String("itemId = :itemId"),
+	// Scan to find the item (since we don't know which folder it's in)
+	input := &dynamodb.ScanInput{
+		TableName:        aws.String(tableName),
+		FilterExpression: aws.String("itemId = :itemId"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":archived": &types.AttributeValueMemberS{Value: archived},
-			":itemId":   &types.AttributeValueMemberS{Value: itemID},
+			":itemId": &types.AttributeValueMemberS{Value: itemID},
 		},
 	}
 
-	result, err := dynamoClient.Query(ctx, input)
+	result, err := dynamoClient.Scan(ctx, input)
 	if err != nil {
 		return nil, err
 	}
@@ -198,7 +367,7 @@ func queryItemByID(ctx context.Context, itemID, archived string) (*Item, error) 
 }
 
 // createItemRecord creates a new item in DynamoDB
-func createItemRecord(ctx context.Context, imageURL, state string) (*Item, error) {
+func createItemRecord(ctx context.Context, folderID, imageURL, state string) (*Item, error) {
 	if dynamoClient == nil {
 		if err := initDynamoDBClient(ctx); err != nil {
 			return nil, err
@@ -207,12 +376,16 @@ func createItemRecord(ctx context.Context, imageURL, state string) (*Item, error
 
 	now := time.Now().UTC().Format(time.RFC3339)
 	item := Item{
-		ItemID:    uuid.New().String(),
-		ImageURL:  imageURL,
-		State:     state,
-		Archived:  "false",
-		CreatedAt: now,
-		UpdatedAt: now,
+		PK:         fmt.Sprintf("folder#%s", folderID),
+		SK:         fmt.Sprintf("item#false#%s", now),
+		EntityType: "item",
+		ItemID:     uuid.New().String(),
+		FolderID:   folderID,
+		ImageURL:   imageURL,
+		State:      state,
+		Archived:   false,
+		CreatedAt:  now,
+		UpdatedAt:  now,
 	}
 
 	av, err := attributevalue.MarshalMap(item)
@@ -239,7 +412,7 @@ func updateItemRecord(ctx context.Context, itemID string, req UpdateItemRequest)
 		}
 	}
 
-	// Get existing item to know its partition
+	// Get existing item
 	existingItem, err := getItemByID(ctx, itemID)
 	if err != nil {
 		return nil, err
@@ -249,45 +422,51 @@ func updateItemRecord(ctx context.Context, itemID string, req UpdateItemRequest)
 	}
 
 	// Check if archived items can be updated
-	if existingItem.Archived == "true" && req.State != nil && req.Archived == nil {
+	if existingItem.Archived && req.State != nil && req.Archived == nil {
 		return nil, fmt.Errorf("archived items are read-only for state updates")
 	}
 
 	now := time.Now().UTC().Format(time.RFC3339)
 
-	// Handle unarchive - requires moving item to different partition
-	if req.Archived != nil && !*req.Archived && existingItem.Archived == "true" {
-		// Delete from archived=true partition
-		_, err := dynamoClient.DeleteItem(ctx, &dynamodb.DeleteItemInput{
-			TableName: aws.String(tableName),
-			Key: map[string]types.AttributeValue{
-				"archived":  &types.AttributeValueMemberS{Value: "true"},
-				"createdAt": &types.AttributeValueMemberS{Value: existingItem.CreatedAt},
+	// Handle unarchive - requires moving item (changing SK)
+	if req.Archived != nil && !*req.Archived && existingItem.Archived {
+		// Create new item with updated SK
+		newItem := *existingItem
+		newItem.SK = fmt.Sprintf("item#false#%s", existingItem.CreatedAt)
+		newItem.Archived = false
+		newItem.ArchivedAt = ""
+		newItem.UpdatedAt = now
+
+		av, err := attributevalue.MarshalMap(newItem)
+		if err != nil {
+			return nil, err
+		}
+
+		// Use transaction to atomically delete old and create new
+		_, err = dynamoClient.TransactWriteItems(ctx, &dynamodb.TransactWriteItemsInput{
+			TransactItems: []types.TransactWriteItem{
+				{
+					Delete: &types.Delete{
+						TableName: aws.String(tableName),
+						Key: map[string]types.AttributeValue{
+							"PK": &types.AttributeValueMemberS{Value: existingItem.PK},
+							"SK": &types.AttributeValueMemberS{Value: existingItem.SK},
+						},
+					},
+				},
+				{
+					Put: &types.Put{
+						TableName: aws.String(tableName),
+						Item:      av,
+					},
+				},
 			},
 		})
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to unarchive item: %w", err)
 		}
 
-		// Create in archived=false partition
-		existingItem.Archived = "false"
-		existingItem.ArchivedAt = ""
-		existingItem.UpdatedAt = now
-
-		av, err := attributevalue.MarshalMap(existingItem)
-		if err != nil {
-			return nil, err
-		}
-
-		_, err = dynamoClient.PutItem(ctx, &dynamodb.PutItemInput{
-			TableName: aws.String(tableName),
-			Item:      av,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		return existingItem, nil
+		return &newItem, nil
 	}
 
 	// Build update expression
@@ -312,8 +491,8 @@ func updateItemRecord(ctx context.Context, itemID string, req UpdateItemRequest)
 	updateInput := &dynamodb.UpdateItemInput{
 		TableName: aws.String(tableName),
 		Key: map[string]types.AttributeValue{
-			"archived":  &types.AttributeValueMemberS{Value: existingItem.Archived},
-			"createdAt": &types.AttributeValueMemberS{Value: existingItem.CreatedAt},
+			"PK": &types.AttributeValueMemberS{Value: existingItem.PK},
+			"SK": &types.AttributeValueMemberS{Value: existingItem.SK},
 		},
 		UpdateExpression:          aws.String(updateExpr),
 		ExpressionAttributeValues: exprAttrValues,
@@ -354,40 +533,49 @@ func archiveItemRecord(ctx context.Context, itemID string) error {
 		return fmt.Errorf("item not found")
 	}
 
-	if existingItem.Archived == "true" {
+	if existingItem.Archived {
 		return nil // Already archived
 	}
 
 	now := time.Now().UTC().Format(time.RFC3339)
 
-	// Delete from archived=false partition
-	_, err = dynamoClient.DeleteItem(ctx, &dynamodb.DeleteItemInput{
-		TableName: aws.String(tableName),
-		Key: map[string]types.AttributeValue{
-			"archived":  &types.AttributeValueMemberS{Value: "false"},
-			"createdAt": &types.AttributeValueMemberS{Value: existingItem.CreatedAt},
+	// Create archived version with new SK
+	archivedItem := *existingItem
+	archivedItem.SK = fmt.Sprintf("item#true#%s", existingItem.CreatedAt)
+	archivedItem.Archived = true
+	archivedItem.ArchivedAt = now
+	archivedItem.UpdatedAt = now
+
+	av, err := attributevalue.MarshalMap(archivedItem)
+	if err != nil {
+		return err
+	}
+
+	// Use transaction to atomically delete old and create archived version
+	_, err = dynamoClient.TransactWriteItems(ctx, &dynamodb.TransactWriteItemsInput{
+		TransactItems: []types.TransactWriteItem{
+			{
+				Delete: &types.Delete{
+					TableName: aws.String(tableName),
+					Key: map[string]types.AttributeValue{
+						"PK": &types.AttributeValueMemberS{Value: existingItem.PK},
+						"SK": &types.AttributeValueMemberS{Value: existingItem.SK},
+					},
+				},
+			},
+			{
+				Put: &types.Put{
+					TableName: aws.String(tableName),
+					Item:      av,
+				},
+			},
 		},
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to archive item: %w", err)
 	}
 
-	// Create in archived=true partition
-	existingItem.Archived = "true"
-	existingItem.ArchivedAt = now
-	existingItem.UpdatedAt = now
-
-	av, err := attributevalue.MarshalMap(existingItem)
-	if err != nil {
-		return err
-	}
-
-	_, err = dynamoClient.PutItem(ctx, &dynamodb.PutItemInput{
-		TableName: aws.String(tableName),
-		Item:      av,
-	})
-
-	return err
+	return nil
 }
 
 // batchArchiveItems archives multiple items

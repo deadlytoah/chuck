@@ -78,11 +78,13 @@ class ItemsGrid extends ConsumerWidget {
                   ? null
                   : () async {
                       try {
+                        final folderId = ref.read(foldersProvider).currentFolderId;
+                        if (folderId == null) return;
                         final filter = ref.read(filterProvider);
                         final sort = ref.read(sortProvider);
                         await ref
                             .read(itemsProvider.notifier)
-                            .loadMore(filter: filter, sort: sort);
+                            .loadMore(folderId: folderId, filter: filter, sort: sort);
                       } catch (e) {
                         print('Load more items error: $e');
                         if (context.mounted) {

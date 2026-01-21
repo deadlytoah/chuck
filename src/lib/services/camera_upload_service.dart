@@ -12,7 +12,7 @@ class CameraUploadService {
   /// Processes and uploads a photo from the given file path.
   /// Returns the created Item on success.
   /// Throws an exception if any step fails.
-  Future<Item> uploadPhoto(String path) async {
+  Future<Item> uploadPhoto(String path, {required String folderId}) async {
     final file = File(path);
     if (!await file.exists()) {
       throw Exception('File not found at path: $path');
@@ -41,7 +41,11 @@ class CameraUploadService {
     );
 
     // 5. Create item in database
-    final item = await apiService.createItem(imageUrl: imageUrl, state: 'Unanswered');
+    final item = await apiService.createItem(
+      folderId: folderId,
+      imageUrl: imageUrl,
+      state: 'Unanswered',
+    );
 
     // 6. Clean up temporary file
     try {

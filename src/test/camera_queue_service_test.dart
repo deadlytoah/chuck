@@ -2,12 +2,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chuck/models/queued_photo.dart';
 import 'package:chuck/models/item.dart';
+import 'package:chuck/models/folder.dart';
 import 'package:chuck/providers/providers.dart';
 import 'package:chuck/providers/app_providers.dart';
 import 'package:chuck/services/network_monitor.dart';
 import 'package:chuck/services/camera_upload_service.dart';
 import 'package:chuck/services/api_service.dart';
 import 'package:chuck/services/image_service.dart';
+import 'package:chuck/services/folder_storage_service.dart';
 
 import 'package:flutter/services.dart';
 
@@ -35,7 +37,7 @@ class MockCameraUploadService extends CameraUploadService {
         );
 
   @override
-  Future<Item> uploadPhoto(String path) async {
+  Future<Item> uploadPhoto(String path, {required String folderId}) async {
     uploadCallCount++;
     final itemNumber = uploadCallCount;
     uploadedPaths.add(path);
@@ -45,6 +47,7 @@ class MockCameraUploadService extends CameraUploadService {
     }
     return Item(
       itemId: 'test-item-$itemNumber',
+      folderId: folderId,
       imageUrl: 'images/test-$itemNumber/full.jpg',
       state: 'Unanswered',
       archived: false,
@@ -66,6 +69,7 @@ class _MockApiService extends ApiService {
 
   @override
   Future<ItemsResponse> getItems({
+    required String folderId,
     String? nextToken,
     int limit = 20,
     String? sort,
@@ -86,6 +90,31 @@ class _MockImageService extends ImageService {
   }
 }
 
+// Mock Storage Service for testing
+class _MockStorageService extends FolderStorageService {
+  @override
+  Future<String?> getSelectedFolderId() async => null;
+
+  @override
+  Future<void> setSelectedFolderId(String folderId) async {}
+
+  @override
+  Future<void> clearSelectedFolderId() async {}
+}
+
+// Mock Folders Notifier for testing
+class MockFoldersNotifier extends FoldersNotifier {
+  MockFoldersNotifier()
+      : super(_MockApiService(), _MockStorageService()) {
+    state = FoldersState(
+      folders: [
+        Folder(folderId: 'test-folder', name: 'Test Folder'),
+      ],
+      currentFolderId: 'test-folder',
+    );
+  }
+}
+
 void main() {
   late ProviderContainer container;
 
@@ -101,7 +130,11 @@ void main() {
           return ['mobile'];
         });
 
-    container = ProviderContainer();
+    container = ProviderContainer(
+      overrides: [
+        foldersProvider.overrideWith((ref) => MockFoldersNotifier()),
+      ],
+    );
   });
 
   tearDown(() {
@@ -193,6 +226,7 @@ void main() {
         networkMonitorProvider.overrideWith(
           (ref) => mockNetworkMonitor,
         ),
+        foldersProvider.overrideWith((ref) => MockFoldersNotifier()),
       ],
     );
 
@@ -218,6 +252,7 @@ void main() {
         networkMonitorProvider.overrideWith(
           (ref) => mockNetworkMonitor,
         ),
+        foldersProvider.overrideWith((ref) => MockFoldersNotifier()),
       ],
     );
 
@@ -246,6 +281,7 @@ void main() {
         networkMonitorProvider.overrideWith(
           (ref) => mockNetworkMonitor,
         ),
+        foldersProvider.overrideWith((ref) => MockFoldersNotifier()),
       ],
     );
 
@@ -274,6 +310,7 @@ void main() {
         networkMonitorProvider.overrideWith(
           (ref) => mockNetworkMonitor,
         ),
+        foldersProvider.overrideWith((ref) => MockFoldersNotifier()),
       ],
     );
 
@@ -303,6 +340,7 @@ void main() {
         networkMonitorProvider.overrideWith(
           (ref) => mockNetworkMonitor,
         ),
+        foldersProvider.overrideWith((ref) => MockFoldersNotifier()),
       ],
     );
 
@@ -331,6 +369,7 @@ void main() {
         networkMonitorProvider.overrideWith(
           (ref) => mockNetworkMonitor,
         ),
+        foldersProvider.overrideWith((ref) => MockFoldersNotifier()),
       ],
     );
 
@@ -367,6 +406,7 @@ void main() {
           (ref) => mockNetworkMonitor,
         ),
         apiServiceProvider.overrideWithValue(mockApiService),
+        foldersProvider.overrideWith((ref) => MockFoldersNotifier()),
       ],
     );
 
@@ -383,6 +423,7 @@ void main() {
     final itemsState = testContainer.read(itemsProvider);
     expect(itemsState.items.length, 1);
     expect(itemsState.items[0].itemId, 'test-item-1');
+    expect(itemsState.items[0].folderId, 'test-folder');
     expect(itemsState.items[0].imageUrl, 'images/test-1/full.jpg');
     expect(itemsState.items[0].state, 'Unanswered');
     expect(itemsState.items[0].archived, false);
@@ -402,6 +443,7 @@ void main() {
           (ref) => mockNetworkMonitor,
         ),
         apiServiceProvider.overrideWithValue(mockApiService),
+        foldersProvider.overrideWith((ref) => MockFoldersNotifier()),
       ],
     );
 
@@ -434,6 +476,7 @@ void main() {
           (ref) => mockNetworkMonitor,
         ),
         apiServiceProvider.overrideWithValue(mockApiService),
+        foldersProvider.overrideWith((ref) => MockFoldersNotifier()),
       ],
     );
 

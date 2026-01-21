@@ -9,6 +9,7 @@ import '../screens/edit_item_screen.dart';
 Widget itemCardPreview() {
   final sampleItem = Item(
     itemId: 'preview-123',
+    folderId: 'preview-folder',
     imageUrl: 'https://via.placeholder.com/300x400/thumb.jpg',
     state: 'Keep',
     notes: 'This is a sample item for preview',

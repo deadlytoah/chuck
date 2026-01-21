@@ -55,10 +55,8 @@ images/{uuid}/thumb.jpg
 - Folder metadata: `PK = "folder#clothes" AND SK = "metadata"`
 
 **Initial Folder Setup:**
-- On first launch (no folders exist): auto-create "Clothes", "Blankets",
-  "Books"
-- Default selection: "Clothes"
-- Subsequent launches: use last-selected folder from local storage,
+- On first launch: user manually creates folders
+- Subsequent launches: restore last-selected folder from local storage,
   fallback to first alphabetically if not found
 
 **Migration:**

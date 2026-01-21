@@ -6,6 +6,7 @@ void main() {
     test('should parse archived from string "true"', () {
       final item = Item.fromJson({
         'itemId': '1',
+        'folderId': 'test-folder',
         'imageUrl': 'url',
         'state': 'active',
         'comment': null,
@@ -19,6 +20,7 @@ void main() {
     test('should parse archived from string "false"', () {
       final item = Item.fromJson({
         'itemId': '1',
+        'folderId': 'test-folder',
         'imageUrl': 'url',
         'state': 'active',
         'comment': null,
@@ -31,6 +33,7 @@ void main() {
 
     test('should parse archived from boolean true', () {
       final item = Item.fromJson({
+        'folderId': 'test-folder',
         'itemId': '1',
         'imageUrl': 'url',
         'state': 'active',
@@ -45,6 +48,7 @@ void main() {
     test('should parse archived from boolean false', () {
       final item = Item.fromJson({
         'itemId': '1',
+        'folderId': 'test-folder',
         'imageUrl': 'url',
         'state': 'active',
         'comment': null,
@@ -58,6 +62,7 @@ void main() {
     test('should parse archived from null', () {
       final item = Item.fromJson({
         'itemId': '1',
+        'folderId': 'test-folder',
         'imageUrl': 'url',
         'state': 'active',
         'comment': null,
@@ -71,6 +76,7 @@ void main() {
     test('should handle missing createdAt and updatedAt', () {
       final item = Item.fromJson({
         'itemId': '1',
+        'folderId': 'test-folder',
         'imageUrl': 'url',
         'state': 'active',
         'comment': null,
@@ -83,6 +89,7 @@ void main() {
     test('should handle invalid date strings for createdAt and updatedAt', () {
       final item = Item.fromJson({
         'itemId': '1',
+        'folderId': 'test-folder',
         'imageUrl': 'url',
         'state': 'active',
         'comment': null,
@@ -97,6 +104,7 @@ void main() {
     test('should parse valid date strings for createdAt and updatedAt', () {
       final item = Item.fromJson({
         'itemId': '1',
+        'folderId': 'test-folder',
         'imageUrl': 'url',
         'state': 'active',
         'comment': null,

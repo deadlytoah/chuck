@@ -12,8 +12,9 @@ class UploadService {
   UploadService({required this.apiService, required this.imageService});
 
   Stream<Map<String, UploadProgress>> uploadFiles(
-    List<FileToUpload> files,
-  ) async* {
+    List<FileToUpload> files, {
+    required String folderId,
+  }) async* {
     final progressMap = <String, UploadProgress>{};
     final uuid = const Uuid();
 
@@ -36,7 +37,7 @@ class UploadService {
 
     for (final file in files) {
       final id = fileIdMap[file.name]!;
-      await _uploadSingleFile(file, id, progressMap, (updated) {
+      await _uploadSingleFile(file, id, folderId, progressMap, (updated) {
         progressMap[id] = updated;
       });
       yield Map.from(progressMap);
@@ -49,6 +50,7 @@ class UploadService {
   Future<void> _uploadSingleFile(
     FileToUpload file,
     String id,
+    String folderId,
     Map<String, UploadProgress> progressMap,
     Function(UploadProgress) onUpdate,
   ) async {
@@ -108,7 +110,7 @@ class UploadService {
         );
 
         // Create item in database
-        await apiService.createItem(imageUrl: imageUrl);
+        await apiService.createItem(folderId: folderId, imageUrl: imageUrl);
 
         onUpdate(
           progress.copyWith(
@@ -141,9 +143,10 @@ class UploadService {
 
   Future<void> retryUpload(
     FileToUpload file,
-    String id,
-    Function(Map<String, UploadProgress>) onUpdate,
-  ) async {
+    String id, {
+    required String folderId,
+    required Function(Map<String, UploadProgress>) onUpdate,
+  }) async {
     final progressMap = <String, UploadProgress>{
       id: UploadProgress(
         id: id,
@@ -152,7 +155,7 @@ class UploadService {
       ),
     };
 
-    await _uploadSingleFile(file, id, progressMap, (updated) {
+    await _uploadSingleFile(file, id, folderId, progressMap, (updated) {
       progressMap[id] = updated;
       onUpdate(progressMap);
     });

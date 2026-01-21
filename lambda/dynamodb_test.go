@@ -58,8 +58,11 @@ func TestUpdateItemRecord_NilState(t *testing.T) {
 
 	// 1. Setup the mock client
 	mockItem := Item{
+		PK:        "folder#test-folder",
+		SK:        "item#false#2023-10-27T10:00:00Z",
 		ItemID:    itemID,
-		Archived:  "false",
+		FolderID:  "test-folder",
+		Archived:  false,
 		CreatedAt: "2023-10-27T10:00:00Z",
 		State:     "new",
 	}
@@ -138,8 +141,8 @@ func updateItemRecordForTest(ctx context.Context, client ddbAPI, itemID string, 
 	updateInput := &dynamodb.UpdateItemInput{
 		TableName: aws.String(tableName),
 		Key: map[string]types.AttributeValue{
-			"archived":  &types.AttributeValueMemberS{Value: existingItem.Archived},
-			"createdAt": &types.AttributeValueMemberS{Value: existingItem.CreatedAt},
+			"PK": &types.AttributeValueMemberS{Value: existingItem.PK},
+			"SK": &types.AttributeValueMemberS{Value: existingItem.SK},
 		},
 		UpdateExpression:          aws.String(updateExpr),
 		ExpressionAttributeValues: exprAttrValues,
@@ -158,25 +161,25 @@ func updateItemRecordForTest(ctx context.Context, client ddbAPI, itemID string, 
 }
 
 func getItemByIDForTest(ctx context.Context, client ddbAPI, itemID string) (*Item, error) {
-	item, err := queryItemByIDForTest(ctx, client, itemID, "false")
+	// In v2 schema, use Scan to find item by itemId (simplified for test)
+	item, err := queryItemByIDForTest(ctx, client, itemID, "item#false#")
 	if err != nil {
-		// We expect errors to be handled by the caller, return them up.
 		return nil, err
 	}
 	if item != nil {
 		return item, nil
 	}
-	return queryItemByIDForTest(ctx, client, itemID, "true")
+	return queryItemByIDForTest(ctx, client, itemID, "item#true#")
 }
 
-func queryItemByIDForTest(ctx context.Context, client ddbAPI, itemID, archived string) (*Item, error) {
+func queryItemByIDForTest(ctx context.Context, client ddbAPI, itemID, skPrefix string) (*Item, error) {
+	// Simplified for test - in real implementation we'd scan by itemId
+	// Here we just query the mock which returns pre-configured results
 	input := &dynamodb.QueryInput{
 		TableName:              aws.String(tableName),
-		KeyConditionExpression: aws.String("archived = :archived"),
 		FilterExpression:       aws.String("itemId = :itemId"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":archived": &types.AttributeValueMemberS{Value: archived},
-			":itemId":   &types.AttributeValueMemberS{Value: itemID},
+			":itemId": &types.AttributeValueMemberS{Value: itemID},
 		},
 	}
 

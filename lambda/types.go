@@ -2,14 +2,28 @@ package main
 
 // Item represents an item in DynamoDB
 type Item struct {
+	PK         string `json:"-" dynamodbav:"PK"`                           // folder#{folderId}
+	SK         string `json:"-" dynamodbav:"SK"`                           // item#{archived}#{createdAt}
+	EntityType string `json:"-" dynamodbav:"entityType"`                   // "item"
 	ItemID     string `json:"itemId" dynamodbav:"itemId"`
+	FolderID   string `json:"folderId" dynamodbav:"folderId"`
 	ImageURL   string `json:"imageUrl" dynamodbav:"imageUrl"`
 	State      string `json:"state" dynamodbav:"state"`
 	Notes      string `json:"notes,omitempty" dynamodbav:"notes,omitempty"`
-	Archived   string `json:"archived" dynamodbav:"archived"` // "true" or "false"
+	Archived   bool   `json:"archived" dynamodbav:"archived"`
 	ArchivedAt string `json:"archivedAt,omitempty" dynamodbav:"archivedAt,omitempty"`
 	CreatedAt  string `json:"createdAt" dynamodbav:"createdAt"`
 	UpdatedAt  string `json:"updatedAt" dynamodbav:"updatedAt"`
+}
+
+// Folder represents a folder in DynamoDB
+type Folder struct {
+	PK         string `json:"-" dynamodbav:"PK"`          // folder#{folderId}
+	SK         string `json:"-" dynamodbav:"SK"`          // metadata
+	EntityType string `json:"-" dynamodbav:"entityType"`  // "folder"
+	FolderID   string `json:"folderId" dynamodbav:"folderId"`
+	Name       string `json:"name" dynamodbav:"name"`
+	CreatedAt  string `json:"createdAt" dynamodbav:"createdAt"`
 }
 
 // GetItemsResponse for GET /items
@@ -27,6 +41,7 @@ type UploadURLsResponse struct {
 // CreateItemRequest for POST /items
 type CreateItemRequest struct {
 	ImageURL string `json:"imageUrl"`
+	FolderID string `json:"folderId"`
 	State    string `json:"state"`
 }
 
@@ -55,4 +70,25 @@ type ItemResponse struct {
 // EmptyResponse for DELETE operations
 type EmptyResponse struct {
 	Data map[string]interface{} `json:"data"`
+}
+
+// GetFoldersResponse for GET /folders
+type GetFoldersResponse struct {
+	Data []Folder `json:"data"`
+}
+
+// FolderResponse for single folder operations
+type FolderResponse struct {
+	Data Folder `json:"data"`
+}
+
+// CreateFolderRequest for POST /folders
+type CreateFolderRequest struct {
+	FolderID string `json:"folderId"`
+	Name     string `json:"name"`
+}
+
+// UpdateFolderRequest for PUT /folders/{folderId}
+type UpdateFolderRequest struct {
+	Name string `json:"name"`
 }

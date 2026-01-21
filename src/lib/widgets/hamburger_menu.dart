@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'folder_bottom_sheet.dart';
 
 class HamburgerMenu extends StatefulWidget {
   final int selectedIndex;
@@ -129,6 +130,22 @@ class _HamburgerMenuState extends State<HamburgerMenu>
                           label: 'Admin',
                           index: 1,
                         ),
+                        Container(
+                          height: 1,
+                          color: CupertinoColors.separator.resolveFrom(context),
+                        ),
+                        _buildActionItem(
+                          context: context,
+                          icon: CupertinoIcons.folder,
+                          label: 'Manage Folders',
+                          onTap: () {
+                            _closeMenu();
+                            showCupertinoModalPopup(
+                              context: context,
+                              builder: (context) => const FolderBottomSheet(),
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -181,6 +198,43 @@ class _HamburgerMenuState extends State<HamburgerMenu>
                       ? CupertinoColors.activeBlue
                       : CupertinoColors.label.resolveFrom(context),
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionItem({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(12),
+            bottomRight: Radius.circular(12),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: CupertinoColors.label.resolveFrom(context),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: CupertinoColors.label.resolveFrom(context),
                 ),
               ),
             ),

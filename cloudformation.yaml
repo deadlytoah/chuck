@@ -82,28 +82,32 @@ Resources:
             Principal: "*"
             Action: s3:GetObject
             Resource: !Sub "${S3Bucket.Arn}/lambda/*"
-  DynamoDBTable:
+            Condition:
+              StringEquals:
+                "aws:PrincipalType": "Anonymous"
+
+  DynamoDBTableV2:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: chuck-items
+      TableName: chuck-items-v2
       AttributeDefinitions:
-        - AttributeName: archived
+        - AttributeName: PK
           AttributeType: S
-        - AttributeName: createdAt
+        - AttributeName: SK
           AttributeType: S
       KeySchema:
-        - AttributeName: archived
+        - AttributeName: PK
           KeyType: HASH
-        - AttributeName: createdAt
+        - AttributeName: SK
           KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: false
 
-  LambdaLogGroup:
+  LambdaLogGroupV2:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: /aws/lambda/chuck-api
+      LogGroupName: /aws/lambda/chuck-api-v2
       RetentionInDays: 7
 
   LambdaExecutionRole:
@@ -130,22 +134,23 @@ Resources:
               - Effect: Allow
                 Action:
                   - dynamodb:Query
+                  - dynamodb:Scan
                   - dynamodb:PutItem
                   - dynamodb:UpdateItem
                   - dynamodb:DeleteItem
-                Resource: !GetAtt DynamoDBTable.Arn
+                Resource: !GetAtt DynamoDBTableV2.Arn
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
-                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/chuck-api:*"
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/chuck-api-v2:*"
 
-  ChuckApiFunction:
+  ChuckApiFunctionV2:
     Type: AWS::Lambda::Function
-    DependsOn: LambdaLogGroup
+    DependsOn: LambdaLogGroupV2
     Properties:
-      FunctionName: chuck-api
+      FunctionName: chuck-api-v2
       Runtime: provided.al2
       Handler: bootstrap
       Role: !GetAtt LambdaExecutionRole.Arn
@@ -155,18 +160,18 @@ Resources:
       Environment:
         Variables:
           BUCKET_NAME: !Ref S3Bucket
-          TABLE_NAME: !Ref DynamoDBTable
+          TABLE_NAME: !Ref DynamoDBTableV2
           REGION: !Ref AWS::Region
       Timeout: 30
       MemorySize: 512
       Architectures:
         - arm64
 
-  ChuckApiFunctionUrl:
+  ChuckApiFunctionUrlV2:
     Type: AWS::Lambda::Url
     Properties:
       AuthType: NONE
-      TargetFunctionArn: !GetAtt ChuckApiFunction.Arn
+      TargetFunctionArn: !GetAtt ChuckApiFunctionV2.Arn
       Cors:
         AllowOrigins:
           - "*"
@@ -181,10 +186,10 @@ Resources:
           - X-Requested-With
         MaxAge: 300
 
-  ChuckApiFunctionUrlPermission:
+  ChuckApiFunctionUrlPermissionV2:
     Type: AWS::Lambda::Permission
     Properties:
-      FunctionName: !Ref ChuckApiFunction
+      FunctionName: !Ref ChuckApiFunctionV2
       Action: lambda:InvokeFunctionUrl
       Principal: "*"
       FunctionUrlAuthType: NONE
@@ -207,10 +212,10 @@ Outputs:
     Value: !Ref S3Bucket
     Description: Name of the S3 bucket
   TableName:
-    Value: !Ref DynamoDBTable
+    Value: !Ref DynamoDBTableV2
     Description: Name of the DynamoDB table
   FunctionUrl:
-    Value: !GetAtt ChuckApiFunctionUrl.FunctionUrl
+    Value: !GetAtt ChuckApiFunctionUrlV2.FunctionUrl
     Description: Lambda Function URL for API access
   WebsiteURL:
     Value: !Sub "http://${S3Bucket}"

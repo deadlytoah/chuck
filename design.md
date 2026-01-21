@@ -31,8 +31,7 @@ updatedAt descending.
 
 **Folder Organization:**
 - Items organized into folders (flat structure, no nesting)
-- First launch: auto-create "Clothes", "Blankets", "Books"; select
-  "Clothes"
+- First launch: user manually creates folders
 - Subsequent launches: restore last-selected folder from local storage
 - Folder selector at top center of home screen (icon + name + dropdown)
 - Click to open bottom sheet with folder list

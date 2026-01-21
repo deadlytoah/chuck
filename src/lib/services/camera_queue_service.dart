@@ -113,7 +113,15 @@ class CameraQueueService extends Notifier<List<QueuedPhoto>> {
     }).toList();
 
     try {
-      final item = await ref.read(cameraUploadServiceProvider).uploadPhoto(path);
+      final currentFolderId = ref.read(foldersProvider).currentFolderId;
+      if (currentFolderId == null) {
+        throw Exception('No folder selected');
+      }
+
+      final item = await ref.read(cameraUploadServiceProvider).uploadPhoto(
+            path,
+            folderId: currentFolderId,
+          );
       debugPrint('Upload success for $photoId');
 
       // Add new item to items list

@@ -17,6 +17,7 @@ class MockApiService extends ApiService {
 
   @override
   Future<ItemsResponse> getItems({
+    required String folderId,
     String? nextToken,
     int limit = 20,
     String? sort,
@@ -39,6 +40,7 @@ void main() {
     test('adds non-archived item to beginning of list', () {
       final existingItem = Item(
         itemId: 'item-1',
+        folderId: 'test-folder',
         imageUrl: 'images/1/full.jpg',
         state: 'Unanswered',
         archived: false,
@@ -47,6 +49,7 @@ void main() {
 
       final newItem = Item(
         itemId: 'item-2',
+        folderId: 'test-folder',
         imageUrl: 'images/2/full.jpg',
         state: 'Unanswered',
         archived: false,
@@ -68,6 +71,7 @@ void main() {
     test('does not add archived item to list', () {
       final existingItem = Item(
         itemId: 'item-1',
+        folderId: 'test-folder',
         imageUrl: 'images/1/full.jpg',
         state: 'Unanswered',
         archived: false,
@@ -76,6 +80,7 @@ void main() {
 
       final archivedItem = Item(
         itemId: 'item-2',
+        folderId: 'test-folder',
         imageUrl: 'images/2/full.jpg',
         state: 'Chuck',
         archived: true,
@@ -96,6 +101,7 @@ void main() {
     test('adds item to empty list', () {
       final newItem = Item(
         itemId: 'item-1',
+        folderId: 'test-folder',
         imageUrl: 'images/1/full.jpg',
         state: 'Unanswered',
         archived: false,
@@ -114,6 +120,7 @@ void main() {
     test('preserves local-only items when filter is null', () async {
       final localItem = Item(
         itemId: 'local-1',
+        folderId: 'test-folder',
         imageUrl: 'images/local/full.jpg',
         state: 'Unanswered',
         archived: false,
@@ -122,6 +129,7 @@ void main() {
 
       final backendItem = Item(
         itemId: 'backend-1',
+        folderId: 'test-folder',
         imageUrl: 'images/backend/full.jpg',
         state: 'Chuck',
         archived: false,
@@ -135,7 +143,7 @@ void main() {
       mockApiService.setMockResponse([backendItem]);
 
       // Load items with no filter
-      await itemsNotifier.loadItems(filter: null);
+      await itemsNotifier.loadItems(folderId: 'test-folder', filter: null);
 
       // Both items should be present
       expect(itemsNotifier.state.items.length, 2);
@@ -146,6 +154,7 @@ void main() {
     test('preserves local-only items when filter is "all"', () async {
       final localItem = Item(
         itemId: 'local-1',
+        folderId: 'test-folder',
         imageUrl: 'images/local/full.jpg',
         state: 'Unanswered',
         archived: false,
@@ -154,6 +163,7 @@ void main() {
 
       final backendItem = Item(
         itemId: 'backend-1',
+        folderId: 'test-folder',
         imageUrl: 'images/backend/full.jpg',
         state: 'Keep',
         archived: false,
@@ -167,7 +177,7 @@ void main() {
       mockApiService.setMockResponse([backendItem]);
 
       // Load items with "all" filter
-      await itemsNotifier.loadItems(filter: 'all');
+      await itemsNotifier.loadItems(folderId: 'test-folder', filter: 'all');
 
       // Both items should be present
       expect(itemsNotifier.state.items.length, 2);
@@ -178,6 +188,7 @@ void main() {
     test('does NOT preserve local-only items when specific filter is active', () async {
       final localChuckItem = Item(
         itemId: 'local-1',
+        folderId: 'test-folder',
         imageUrl: 'images/local/full.jpg',
         state: 'Chuck',
         archived: false,
@@ -186,6 +197,7 @@ void main() {
 
       final localKeepItem = Item(
         itemId: 'local-2',
+        folderId: 'test-folder',
         imageUrl: 'images/local2/full.jpg',
         state: 'Keep',
         archived: false,
@@ -194,6 +206,7 @@ void main() {
 
       final backendChuckItem = Item(
         itemId: 'backend-1',
+        folderId: 'test-folder',
         imageUrl: 'images/backend/full.jpg',
         state: 'Chuck',
         archived: false,
@@ -207,7 +220,7 @@ void main() {
       mockApiService.setMockResponse([backendChuckItem]);
 
       // Load items with "Chuck" filter
-      await itemsNotifier.loadItems(filter: 'Chuck');
+      await itemsNotifier.loadItems(folderId: 'test-folder', filter: 'Chuck');
 
       // Only backend item should be present (local items not preserved with filter)
       expect(itemsNotifier.state.items.length, 1);
@@ -217,6 +230,7 @@ void main() {
     test('does NOT preserve local-only items when "Keep" filter is active', () async {
       final localUnansweredItem = Item(
         itemId: 'local-1',
+        folderId: 'test-folder',
         imageUrl: 'images/local/full.jpg',
         state: 'Unanswered',
         archived: false,
@@ -225,6 +239,7 @@ void main() {
 
       final backendKeepItem = Item(
         itemId: 'backend-1',
+        folderId: 'test-folder',
         imageUrl: 'images/backend/full.jpg',
         state: 'Keep',
         archived: false,
@@ -238,7 +253,7 @@ void main() {
       mockApiService.setMockResponse([backendKeepItem]);
 
       // Load items with "Keep" filter
-      await itemsNotifier.loadItems(filter: 'Keep');
+      await itemsNotifier.loadItems(folderId: 'test-folder', filter: 'Keep');
 
       // Only backend Keep item should be present
       expect(itemsNotifier.state.items.length, 1);
@@ -249,6 +264,7 @@ void main() {
     test('does NOT preserve archived items even with null filter', () async {
       final localActiveItem = Item(
         itemId: 'local-1',
+        folderId: 'test-folder',
         imageUrl: 'images/local/full.jpg',
         state: 'Chuck',
         archived: false,
@@ -257,6 +273,7 @@ void main() {
 
       final localArchivedItem = Item(
         itemId: 'local-2',
+        folderId: 'test-folder',
         imageUrl: 'images/local2/full.jpg',
         state: 'Keep',
         archived: true,
@@ -265,6 +282,7 @@ void main() {
 
       final backendItem = Item(
         itemId: 'backend-1',
+        folderId: 'test-folder',
         imageUrl: 'images/backend/full.jpg',
         state: 'Sell',
         archived: false,
@@ -278,7 +296,7 @@ void main() {
       mockApiService.setMockResponse([backendItem]);
 
       // Load items with null filter
-      await itemsNotifier.loadItems(filter: null);
+      await itemsNotifier.loadItems(folderId: 'test-folder', filter: null);
 
       // Only local active and backend items should be present
       expect(itemsNotifier.state.items.length, 2);

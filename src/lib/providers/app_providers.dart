@@ -1,15 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/item.dart';
+import '../models/folder.dart';
 import '../models/upload_progress.dart';
 import '../services/api_service.dart';
 import '../services/camera_service.dart';
 import '../services/image_service.dart';
 import '../services/upload_service.dart';
 import '../services/camera_upload_service.dart';
+import '../services/folder_storage_service.dart';
 
 // Configuration
 final apiBaseUrlProvider = Provider<String>((ref) {
-  return 'https://a7wchfs3es3rxo6luxbl7j7pv40skdur.lambda-url.us-east-1.on.aws/';
+  return 'https://f5vhix3qrw5e6oxhnb3rqldr3i0bipsw.lambda-url.us-east-1.on.aws/';
 });
 
 // Services
@@ -39,6 +41,157 @@ final cameraUploadServiceProvider = Provider<CameraUploadService>((ref) {
     apiService: apiService,
     imageService: imageService,
   );
+});
+
+final folderStorageServiceProvider = Provider<FolderStorageService>((ref) {
+  return FolderStorageService();
+});
+
+// Folder state
+class FoldersState {
+  final List<Folder> folders;
+  final String? currentFolderId;
+  final bool isLoading;
+
+  FoldersState({
+    required this.folders,
+    this.currentFolderId,
+    this.isLoading = false,
+  });
+
+  Folder? get currentFolder {
+    if (currentFolderId == null) return null;
+    return folders.where((f) => f.folderId == currentFolderId).firstOrNull;
+  }
+
+  FoldersState copyWith({
+    List<Folder>? folders,
+    String? currentFolderId,
+    bool? isLoading,
+  }) {
+    return FoldersState(
+      folders: folders ?? this.folders,
+      currentFolderId: currentFolderId ?? this.currentFolderId,
+      isLoading: isLoading ?? this.isLoading,
+    );
+  }
+}
+
+class FoldersNotifier extends StateNotifier<FoldersState> {
+  final ApiService apiService;
+  final FolderStorageService storageService;
+
+  FoldersNotifier(this.apiService, this.storageService)
+      : super(FoldersState(folders: [], isLoading: false));
+
+  /// Select "Inbox" folder if exists, otherwise first alphabetically
+  String? _selectDefaultFolder(List<Folder> folders) {
+    if (folders.isEmpty) return null;
+
+    final inbox = folders.where((f) => f.name == 'Inbox').firstOrNull;
+    if (inbox != null) {
+      return inbox.folderId;
+    }
+
+    final sortedFolders = List<Folder>.from(folders)
+      ..sort((a, b) => a.name.compareTo(b.name));
+    return sortedFolders.first.folderId;
+  }
+
+  Future<void> loadFolders() async {
+    state = state.copyWith(isLoading: true);
+
+    final folders = await apiService.getFolders();
+
+    // Restore last-selected folder from storage
+    String? selectedId = await storageService.getSelectedFolderId();
+
+    // Validate stored folder still exists
+    if (selectedId != null &&
+        !folders.any((f) => f.folderId == selectedId)) {
+      selectedId = null;
+    }
+
+    // Fallback: select "Inbox" or first folder alphabetically
+    selectedId ??= _selectDefaultFolder(folders);
+
+    state = FoldersState(
+      folders: folders,
+      currentFolderId: selectedId,
+      isLoading: false,
+    );
+
+    // Persist selection
+    if (selectedId != null) {
+      await storageService.setSelectedFolderId(selectedId);
+    }
+  }
+
+  Future<void> selectFolder(String folderId) async {
+    state = state.copyWith(currentFolderId: folderId);
+    await storageService.setSelectedFolderId(folderId);
+  }
+
+  Future<void> createFolder({
+    required String folderId,
+    required String name,
+  }) async {
+    final folder = await apiService.createFolder(
+      folderId: folderId,
+      name: name,
+    );
+
+    state = state.copyWith(
+      folders: [...state.folders, folder],
+    );
+  }
+
+  Future<void> updateFolder({
+    required String folderId,
+    required String name,
+  }) async {
+    final updatedFolder = await apiService.updateFolder(folderId, name: name);
+
+    final index = state.folders.indexWhere((f) => f.folderId == folderId);
+    if (index != -1) {
+      final newFolders = List<Folder>.from(state.folders);
+      newFolders[index] = updatedFolder;
+      state = state.copyWith(folders: newFolders);
+    }
+  }
+
+  Future<void> deleteFolder(String folderId) async {
+    await apiService.deleteFolder(folderId);
+
+    final newFolders =
+        state.folders.where((f) => f.folderId != folderId).toList();
+
+    // If deleted folder was selected, select "Inbox" or first alphabetically
+    String? newSelection = state.currentFolderId;
+    if (state.currentFolderId == folderId) {
+      newSelection = _selectDefaultFolder(newFolders);
+
+      // Persist new selection
+      if (newSelection != null) {
+        await storageService.setSelectedFolderId(newSelection);
+      } else {
+        await storageService.clearSelectedFolderId();
+      }
+    }
+
+    state = FoldersState(
+      folders: newFolders,
+      currentFolderId: newSelection,
+      isLoading: false,
+    );
+  }
+}
+
+final foldersProvider =
+    StateNotifierProvider<FoldersNotifier, FoldersState>((ref) {
+  final apiService = ref.watch(apiServiceProvider);
+  final storageService = ref.watch(folderStorageServiceProvider);
+  return FoldersNotifier(apiService, storageService);
 });
 
 // Items state
@@ -72,11 +225,17 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
   ItemsNotifier(this.apiService)
     : super(ItemsState(items: [], isLoading: false));
 
-  Future<void> loadItems({String? filter, String? sort, int limit = 20}) async {
+  Future<void> loadItems({
+    required String folderId,
+    String? filter,
+    String? sort,
+    int limit = 20,
+  }) async {
     final currentItems = state.items;
     state = state.copyWith(isLoading: true);
 
     final response = await apiService.getItems(
+      folderId: folderId,
       filter: filter,
       sort: sort,
       limit: limit,
@@ -88,7 +247,10 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
     final backendItemIds = response.items.map((item) => item.itemId).toSet();
     final localOnlyItems = (filter == null || filter == 'all')
         ? currentItems
-            .where((item) => !backendItemIds.contains(item.itemId) && !item.archived)
+            .where((item) =>
+                !backendItemIds.contains(item.itemId) &&
+                !item.archived &&
+                item.folderId == folderId)
             .toList()
         : <Item>[];
 
@@ -102,12 +264,17 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
     );
   }
 
-  Future<void> loadMore({String? filter, String? sort}) async {
+  Future<void> loadMore({
+    required String folderId,
+    String? filter,
+    String? sort,
+  }) async {
     if (state.nextToken == null || state.isLoading) return;
 
     state = state.copyWith(isLoading: true);
 
     final response = await apiService.getItems(
+      folderId: folderId,
       nextToken: state.nextToken,
       filter: filter,
       sort: sort,

@@ -24,5 +24,18 @@ deploy: $(BINDIR)/$(BINARY_NAME).zip
 update: $(BINDIR)/$(BINARY_NAME).zip
 	aws lambda update-function-code --function-name chuck-api --zip-file fileb://./bin/$(BINARY_NAME).zip
 
+update-v2: $(BINDIR)/$(BINARY_NAME).zip
+	aws lambda update-function-code --function-name chuck-api-v2 --zip-file fileb://./bin/$(BINARY_NAME).zip
+
+test:
+	go test -v ./...
+
+test-integration:
+	API_URL=$$(aws cloudformation describe-stacks --stack-name chuck --query 'Stacks[0].Outputs[?OutputKey==`FunctionUrlV2`].OutputValue' --output text) \
+	go test -tags=integration -v ./...
+
+test-integration-local:
+	API_URL=http://localhost:8080 go test -tags=integration -v ./...
+
 clean:
 	rm -f $(BINDIR)/$(BINARY_NAME) $(BINDIR)/$(BINARY_NAME).zip
