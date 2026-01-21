@@ -236,7 +236,7 @@ func queryItems(ctx context.Context, folderID, nextToken, filter, sortBy string,
 	if filter == "archived" {
 		skCondition = "item#true#"
 	} else if filter == "all" {
-		skCondition = "item#"
+		skCondition = "item#false#"
 	} else {
 		skCondition = "item#false#"
 	}
