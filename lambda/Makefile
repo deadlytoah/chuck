@@ -25,7 +25,7 @@ update: $(BINDIR)/$(BINARY_NAME).zip
 	aws lambda update-function-code --function-name chuck-api --zip-file fileb://./bin/$(BINARY_NAME).zip
 
 update-v2: $(BINDIR)/$(BINARY_NAME).zip
-	aws lambda update-function-code --function-name chuck-api-v2 --zip-file fileb://./bin/$(BINARY_NAME).zip
+	aws lambda update-function-code --function-name chuck-api-v2 --zip-file fileb://./bin/$(BINARY_NAME).zip --region ap-southeast-2
 
 test:
 	go test -v ./...

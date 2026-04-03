@@ -17,7 +17,8 @@ echo ""
 
 aws s3 sync ./src/build/web s3://chuck.overcomingsh.in/ \
   --exclude "images/*" \
-  --exclude "lambda/*"
+  --exclude "lambda/*" \
+  --region ap-southeast-2
 
 echo ""
 echo "Deployment complete!"

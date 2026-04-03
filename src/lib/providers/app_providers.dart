@@ -11,7 +11,7 @@ import '../services/folder_storage_service.dart';
 
 // Configuration
 final apiBaseUrlProvider = Provider<String>((ref) {
-  return 'https://f5vhix3qrw5e6oxhnb3rqldr3i0bipsw.lambda-url.us-east-1.on.aws/';
+  return 'https://aanonry4iszhp75mjpq33jfzxe0vzpdz.lambda-url.ap-southeast-2.on.aws/';
 });
 
 // Services

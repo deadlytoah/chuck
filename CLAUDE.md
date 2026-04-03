@@ -83,5 +83,5 @@ specs.
 - Lambda: chuck-api (Function URL, Go)
 
 ## Quick Ref
-- Lambda URL: https://a7wchfs3es3rxo6luxbl7j7pv40skdur.lambda-url.
-  us-east-1.on.aws/
+- Lambda URL: https://aanonry4iszhp75mjpq33jfzxe0vzpdz.lambda-url.
+  ap-southeast-2.on.aws/
