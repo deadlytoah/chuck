@@ -13,6 +13,16 @@ and concise items. To the point.
 
 When you scan the directory, skip `.git/` and `log/`.
 
+# Code and Documentation Lookup
+
+Use jCodeMunch and jDocMunch for code and document retrieval:
+- Prefer symbol search, file outlines, and targeted section
+  retrieval over reading full files
+- Use `search_symbols` for functions/classes/methods
+- Use `get_file_outline` for file structure overview
+- Use `search_sections` in jDocMunch for design.md and technical.md
+- Read only what's needed to answer the question (conserves tokens)
+
 - Documentation: `design.md` for functional design; `technical.md` for
   technical design.
 - IoC script: `cloudformation.yaml`
