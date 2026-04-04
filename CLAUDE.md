@@ -20,11 +20,14 @@ Use jCodeMunch and jDocMunch for code and document retrieval:
   retrieval over reading full files
 - Use `search_symbols` for functions/classes/methods
 - Use `get_file_outline` for file structure overview
-- Use `search_sections` in jDocMunch for design.md and technical.md
+- Use `search_sections` in jDocMunch for design docs and technical docs
 - Read only what's needed to answer the question (conserves tokens)
 
-- Documentation: `design.md` for functional design; `technical.md` for
-  technical design.
+- Flutter iOS functional design: `design.md`
+- Next.js web app functional design: `design-web.md`
+- Flutter iOS technical spec: `technical.md`
+- Next.js web app technical spec: `technical-web.md`
+- Shared backend technical spec: `technical-backend.md`
 - IoC script: `cloudformation.yaml`
 - Flutter source code: `src/`
 - Lambda (golang) source: `lambda/`
@@ -63,8 +66,9 @@ Save your walkthroughs in `./walkthroughs` directory.
 
 # Project Context
 
-See `design.md` for functional design; `technical.md` for technical
-specs.
+Functional design: `design.md` (iOS), `design-web.md` (web).
+Technical specs: `technical.md` (iOS), `technical-web.md` (web),
+`technical-backend.md` (shared backend).
 
 ## Codebase Structure
 
