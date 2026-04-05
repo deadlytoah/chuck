@@ -42,7 +42,7 @@ When I ask you to record your plan:
 - First plan it, and then write your plan in a list of concise and brief items in a file.
 - Determine the name of the file in `plans/###-{short description}.md` where ### is a zero-padded 3-digit serial number starting from 000.
 - The serial number is to be unique in `plans/` directory.
-- Also record the prompt that I used to generate the plan
+- Also record a summary of the chat that led up to the plan
 - If relevant, also record the exerpts from and line numbers of the files you required to generate the plan.
 
 # Clarifications
