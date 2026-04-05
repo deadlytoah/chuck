@@ -28,16 +28,15 @@ the Flutter iOS app spec.
 - Manual refresh button
 - Each card shows thumbnail image and current state badge
 
-### Edit Item Screen
+### Item State Update
 
-- Accessed by tapping a card; replaces grid view (push navigation)
-- Full-size image displayed at top
-- State selector: large tap-target buttons for Chuck, Keep, Sell,
-  Undecided, Unanswered
+- State updated via context menu on each card (no separate edit
+  screen)
+- Context menu options: Chuck, Keep, Sell, Undecided, Unanswered
 - State change sent immediately via `PUT /items/{id}` on selection;
   no explicit save required
-- Back navigation returns to grid with updated state reflected
-  immediately (optimistic update)
+- Card state badge updates immediately (optimistic update);
+  rolled back on error
 
 ### State Management
 
@@ -68,7 +67,7 @@ Targets iPhone Safari (375–430px viewport width).
 
 **Performance:**
 - Images lazy-loaded via `loading="lazy"`
-- Thumbnails in grid; full image loaded only on Edit screen
+- Thumbnails in grid only; no full-image view
 - Static export served from S3; no server-side rendering
 
 ### Error Messages

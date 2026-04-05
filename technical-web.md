@@ -6,7 +6,7 @@ infrastructure) and `technical.md` for the Flutter iOS app.
 
 ## Stack
 
-- Framework: Next.js (static export via `next export`)
+- Framework: Next.js 16 (static export via `output: 'export'`)
 - Hosting: S3 bucket `chuck.overcomingsh.in` (root path)
 - Styling: Tailwind CSS
 - State: React `useState` / `useReducer` (no external library)
@@ -20,7 +20,6 @@ infrastructure) and `technical.md` for the Flutter iOS app.
 - Endpoints used:
   - `GET /folders` — load folder list on app init
   - `GET /items` — load item grid (with filter/sort/pagination params)
-  - `GET /items/{id}` — load full item on Edit screen
   - `PUT /items/{id}` — update state; called immediately on selection
 
 ## State Management
@@ -36,18 +35,15 @@ infrastructure) and `technical.md` for the Flutter iOS app.
 
 ## Routing
 
-- `/` — Main View (item grid)
-- `/items/[id]` — Edit Item Screen
-- Navigation via Next.js `router.push` / `router.back`
+- `/` — Main View (item grid); single route, no sub-pages
 
 ## Component Structure
 
 - `<FolderSelector>` — top bar; opens `<FolderBottomSheet>`
 - `<FilterBar>` — filter + sort controls; fixed below folder selector
 - `<ItemGrid>` — CSS grid of `<ItemCard>` components
-- `<ItemCard>` — thumbnail + state badge; taps navigate to edit screen
-- `<EditItemScreen>` — full image + `<StateSelector>`
-- `<StateSelector>` — row of large tap-target buttons
+- `<ItemCard>` — thumbnail + state badge + context menu trigger
+- `<StateContextMenu>` — context menu with state options
 - `<Toast>` — transient success/error notifications
 - `<ErrorBanner>` — inline error with retry button
 
@@ -63,13 +59,14 @@ infrastructure) and `technical.md` for the Flutter iOS app.
 
 - Grid: `<img src={thumbUrl} loading="lazy">`; thumbnail derived from
   full URL by convention (`s/full/thumb/`)
-- Edit screen: full-size image loaded on mount
-- S3 base URL constructed from item `imageUrl` (S3 object key)
+- S3 base URL: `http://chuck.overcomingsh.in`; constructed from item
+  `imageUrl` (S3 object key)
 
 ## Build & Deploy
 
-- Build: `npm run build && next export` → `out/` directory
+- Build: `npm run build` (in `web/`) → `out/` directory
 - Deploy: `./deploy-web.sh` syncs `out/` to S3 root, preserving
   `images/` and `lambda/` prefixes
-- No server-side environment variables required at runtime; API URL
-  set at build time via `NEXT_PUBLIC_API_URL`
+- Env vars (set at build time):
+  - `NEXT_PUBLIC_API_URL` — Lambda Function URL
+  - `NEXT_PUBLIC_S3_BASE` — S3 bucket base URL
