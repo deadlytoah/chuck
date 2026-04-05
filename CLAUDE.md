@@ -29,7 +29,7 @@ Use jCodeMunch and jDocMunch for code and document retrieval:
 - Next.js web app technical spec: `technical-web.md`
 - Shared backend technical spec: `technical-backend.md`
 - IoC script: `cloudformation.yaml`
-- Flutter source code: `src/`
+- Flutter source code: `ios/`
 - Lambda (golang) source: `lambda/`
 - Deploy lambda: `cd lambda/ && make update`
 - Deploy web: `./deploy-web.sh` (builds and syncs to S3, preserves
@@ -72,7 +72,7 @@ Technical specs: `technical.md` (iOS), `technical-web.md` (web),
 
 ## Codebase Structure
 
-### Flutter (`/src/lib`)
+### Flutter (`/ios/lib`)
 - **models/**: `item.dart`, `queued_photo.dart`, `upload_progress.dart`
 - **services/**: `api_service.dart`, `camera_queue_service.dart`,
   `camera_upload_service.dart`, `image_service.dart`, `network_
