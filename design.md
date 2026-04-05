@@ -18,10 +18,11 @@ for the Next.js web app spec.
 
 ## User Interface
 
-The main view serves as the landing page. A TabBar at the top switches
-between Main View and Admin. Filter, sort and refresh controls are in
-the AppBar. Default: Main View tab with "ALL" filter, sorted by
-updatedAt descending.
+The main view serves as the landing page. Filter, sort and refresh
+controls are in the AppBar. A hamburger menu button sits in the bottom
+right corner, next to the camera button, for navigation and other
+actions. Default: Main View with "ALL" filter, sorted by updatedAt
+descending.
 
 **Folder Organization:**
 - Items organized into folders (flat structure, no nesting)

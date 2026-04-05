@@ -8,8 +8,9 @@ for the Next.js web app.
 - State management: Riverpod with manual refresh for syncing. Camera
   uploads automatically update item list after backend confirms
   creation.
-- UI controls: TabBar for view switching (Main View is default landing
-  page, tab index 0); AppBar for filter, sort, and refresh.
+- UI controls: hamburger menu button (bottom right, next to camera
+  button) for navigation; AppBar for filter, sort, and refresh. Main
+  View is the default landing page.
 
 ## Image Upload (iOS)
 - Image processing done in Flutter before upload
