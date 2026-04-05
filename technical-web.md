@@ -25,13 +25,11 @@ infrastructure) and `technical.md` for the Flutter iOS app.
 ## State Management
 
 - Folder list: fetched once on load; re-fetched on manual refresh
-- Item list: fetched per folder/filter/sort combination; paginated
+- Item list: fetched per folder; paginated
 - Optimistic updates: state change applied locally before API call;
   rolled back on error with toast notification
 - `localStorage` keys:
   - `chuck.folderId` — last-selected folder ID
-  - `chuck.filter` — last-selected filter
-  - `chuck.sort` — last-selected sort
 
 ## Routing
 
@@ -40,7 +38,6 @@ infrastructure) and `technical.md` for the Flutter iOS app.
 ## Component Structure
 
 - `<FolderSelector>` — top bar; opens `<FolderBottomSheet>`
-- `<FilterBar>` — filter + sort controls; fixed below folder selector
 - `<ItemGrid>` — CSS grid of `<ItemCard>` components
 - `<ItemCard>` — thumbnail + state badge + context menu trigger
 - `<StateContextMenu>` — context menu with state options
@@ -51,7 +48,7 @@ infrastructure) and `technical.md` for the Flutter iOS app.
 
 - Breakpoints: single column < 640px; 2 columns ≥ 640px
 - Touch targets: min 44×44pt
-- Header (folder selector + filter bar): `position: sticky; top: 0`
+- Header (folder selector): `position: sticky; top: 0`
 - Bottom sheet: `position: fixed; bottom: 0`; `transform: translateY`
   animation for open/close
 

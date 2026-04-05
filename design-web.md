@@ -19,11 +19,7 @@ the Flutter iOS app spec.
 ### Main View (Item Grid)
 
 - Responsive CSS grid of thumbnail cards, filling viewport width
-- Default: current folder, "ALL" filter, sorted by `createdAt`
-  descending
-- Filter bar below folder selector: All, Chuck, Keep, Sell, Undecided,
-  Unanswered, Archived
-- Sort controls: `createdAt`, `updatedAt`, `state`
+- Default: current folder, sorted by `createdAt` descending
 - Token-based pagination; "Load More" button at bottom of grid
 - Manual refresh button
 - Each card shows thumbnail image and current state badge
@@ -55,14 +51,14 @@ Targets iPhone Safari (375–430px viewport width).
 - Touch targets minimum 44×44pt per Apple HIG
 - Bottom sheet for folder selection uses spring animation
   (`transition: transform`)
-- Fixed header (folder selector + filter bar) always reachable
+- Fixed header (folder selector) always reachable
 
 **Interaction feedback:**
 - State button tap: immediate visual highlight before API response
   (optimistic update)
 - Loading spinner on initial fetch and "Load More"
-- Errors shown inline (banner below filter bar) with dismiss; no
-  blocking modals for non-critical errors
+- Errors shown inline (banner) with dismiss; no blocking modals for
+  non-critical errors
 - Success: brief toast (green, slides up from bottom, 2s auto-dismiss)
 
 **Performance:**
