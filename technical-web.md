@@ -31,6 +31,15 @@ infrastructure) and `technical.md` for the Flutter iOS app.
 - `localStorage` keys:
   - `chuck.folderId` — last-selected folder ID
 
+## Folder Initialization (First Launch)
+
+On app startup, a default folder is selected using this priority:
+- "Inbox" folder if it exists
+- First folder alphabetically by name if "Inbox" doesn't exist
+- None if no folders exist
+
+The selected folder persists via `localStorage` (`chuck.folderId` key).
+
 ## Routing
 
 - `/` — Main View (item grid); single route, no sub-pages

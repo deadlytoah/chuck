@@ -12,6 +12,15 @@ for the Next.js web app.
   button) for navigation; AppBar for filter, sort, and refresh. Main
   View is the default landing page.
 
+## Folder Initialization (First Launch)
+
+On app startup, a default folder is selected using this priority:
+- "Inbox" folder if it exists
+- First folder alphabetically by name if "Inbox" doesn't exist
+- None if no folders exist
+
+The selected folder persists across app launches.
+
 ## Image Upload (iOS)
 - Image processing done in Flutter before upload
 - Resize to 400x300px (thumbnail) and 1200x900px (full), 85% JPEG
