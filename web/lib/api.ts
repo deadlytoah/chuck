@@ -42,7 +42,9 @@ export async function getItems(
     searchParams.append('sort', params.sort)
   }
 
-  const response = await fetch(`${getApiUrl()}/items?${searchParams.toString()}`)
+  const response = await fetch(
+    `${getApiUrl()}/items?${searchParams.toString()}`
+  )
   if (!response.ok) {
     throw new Error(`Failed to fetch items: ${response.statusText}`)
   }
