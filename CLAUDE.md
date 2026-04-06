@@ -34,6 +34,8 @@ Use jCodeMunch and jDocMunch for code and document retrieval:
 - Deploy lambda: `cd lambda/ && make update`
 - Deploy web: `./deploy-web.sh` (builds and syncs to S3, preserves
   images/ and lambda/ directories)
+- Deploy stack: `./deploy-stack.sh` (creates/updates CloudFormation
+  stack: S3, DynamoDB, Lambda; also builds and uploads Lambda code)
 - IMPORTANT: Always confirm destructive actions before executing
 
 # Plans

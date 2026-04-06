@@ -153,3 +153,9 @@ web app. See `technical.md` for Flutter iOS specifics and
 - DynamoDB: on-demand capacity; PITR disabled
 - Lambda deploy: `cd lambda/ && make update`
 - Next.js deploy: `./deploy-web.sh` (build + `next export` + S3 sync)
+- Stack deploy: `./deploy-stack.sh` creates or updates the full
+  CloudFormation stack (S3, DynamoDB, Lambda). Builds and uploads
+  Lambda code first. Outputs Lambda Function URL on completion.
+  Set `HOSTED_ZONE_NAME` env var to override default
+  (`overcomingsh.in.`). Update `web/.env.local` with the printed
+  `NEXT_PUBLIC_API_URL` after deploy.
