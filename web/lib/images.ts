@@ -4,11 +4,16 @@ function getS3Base(): string {
   return base
 }
 
+function toKey(imageUrl: string): string {
+  const base = getS3Base()
+  return imageUrl.startsWith(base) ? imageUrl.slice(base.length) : imageUrl
+}
+
 export function thumbUrl(imageUrl: string): string {
-  const thumbKey = imageUrl.replace(/\/full\//g, '/thumb/')
-  return `${getS3Base()}${thumbKey}`
+  const key = toKey(imageUrl).replace(/\/full\//g, '/thumb/')
+  return `${getS3Base()}${key}`
 }
 
 export function fullUrl(imageUrl: string): string {
-  return `${getS3Base()}${imageUrl}`
+  return `${getS3Base()}${toKey(imageUrl)}`
 }
