@@ -16,6 +16,32 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const fetchItemsForFolder = useCallback(
+    async (folderId: string, nextTokenValue?: string) => {
+      try {
+        setError(null)
+        const response = (await getItems({
+          folderId,
+          nextToken: nextTokenValue,
+          sort: 'createdAt',
+        })) as GetItemsResponse
+
+        if (nextTokenValue) {
+          // Append items
+          setItems((prev) => [...prev, ...response.data])
+        } else {
+          // Replace items
+          setItems(response.data)
+        }
+
+        setNextToken(response.pagination?.nextToken)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load items')
+      }
+    },
+    []
+  )
+
   // Initial load: get folders and resolve initial folder
   useEffect(() => {
     const initializeFolders = async () => {
@@ -63,32 +89,6 @@ export default function Home() {
 
     initializeFolders()
   }, [fetchItemsForFolder])
-
-  const fetchItemsForFolder = useCallback(async (
-    folderId: string,
-    nextTokenValue?: string
-  ) => {
-    try {
-      setError(null)
-      const response = (await getItems({
-        folderId,
-        nextToken: nextTokenValue,
-        sort: 'createdAt',
-      })) as GetItemsResponse
-
-      if (nextTokenValue) {
-        // Append items
-        setItems((prev) => [...prev, ...response.data])
-      } else {
-        // Replace items
-        setItems(response.data)
-      }
-
-      setNextToken(response.pagination?.nextToken)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load items')
-    }
-  }, [])
 
   const handleFolderChange = async (folderId: string) => {
     setSelectedFolderId(folderId)
