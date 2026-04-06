@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { Folder, Item, GetItemsResponse } from '@/types/index'
 import { getFolders, getItems } from '@/lib/api'
 import { getStoredFolderId, setStoredFolderId } from '@/lib/storage'
@@ -62,9 +62,9 @@ export default function Home() {
     }
 
     initializeFolders()
-  }, [])
+  }, [fetchItemsForFolder])
 
-  const fetchItemsForFolder = async (
+  const fetchItemsForFolder = useCallback(async (
     folderId: string,
     nextTokenValue?: string
   ) => {
@@ -88,7 +88,7 @@ export default function Home() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load items')
     }
-  }
+  }, [])
 
   const handleFolderChange = async (folderId: string) => {
     setSelectedFolderId(folderId)
