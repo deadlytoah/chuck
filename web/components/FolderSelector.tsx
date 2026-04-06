@@ -25,7 +25,7 @@ export default function FolderSelector({
       <div className="sticky top-0 z-10 bg-background">
         <button
           onClick={() => setShowSheet(true)}
-          className="w-full min-h-[44px] px-4 py-3 text-left bg-gray-50 hover:bg-gray-100 border-b border-gray-200 font-medium"
+          className="w-full min-h-[44px] px-4 py-3 text-left bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-700 font-medium text-gray-900 dark:text-gray-100"
         >
           {displayName}
         </button>
