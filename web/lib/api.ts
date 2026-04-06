@@ -5,14 +5,14 @@ import type {
   Item,
 } from '@/types/index'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL
-
-if (!API_URL) {
-  throw new Error('NEXT_PUBLIC_API_URL is not defined')
+function getApiUrl(): string {
+  const url = process.env.NEXT_PUBLIC_API_URL
+  if (!url) throw new Error('NEXT_PUBLIC_API_URL is not defined')
+  return url
 }
 
 export async function getFolders(): Promise<Folder[]> {
-  const response = await fetch(`${API_URL}/folders`)
+  const response = await fetch(`${getApiUrl()}/folders`)
   if (!response.ok) {
     throw new Error(`Failed to fetch folders: ${response.statusText}`)
   }
@@ -42,7 +42,7 @@ export async function getItems(
     searchParams.append('sort', params.sort)
   }
 
-  const response = await fetch(`${API_URL}/items?${searchParams.toString()}`)
+  const response = await fetch(`${getApiUrl()}/items?${searchParams.toString()}`)
   if (!response.ok) {
     throw new Error(`Failed to fetch items: ${response.statusText}`)
   }
