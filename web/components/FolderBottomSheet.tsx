@@ -19,10 +19,11 @@ export default function FolderBottomSheet({
   const sheetRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // Trigger animation on mount
-    if (sheetRef.current) {
-      sheetRef.current.classList.add('open')
-    }
+    // Use rAF so browser paints initial translateY(100%) before animating
+    const id = requestAnimationFrame(() => {
+      sheetRef.current?.classList.add('open')
+    })
+    return () => cancelAnimationFrame(id)
   }, [])
 
   const handleBackdropClick = () => {
