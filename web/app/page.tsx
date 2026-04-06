@@ -105,23 +105,11 @@ export default function Home() {
   }
 
   const handleRefresh = async () => {
+    if (!selectedFolderId) return
     setItems([])
     setNextToken(undefined)
     setError(null)
-
-    try {
-      setLoading(true)
-      const fetchedFolders = await getFolders()
-      setFolders(fetchedFolders)
-
-      if (selectedFolderId) {
-        await fetchItemsForFolder(selectedFolderId)
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to refresh')
-    } finally {
-      setLoading(false)
-    }
+    await fetchItemsForFolder(selectedFolderId)
   }
 
   const handleRetry = async () => {
