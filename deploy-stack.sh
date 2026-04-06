@@ -24,20 +24,9 @@ echo "Region: $REGION"
 echo "HostedZoneName: $HOSTED_ZONE_NAME"
 echo ""
 
-# Build Lambda code if not already zipped
-if [ ! -f "lambda/bin/bootstrap.zip" ]; then
-  echo "Building Lambda code..."
-  cd lambda
-  make zip
-  cd ..
-fi
-
-# Upload Lambda zip to S3
-echo "Uploading Lambda code to S3..."
-aws s3 cp lambda/bin/bootstrap.zip "s3://${LAMBDA_CODE_BUCKET}/${LAMBDA_CODE_KEY}" \
-  --region "$REGION"
-
-echo ""
+# Build and upload Lambda code to S3
+echo "Building and uploading Lambda code..."
+cd lambda && make deploy && cd ..
 
 # Check if stack exists
 STACK_STATUS=$(aws cloudformation describe-stacks \
