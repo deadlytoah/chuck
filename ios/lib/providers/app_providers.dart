@@ -11,7 +11,10 @@ import '../services/folder_storage_service.dart';
 
 // Configuration
 final apiBaseUrlProvider = Provider<String>((ref) {
-  return 'https://aanonry4iszhp75mjpq33jfzxe0vzpdz.lambda-url.ap-southeast-2.on.aws/';
+  return const String.fromEnvironment(
+    'LAMBDA_URL',
+    defaultValue: 'http://localhost:8080',
+  );
 });
 
 // Services

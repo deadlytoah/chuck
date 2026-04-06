@@ -99,5 +99,5 @@ Technical specs: `technical.md` (iOS), `technical-web.md` (web),
 - Lambda: chuck-api (Function URL, Go)
 
 ## Quick Ref
-- Lambda URL: https://aanonry4iszhp75mjpq33jfzxe0vzpdz.lambda-url.
-  ap-southeast-2.on.aws/
+- Env config: `/.env.local` (gitignored, see `.env.local.example`)
+- Run iOS app: `cd ios && ./run.sh` (sources root `.env.local`)
