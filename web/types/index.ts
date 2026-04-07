@@ -29,11 +29,5 @@ export interface GetFoldersResponse {
   data: Folder[]
 }
 
-export const ITEM_STATES = [
-  'Chuck',
-  'Keep',
-  'Sell',
-  'Undecided',
-  'Unanswered',
-] as const
+export const ITEM_STATES = ['Chuck', 'Keep', 'Sell', 'Undecided'] as const
 export type ItemState = (typeof ITEM_STATES)[number]

@@ -50,8 +50,9 @@ photo, tap a decision, done. No sign-in, no onboarding.
 - Folder list loads on first visit; last-selected folder restored on
   return visits
 - Item grid renders thumbnails with current state badge
-- Tapping a card opens state overlay; tapping a state applies it and
-  dismisses the overlay
+- Tapping a card opens state overlay with selectable states (Chuck,
+  Keep, Sell, Undecided); tapping a state applies it and dismisses
+  the overlay
 - Optimistic update: badge changes immediately; reverts on API error
 - "Load More" fetches next page without losing scroll position
 - Errors shown inline or as toast; no blocking modals
@@ -155,8 +156,8 @@ photo, tap a decision, done. No sign-in, no onboarding.
 ### Item State Update
 
 - Tapping a card reveals an overlay listing the states the item can
-  transition to (current state excluded)
-- States: Chuck, Keep, Sell, Undecided, Unanswered
+  transition to (current state and Unanswered excluded)
+- States: Chuck, Keep, Sell, Undecided
 - Overlay: state labels stacked vertically, centered, over a
   semi-transparent dark background
 - Tapping a state applies it immediately; overlay dismisses
