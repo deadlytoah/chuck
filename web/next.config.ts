@@ -5,6 +5,7 @@ import * as path from 'path'
 dotenv.config({ path: path.resolve(process.cwd(), '../.env.local') })
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: process.env.NEXT_DEV_ORIGINS?.split(',') ?? [],
   output: 'export',
   images: { unoptimized: true },
   trailingSlash: true,
