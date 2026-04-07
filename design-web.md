@@ -165,6 +165,31 @@ photo, tap a decision, done. No sign-in, no onboarding.
 - No explicit save required; state change applies on selection
 - State badge updates immediately; reverts automatically on error
 
+### Animations
+
+Animations must be brief and purposeful — never decorative. Duration
+target: 150–200ms. Goal: reinforce causality between tap and result
+without distracting from the decision task.
+
+**State overlay (open/close):**
+- Fade in (`opacity: 0 → 1`) combined with a subtle scale on the
+  card (`scale: 1.0 → 1.02`) when the overlay opens
+- Reverse on dismiss
+- Cognitive link: fade reveals a layer; scale confirms the tap landed
+
+**State badge update:**
+- Brief fade-through when the badge label changes state
+- Keeps the user's eye on the result of their decision
+
+**Folder dropdown:**
+- Spring-eased slide down on open; slide up on close
+- Consistent with iOS system dropdown conventions
+
+**Principles:**
+- No animation on initial page load or \"Load More\" (spinner only)
+- Prefer CSS transitions over JS animation libraries
+- Respect `prefers-reduced-motion`: skip all transitions when set
+
 ### UI Responsiveness
 
 Targets iPhone Safari (375–430px viewport width).
@@ -173,7 +198,6 @@ Targets iPhone Safari (375–430px viewport width).
 
 - Single-column on mobile; 2-column grid on wider screens
 - Touch targets minimum 44×44pt per Apple HIG
-- Drop down for folder selection uses spring animation
 - Fixed header (folder selector) always reachable
 
 **Interaction feedback:**
