@@ -51,7 +51,7 @@ export default function ItemGrid({
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 px-2 flex-1">
+      <div className="grid grid-cols-2 gap-2 px-2 flex-1">
         {items.map((item) => (
           <ItemCard key={item.itemId} item={item} />
         ))}

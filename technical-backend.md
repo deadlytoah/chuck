@@ -6,7 +6,7 @@ web app. See `technical.md` for Flutter iOS specifics and
 
 ## Image Resize & S3 Strategy
 - Image processing done client-side before upload
-- Resize to fit within 400x300px (thumbnail) and 1200x900px (full),
+- Resize to fit within 200x150px (thumbnail) and 1200x900px (full),
   preserving the original aspect ratio.
 - Upload flow: `POST /items/upload` returns presigned URLs only (no DB
   write); client uploads to S3; then `POST /items` creates DynamoDB

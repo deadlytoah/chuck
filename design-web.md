@@ -18,7 +18,7 @@ the Flutter iOS app spec.
 
 ### Main View (Item Grid)
 
-- Responsive CSS grid of thumbnail cards, filling viewport width
+- 2-column CSS grid of thumbnail cards, filling viewport width
 - Default: current folder, sorted by `createdAt` descending
 - Token-based pagination; "Load More" button at bottom of grid
 - Manual refresh button

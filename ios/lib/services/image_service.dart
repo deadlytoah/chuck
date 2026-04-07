@@ -4,8 +4,8 @@ import 'package:image/image.dart' as img;
 
 class ImageService {
   static const int maxFileSizeBytes = 10 * 1024 * 1024; // 10MB
-  static const int thumbWidth = 400;
-  static const int thumbHeight = 300;
+  static const int thumbWidth = 200;
+  static const int thumbHeight = 150;
   static const int fullWidth = 1200;
   static const int fullHeight = 900;
 

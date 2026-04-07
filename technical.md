@@ -23,7 +23,7 @@ The selected folder persists across app launches.
 
 ## Image Upload (iOS)
 - Image processing done in Flutter before upload
-- Resize to 400x300px (thumbnail) and 1200x900px (full), 85% JPEG
+- Resize to 200x150px (thumbnail) and 1200x900px (full), 85% JPEG
   quality, preserving aspect ratio
 - Upload flow: `POST /items/upload` → upload to S3 → `POST /items`
 - Multiple files processed sequentially

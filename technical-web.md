@@ -47,7 +47,7 @@ The selected folder persists via `localStorage` (`chuck.folderId` key).
 ## Component Structure
 
 - `<FolderSelector>` — top bar; opens `<FolderBottomSheet>`
-- `<ItemGrid>` — CSS grid of `<ItemCard>` components
+- `<ItemGrid>` — 2-column CSS grid of `<ItemCard>` components
 - `<ItemCard>` — thumbnail + state badge + context menu trigger
 - `<StateContextMenu>` — context menu with state options
 - `<Toast>` — transient success/error notifications
