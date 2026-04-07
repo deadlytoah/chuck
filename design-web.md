@@ -5,82 +5,186 @@ states. Targets iPhone Safari. Consumes the existing REST API
 This document covers the **Next.js web app**. See `design.md` for
 the Flutter iOS app spec.
 
+## Overview
+
+`chuck` is a shared family app for categorizing household items with
+photos. Items are photographed via the Flutter iOS app, then reviewed
+and categorized by family members. The web app solves the second half:
+a fast, low-friction interface for anyone in the family to open a link
+on their phone and start making decisions without installing an app.
+
+The core problem with using the iOS app for review-only users is the
+install barrier. The web app removes it: share a URL, open Safari,
+start categorizing. The design priority is speed and directness—tap a
+photo, tap a decision, done. No sign-in, no onboarding.
+
+## Target Users
+
+- Family members reviewing and categorizing household items
+- Primarily on iPhone Safari (iOS 16+)
+- Non-technical users; expected to need no explanation to use the app
+- May also be used on desktop browsers for convenience
+
+## Scope
+
+**In scope:**
+- View items in a folder as a thumbnail grid
+- Select and update item state (Chuck, Keep, Sell, Undecided)
+- Folder switching via bottom sheet
+- Token-based pagination with "Load More"
+- Manual refresh
+- Optimistic state updates with rollback on error
+- Persistent folder selection via `localStorage`
+
+**Out of scope:**
+- Image upload (use Flutter iOS app)
+- In-app camera
+- Admin functions: item creation, folder management, bulk archive
+- Offline support
+- Push notifications
+- Authentication or access control (URL kept private)
+- Full-resolution image view
+
+## Acceptance Criteria
+
+- Folder list loads on first visit; last-selected folder restored on
+  return visits
+- Item grid renders thumbnails with current state badge
+- Tapping a card opens state overlay; tapping a state applies it and
+  dismisses the overlay
+- Optimistic update: badge changes immediately; reverts on API error
+- "Load More" fetches next page without losing scroll position
+- Errors shown inline or as toast; no blocking modals
+- All touch targets ≥44×44pt (Apple HIG)
+- Works correctly in iPhone Safari (375–430px viewport)
+
+## Quality Expectations
+
+- Code should be simple and maintainable; avoid over-engineering
+- No external state management libraries; use React built-ins
+- Static export only; no SSR, no server-side dependencies
+- Graceful degradation: API errors surface to the user without
+  crashing the app
+- Inline errors with retry for list failures; toast for update
+  failures
+- User-friendly messages in UI; technical details in console only
+
+## Performance
+
+**Targets:**
+- Time to interactive on LTE: <2s (static assets from S3 + CDN)
+- Item grid render (50 items): <300ms after data arrives
+- State update round-trip: <500ms on LTE; optimistic UI hides latency
+
+**Approach:**
+- Static export served from S3; no server-side rendering overhead
+- Images lazy-loaded (`loading="lazy"`); thumbnails only in grid
+- No polling; no background network activity
+
+**Can live without:**
+- Service worker / offline cache
+- Image prefetching
+- Virtualized grid (acceptable for 50–100 items per folder)
+- Skeleton screens (loading spinner is sufficient)
+
+## Security
+
+- No authentication; access controlled by keeping the URL private
+- All API calls go to the existing Lambda function URL (HTTPS)
+- No secrets stored client-side; no tokens, no credentials
+- No user-generated HTML rendered; XSS risk is minimal
+- CORS configured on Lambda to allow the S3-hosted origin only
+
+## Assumptions
+
+- Family members have the URL shared via iMessage or similar
+- Item count per folder: 50–100; not expected to scale to thousands
+- The REST API (Lambda) is already deployed and stable
+- Thumbnails are pre-generated and stored in S3 alongside originals
+- Network is generally reliable (home Wi-Fi or LTE); offline not
+  required
+
+## Dependencies
+
+- **AWS Lambda** — REST API for item and folder data
+- **AWS S3** — static site hosting and image storage
+- **Next.js** — framework (static export mode)
+- **React** — UI library
+- No third-party UI component libraries; plain CSS + React
+
+## Risks and Tradeoffs
+
+| Risk / Tradeoff | Notes |
+|---|---|
+| No auth | Mitigated by keeping URL private; acceptable for family use |
+| Optimistic updates | State can briefly diverge from server; rollback on error handles it |
+| No offline support | Acceptable; family members are on reliable networks |
+| Static export only | Limits future features requiring SSR (e.g., server actions) |
+| Manual refresh only | Simpler, but users may miss updates made by others |
+| Single API region | Latency acceptable for small family use; no geo-distribution needed |
+
+## Open Questions
+
+- Should the web app support filtering by state (e.g., show only
+  Unanswered items), consistent with the iOS app?
+- Should there be a visual indicator when another user has recently
+  updated an item (e.g., highlight or timestamp)?
+- Is a desktop layout (>640px) worth specifying in more detail, or
+  is the 2-column grid adaptation sufficient?
+- Should error toasts include a manual retry action for state update
+  failures, or is rollback + re-tap sufficient?
+
 ## User Interface
 
 ### Folder Selection
 
-- On load, fetch folder list via `GET /folders`
 - Folder selector displayed prominently at top of screen
-- Last-selected folder persisted in `localStorage`; restored on next
-  visit, fallback to first folder alphabetically
-- Tapping selector opens a bottom sheet listing all folders
-- Selecting a folder reloads the item grid for that folder
+- Last-selected folder restored on return visits; defaults to first
+  folder alphabetically on first visit
+- Tapping selector opens a drop down listing all folders
+- Selecting a folder loads the item grid for that folder
 
 ### Main View (Item Grid)
 
-- 2-column CSS grid of thumbnail cards, filling viewport width
-- Default: current folder, sorted by `createdAt` descending
-- Token-based pagination; "Load More" button at bottom of grid
+- 2-column grid of thumbnail cards, filling viewport width
+- Default: current folder, sorted by newest first
+- "Load More" button at bottom of grid for additional items
 - Manual refresh button
 - Each card shows thumbnail image and current state badge
 
 ### Item State Update
 
-- Tapping a card reveals a full-card overlay listing the states the
-  item can transition to (current state excluded)
-- States: Chuck, Keep, Sell, Undecided, Unanswered (4 shown at most)
-- Overlay layout: state labels stacked vertically, centered, over a
+- Tapping a card reveals an overlay listing the states the item can
+  transition to (current state excluded)
+- States: Chuck, Keep, Sell, Undecided, Unanswered
+- Overlay: state labels stacked vertically, centered, over a
   semi-transparent dark background
 - Tapping a state applies it immediately; overlay dismisses
 - Tapping outside the card dismisses the overlay without changes
-- State change sent immediately via `PUT /items/{id}` on selection;
-  no explicit save required
-- Card state badge updates immediately (optimistic update);
-  rolled back on error
-
-### State Management
-
-- Client state: React `useState`/`useReducer`; no external library
-- Item list mutations update local state optimistically before API
-  response; rolled back on error
-- Folder selection and active filter/sort persisted in `localStorage`
-- No polling; users refresh manually
+- No explicit save required; state change applies on selection
+- State badge updates immediately; reverts automatically on error
 
 ### UI Responsiveness
 
 Targets iPhone Safari (375–430px viewport width).
 
 **Layout:**
-- Single-column layout on mobile; grid adapts to 2 columns at ≥640px
+
+- Single-column on mobile; 2-column grid on wider screens
 - Touch targets minimum 44×44pt per Apple HIG
-- Bottom sheet for folder selection uses spring animation
-  (`transition: transform`)
+- Drop down for folder selection uses spring animation
 - Fixed header (folder selector) always reachable
 
 **Interaction feedback:**
-- State button tap: immediate visual highlight before API response
-  (optimistic update)
-- Loading spinner on initial fetch and "Load More"
+
+- State button tap: immediate visual highlight before server confirms
+- Loading spinner on initial load and "Load More"
 - Errors shown inline (banner) with dismiss; no blocking modals for
   non-critical errors
-- Success: brief toast (green, slides up from bottom, 2s auto-dismiss)
-
-**Performance:**
-- Images lazy-loaded via `loading="lazy"`
-- Thumbnails in grid only; no full-image view
-- Static export served from S3; no server-side rendering
 
 ### Error Messages
 
 - List loading failures: inline error banner with retry button
-- Item state update failures: toast-style error (red, 3s auto-dismiss)
-  with state rolled back
-- General principle: user-friendly messages in UI, technical details
-  in browser console. No blocking overlays.
-
-### Out of Scope
-
-- Admin functions (item creation, bulk archive, folder management)
-- Image upload (use Flutter iOS app)
-- In-app camera and upload queue
-- Offline support
+- State update failures: toast-style error (red, 3s auto-dismiss)
+  with state reverted
+- User-friendly messages in UI; no blocking overlays.
