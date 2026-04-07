@@ -38,16 +38,16 @@ export default function ItemCard({
   }
 
   return (
-    <div
-      className="flex flex-col"
-      onClick={(e) => {
-        if (!isOpen) {
-          onOpen()
-          e.stopPropagation()
-        }
-      }}
-    >
-      <div className="aspect-square overflow-hidden bg-gray-200 rounded relative">
+    <div className="flex flex-col">
+      <div
+        className="aspect-square overflow-hidden bg-gray-200 rounded relative"
+        onClick={(e) => {
+          if (!isOpen) {
+            onOpen()
+            e.stopPropagation()
+          }
+        }}
+      >
         <img
           src={thumbUrl(item.imageUrl)}
           loading="lazy"
@@ -55,7 +55,10 @@ export default function ItemCard({
           className="w-full h-full object-cover"
         />
         {isOpen && (
-          <StateOverlay currentState={item.state} onSelect={handleStateSelect} />
+          <StateOverlay
+            currentState={item.state}
+            onSelect={handleStateSelect}
+          />
         )}
       </div>
       <div className="mt-2">
