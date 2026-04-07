@@ -10,7 +10,7 @@ function toKey(imageUrl: string): string {
 }
 
 export function thumbUrl(imageUrl: string): string {
-  const key = toKey(imageUrl).replace(/\/full\//g, '/thumb/')
+  const key = toKey(imageUrl).replace(/\/full/g, '/thumb')
   return `${getS3Base()}${key}`
 }
 
