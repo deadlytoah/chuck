@@ -48,8 +48,13 @@ The selected folder persists via `localStorage` (`chuck.folderId` key).
 
 - `<FolderSelector>` — top bar; opens `<FolderBottomSheet>`
 - `<ItemGrid>` — 2-column CSS grid of `<ItemCard>` components
-- `<ItemCard>` — thumbnail + state badge + context menu trigger
-- `<StateContextMenu>` — context menu with state options
+- `<ItemCard>` — thumbnail + state badge; tap toggles state overlay
+- `<StateOverlay>` — `position: absolute; inset: 0` over `<ItemCard>`;
+  semi-transparent dark background; vertically stacked state buttons
+  (min 44pt touch target each); excludes current state; toggled via
+  local `useState` in `<ItemCard>`; dismissed by a full-screen
+  transparent backdrop div (rendered below overlay, above grid) that
+  captures outside taps
 - `<Toast>` — transient success/error notifications
 - `<ErrorBanner>` — inline error with retry button
 

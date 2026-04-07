@@ -50,3 +50,17 @@ export async function getItems(
   }
   return (await response.json()) as GetItemsResponse
 }
+
+export async function updateItem(itemId: string, state: string): Promise<Item> {
+  const response = await fetch(`${getApiUrl()}/items/${itemId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ state }),
+  })
+  if (!response.ok) {
+    throw new Error(`Failed to update item: ${response.statusText}`)
+  }
+  return (await response.json()) as Item
+}

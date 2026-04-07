@@ -26,9 +26,13 @@ the Flutter iOS app spec.
 
 ### Item State Update
 
-- State updated via context menu on each card (no separate edit
-  screen)
-- Context menu options: Chuck, Keep, Sell, Undecided, Unanswered
+- Tapping a card reveals a full-card overlay listing the states the
+  item can transition to (current state excluded)
+- States: Chuck, Keep, Sell, Undecided, Unanswered (4 shown at most)
+- Overlay layout: state labels stacked vertically, centered, over a
+  semi-transparent dark background
+- Tapping a state applies it immediately; overlay dismisses
+- Tapping outside the card dismisses the overlay without changes
 - State change sent immediately via `PUT /items/{id}` on selection;
   no explicit save required
 - Card state badge updates immediately (optimistic update);

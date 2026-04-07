@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import type { Folder, Item, GetItemsResponse } from '@/types/index'
-import { getFolders, getItems } from '@/lib/api'
+import { getFolders, getItems, updateItem } from '@/lib/api'
 import { getStoredFolderId, setStoredFolderId } from '@/lib/storage'
 import ErrorBanner from '@/components/ErrorBanner'
 import ItemGrid from '@/components/ItemGrid'
@@ -15,6 +15,7 @@ export default function Home() {
   const [nextToken, setNextToken] = useState<string | undefined>()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [openCardId, setOpenCardId] = useState<string | null>(null)
 
   const fetchItemsForFolder = useCallback(
     async (folderId: string, nextTokenValue?: string) => {
@@ -120,6 +121,29 @@ export default function Home() {
     }
   }
 
+  const handleStateChange = async (itemId: string, newState: string) => {
+    const originalState = items.find((i) => i.itemId === itemId)?.state
+    setItems((prev) =>
+      prev.map((item) =>
+        item.itemId === itemId ? { ...item, state: newState } : item
+      )
+    )
+
+    try {
+      await updateItem(itemId, newState)
+    } catch (err) {
+      // Revert on error
+      setItems((prev) =>
+        prev.map((item) =>
+          item.itemId === itemId
+            ? { ...item, state: originalState ?? item.state }
+            : item
+        )
+      )
+      setError(err instanceof Error ? err.message : 'Failed to update item')
+    }
+  }
+
   return (
     <main className="flex flex-1 flex-col">
       <FolderSelector
@@ -129,14 +153,24 @@ export default function Home() {
         onRefresh={handleRefresh}
       />
 
-      <div className="flex-1 flex flex-col p-2 overflow-hidden">
+      <div className="flex-1 flex flex-col p-2 overflow-hidden relative">
         <ErrorBanner message={error} onRetry={handleRetry} />
+
+        {openCardId !== null && (
+          <div
+            className="fixed inset-0 z-[5]"
+            onClick={() => setOpenCardId(null)}
+          />
+        )}
 
         <ItemGrid
           items={items}
           loading={loading}
           hasMore={!!nextToken}
           onLoadMore={handleLoadMore}
+          openCardId={openCardId}
+          setOpenCardId={setOpenCardId}
+          onStateChange={handleStateChange}
         />
       </div>
     </main>
