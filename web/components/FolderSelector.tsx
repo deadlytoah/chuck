@@ -7,12 +7,14 @@ interface FolderSelectorProps {
   folders: Folder[]
   selectedFolderId: string | null
   onSelect: (folderId: string) => void
+  onRefresh?: () => void
 }
 
 export default function FolderSelector({
   folders,
   selectedFolderId,
   onSelect,
+  onRefresh,
 }: FolderSelectorProps) {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -68,7 +70,9 @@ export default function FolderSelector({
     const buttons = Array.from(
       listboxRef.current?.querySelectorAll('button') || []
     )
-    const activeIndex = buttons.indexOf(document.activeElement as HTMLButtonElement)
+    const activeIndex = buttons.indexOf(
+      document.activeElement as HTMLButtonElement
+    )
 
     if (e.key === 'ArrowDown') {
       e.preventDefault()
@@ -90,32 +94,60 @@ export default function FolderSelector({
 
   return (
     <div ref={containerRef} className="relative">
-      <button
-        ref={triggerRef}
-        onClick={() => setIsOpen((prev) => !prev)}
-        className="w-full min-h-[44px] px-4 py-3 text-left bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-700 font-medium text-gray-900 dark:text-gray-100 flex items-center justify-between"
-        aria-haspopup="listbox"
-        aria-expanded={isOpen}
-        aria-controls="folder-listbox"
-        id="folder-selector-btn"
-      >
-        <span>{displayName}</span>
-        <svg
-          className={`w-5 h-5 transition-transform ${
-            isOpen ? 'rotate-180' : ''
-          }`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+      <div className="flex border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+        <button
+          ref={triggerRef}
+          onClick={() => setIsOpen((prev) => !prev)}
+          className="flex-1 min-h-[44px] px-4 py-3 text-left bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2"
+          aria-haspopup="listbox"
+          aria-expanded={isOpen}
+          aria-controls="folder-listbox"
+          id="folder-selector-btn"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M5 9l7 7 7-7"
-          />
-        </svg>
-      </button>
+          <span>{displayName}</span>
+          <svg
+            className={`w-5 h-5 transition-transform ${
+              isOpen ? 'rotate-180' : ''
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 9l7 7 7-7"
+            />
+          </svg>
+        </button>
+
+        {onRefresh && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onRefresh()
+            }}
+            className="min-h-[44px] px-3 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 border-l border-gray-200 dark:border-gray-700"
+            aria-label="Refresh"
+            type="button"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+          </button>
+        )}
+      </div>
 
       {isOpen && (
         <ul

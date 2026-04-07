@@ -126,6 +126,7 @@ export default function Home() {
         folders={folders}
         selectedFolderId={selectedFolderId}
         onSelect={handleFolderChange}
+        onRefresh={handleRefresh}
       />
 
       <div className="flex-1 flex flex-col p-2 overflow-hidden">
@@ -136,7 +137,6 @@ export default function Home() {
           loading={loading}
           hasMore={!!nextToken}
           onLoadMore={handleLoadMore}
-          onRefresh={handleRefresh}
         />
       </div>
     </main>

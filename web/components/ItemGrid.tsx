@@ -8,7 +8,6 @@ interface ItemGridProps {
   loading: boolean
   hasMore: boolean
   onLoadMore: () => void
-  onRefresh: () => void
 }
 
 export default function ItemGrid({
@@ -16,7 +15,6 @@ export default function ItemGrid({
   loading,
   hasMore,
   onLoadMore,
-  onRefresh,
 }: ItemGridProps) {
   if (loading && items.length === 0) {
     return (
@@ -28,28 +26,6 @@ export default function ItemGrid({
 
   return (
     <div className="flex-1 flex flex-col">
-      <div className="flex justify-end items-center mb-4 px-2">
-        <button
-          onClick={onRefresh}
-          className="p-2 hover:bg-gray-100 rounded-full"
-          aria-label="Refresh"
-        >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-            />
-          </svg>
-        </button>
-      </div>
-
       <div className="grid grid-cols-2 gap-2 px-2 flex-1">
         {items.map((item) => (
           <ItemCard key={item.itemId} item={item} />
