@@ -28,8 +28,7 @@ export default function ItemGrid({
 
   return (
     <div className="flex-1 flex flex-col">
-      <div className="flex justify-between items-center mb-4 px-2">
-        <h2 className="text-lg font-semibold">Items</h2>
+      <div className="flex justify-end items-center mb-4 px-2">
         <button
           onClick={onRefresh}
           className="p-2 hover:bg-gray-100 rounded-full"
