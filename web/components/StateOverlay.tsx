@@ -13,7 +13,7 @@ export default function StateOverlay({
 }: StateOverlayProps) {
   return (
     <div
-      className="absolute inset-0 z-10 bg-black/60 flex flex-col items-center justify-evenly"
+      className="overlay-open absolute inset-0 z-10 bg-black/60 flex flex-col items-center justify-evenly"
       onClick={(e) => e.stopPropagation()}
     >
       {ITEM_STATES.filter((state) => state !== currentState).map((state) => (

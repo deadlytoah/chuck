@@ -33,3 +33,27 @@ body {
 .bottom-sheet.open {
   transform: translateY(0);
 }
+
+@keyframes overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@layer utilities {
+  .overlay-open {
+    animation: overlay-in 150ms ease forwards;
+  }
+
+  .card-open {
+    scale: 1.02;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .overlay-open {
+      animation: none;
+    }
+    .card-open {
+      scale: 1;
+    }
+  }
+}

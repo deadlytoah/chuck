@@ -40,7 +40,7 @@ export default function ItemCard({
   return (
     <div className="flex flex-col">
       <div
-        className="aspect-square overflow-hidden bg-gray-200 rounded relative"
+        className={`aspect-square overflow-hidden bg-gray-200 rounded relative transition-transform duration-150 ease${isOpen ? ' card-open' : ''}`}
         onClick={(e) => {
           if (!isOpen) {
             onOpen()
