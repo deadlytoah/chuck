@@ -149,13 +149,17 @@ export default function FolderSelector({
         )}
       </div>
 
-      {isOpen && (
+      <div
+        className={`absolute top-full left-0 right-0 z-50 overflow-hidden transition-[max-height] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+          isOpen ? 'max-h-60' : 'max-h-0 pointer-events-none'
+        }`}
+      >
         <ul
           ref={listboxRef}
           role="listbox"
           id="folder-listbox"
           aria-labelledby="folder-selector-btn"
-          className="absolute top-full left-0 right-0 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-b-lg shadow-lg max-h-60 overflow-y-auto"
+          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-b-lg shadow-lg max-h-60 overflow-y-auto"
           onKeyDown={handleKeyDown}
         >
           {folders.map((folder) => (
@@ -178,7 +182,7 @@ export default function FolderSelector({
             </li>
           ))}
         </ul>
-      )}
+      </div>
     </div>
   )
 }
