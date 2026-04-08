@@ -46,6 +46,7 @@ body {
 
   .card-open {
     scale: 1.02;
+    z-index: 10;
   }
 
   @media (prefers-reduced-motion: reduce) {
