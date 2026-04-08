@@ -292,5 +292,3 @@ See `design-web.md` → Security for rationale and tradeoffs.
   failures, or is rollback + re-tap sufficient?
 - Should S3 cache headers be set explicitly to improve repeat-visit
   performance?
-- Is token-based pagination the right UX on mobile, or would infinite
-  scroll be better?

@@ -146,7 +146,9 @@ photo, tap a decision, done. No sign-in, no onboarding.
 
 - 2-column grid of thumbnail cards, filling viewport width
 - Default: current folder, sorted by newest first
-- "Load More" button at bottom of grid for additional items
+- "Load More" button at bottom of grid for additional items (not
+  infinite scroll — explicit tap keeps behavior predictable and
+  surfaces errors at the boundary)
 - Manual refresh button
 - Each card shows thumbnail image and current state badge
 
