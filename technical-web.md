@@ -18,21 +18,28 @@ session (React state + `localStorage`).
 
 ```
 Browser (iPhone Safari / desktop)
-  ├── Static assets  ←  S3 (chuck.overcomingsh.in, root path)
+  ├── Static assets  →  CloudFront (custom domain, HTTPS)
+  │                         └── S3 origin (private; OAC only)
+  ├── Images         →  CloudFront (same distribution, /images/*)
+  │                         └── S3 origin (private; OAC only)
   └── API calls      →  AWS Lambda Function URL (HTTPS)
                             └── DynamoDB (chuck-items-v2)
                             └── S3 (images/)
 ```
 
 The web app is a pure consumer of the backend API; it writes no data
-directly to DynamoDB or S3.
+directly to DynamoDB or S3. CloudFront sits in front of S3 for both
+static assets and images; the S3 bucket has no public-read ACL.
 
 ## Platform
 
 - **Target:** iPhone Safari, iOS 16+ (375–430px viewport)
 - **Desktop browsers:** not supported; may work incidentally
 - **Rendering:** Client-side only; static export (`output: 'export'`)
-- **Hosting OS:** N/A (static files on S3)
+- **Hosting:** CloudFront → S3 (private); no direct S3 website URL
+- **TLS:** ACM certificate for the custom domain
+  (provisioned in `us-east-1`; required by CloudFront)
+- **DNS:** Route 53 alias record → CloudFront distribution
 - **Build OS:** macOS (developer machines); Node.js 20+
 
 ## Technologies
@@ -166,19 +173,32 @@ Updates item state. Called immediately on user selection.
 
 ```
 Developer machine
-  ├── npm run build   →  web/out/  (static HTML/JS/CSS)
-  └── ./deploy-web.sh →  aws s3 sync out/ s3://chuck.overcomingsh.in/
-                          (preserves images/ and lambda/ prefixes)
+  ├── npm run build    →  web/out/  (static HTML/JS/CSS)
+  └── ./deploy-web.sh  →  aws s3 sync out/ s3://<bucket>/
+                           (preserves images/ and lambda/ prefixes)
+                        →  aws cloudfront create-invalidation \
+                             --paths "/*"
 ```
 
 - **Build tool:** Next.js (`next build`); outputs to `web/out/`
-- **Hosting:** S3 static website; no CloudFront CDN
+- **Hosting:** S3 (private) behind CloudFront distribution
+- **CDN:** CloudFront; PriceClass_100 (US/EU/Asia); default TTL
+  86400s for static assets; `/*.html` TTL 0 (always revalidate)
+- **TLS termination:** CloudFront; ACM cert in `us-east-1`
+- **S3 access:** Origin Access Control (OAC); bucket policy grants
+  `s3:GetObject` to the CloudFront distribution only; S3 static
+  website hosting disabled
+- **DNS:** Route 53 A/AAAA alias records for the custom
+  domain → CloudFront distribution domain
 - **Env vars (set at build time):**
   - `NEXT_PUBLIC_API_URL` — Lambda Function URL
-  - `NEXT_PUBLIC_S3_BASE` — S3 bucket base URL
-    (`http://chuck.overcomingsh.in`)
-- **Routing:** single route `/`; no sub-pages
-- **Cache:** S3 default (no explicit cache headers configured)
+  - `NEXT_PUBLIC_S3_BASE` — HTTPS URL of the CloudFront
+    distribution (replaces former HTTP S3 URL)
+- **Routing:** single route `/`; CloudFront default root object
+  set to `index.html`; custom error response 403/404 → `/index.html`
+  (SPA fallback)
+- **Cache invalidation:** `deploy-web.sh` runs after each sync to
+  invalidate `/*`; first 1000 invalidations/mo free
 
 ## Component Structure
 
@@ -243,7 +263,13 @@ with fallback to the above priority.
 **AWS services (runtime, not npm packages):**
 
 - Lambda Function URL — REST API
-- S3 `chuck.overcomingsh.in` — static hosting + image storage
+- S3 (static hosting bucket) — private; static assets +
+  image storage; accessed only via CloudFront OAC
+- CloudFront — HTTPS CDN; TLS termination; serves static assets
+  and images
+- ACM — TLS certificate for the custom domain
+  (must be provisioned in `us-east-1`)
+- Route 53 — DNS alias records pointing to CloudFront
 
 No third-party UI component libraries.
 
@@ -272,13 +298,15 @@ in iPhone Safari.
 ## Security
 
 - No authentication. Access controlled by keeping the URL private.
-- All API calls over HTTPS (Lambda Function URL).
+- Static assets and images served over HTTPS via CloudFront; S3
+  bucket is private (no public-read ACL or static website endpoint).
+- CloudFront OAC restricts S3 access to the distribution only.
+- All API calls over HTTPS via the Lambda Function URL.
 - No secrets stored client-side; no tokens or credentials.
 - User-generated content (item notes) not rendered as HTML; no XSS
   risk from display.
-- CORS configured on Lambda; allows all origins (family-use tradeoff).
-- S3 bucket is public-read for static assets and images; no sensitive
-  data stored.
+- CORS on Lambda: update allowed origin from the plain HTTP S3
+  URL to the CloudFront HTTPS origin.
 
 See `design-web.md` → Security for rationale and tradeoffs.
 

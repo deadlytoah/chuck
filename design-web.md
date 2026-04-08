@@ -90,10 +90,12 @@ photo, tap a decision, done. No sign-in, no onboarding.
 ## Security
 
 - No authentication; access controlled by keeping the URL private
+- Static assets served over HTTPS via CloudFront; S3 bucket is
+  private (no public-read)
 - All API calls go to the existing Lambda function URL (HTTPS)
 - No secrets stored client-side; no tokens, no credentials
 - No user-generated HTML rendered; XSS risk is minimal
-- CORS configured on Lambda to allow the S3-hosted origin only
+- CORS configured on Lambda to allow the CloudFront origin only
 
 ## Assumptions
 
@@ -103,11 +105,18 @@ photo, tap a decision, done. No sign-in, no onboarding.
 - Thumbnails are pre-generated and stored in S3 alongside originals
 - Network is generally reliable (home Wi-Fi or LTE); offline not
   required
+- The custom domain is managed in Route 53 and an ACM certificate
+  can be issued for it
 
 ## Dependencies
 
 - **AWS Lambda** — REST API for item and folder data
-- **AWS S3** — static site hosting and image storage
+- **AWS S3** — static site hosting (private) and image storage
+- **AWS CloudFront** — HTTPS CDN in front of S3; caches static
+  assets globally
+- **AWS ACM** — TLS certificate for the custom domain
+  (provisioned in us-east-1 for CloudFront)
+- **AWS Route 53** — DNS alias record pointing to CloudFront
 - **Next.js** — framework (static export mode)
 - **React** — UI library
 - No third-party UI component libraries; plain CSS + React
@@ -122,6 +131,7 @@ photo, tap a decision, done. No sign-in, no onboarding.
 | Static export only | Limits future features requiring SSR (e.g., server actions) |
 | Manual refresh only | Simpler, but users may miss updates made by others |
 | Single API region | Latency acceptable for small family use; no geo-distribution needed |
+| CloudFront cost | ~$0–$1/mo at family-scale traffic; negligible |
 
 ## Open Questions
 
