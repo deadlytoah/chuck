@@ -22,9 +22,6 @@ deploy: $(BINDIR)/$(BINARY_NAME).zip
 	aws s3 cp $(BINDIR)/$(BINARY_NAME).zip s3://$(BUCKET)/lambda/$(BINARY_NAME).zip
 
 update: $(BINDIR)/$(BINARY_NAME).zip
-	aws lambda update-function-code --function-name chuck-api --zip-file fileb://./bin/$(BINARY_NAME).zip
-
-update-v2: $(BINDIR)/$(BINARY_NAME).zip
 	aws lambda update-function-code --function-name chuck-api-v2 --zip-file fileb://./bin/$(BINARY_NAME).zip --region ap-southeast-2
 
 test:
