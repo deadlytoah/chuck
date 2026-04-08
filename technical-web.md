@@ -34,7 +34,7 @@ directly to DynamoDB or S3.
 ## Platform
 
 - **Target:** iPhone Safari, iOS 16+ (375–430px viewport)
-- **Also supported:** Desktop browsers (Chrome, Firefox, Safari)
+- **Desktop browsers:** not supported; may work incidentally
 - **Rendering:** Client-side only; static export (`output: 'export'`)
 - **Hosting OS:** N/A (static files on S3)
 - **Build OS:** macOS (developer machines); Node.js 20+
@@ -128,8 +128,7 @@ interface ApiError {
 
 | Actor | Description |
 |---|---|
-| Family member | Primary user; reviews and categorizes items on iPhone |
-| Desktop user | Same family member on a laptop; secondary use case |
+| Family member | Reviews and categorizes items on iPhone Safari |
 | Backend API | AWS Lambda; source of truth for items and folders |
 | S3 (images) | Serves thumbnail and full-size images |
 | S3 (static) | Serves the compiled Next.js app bundle |
@@ -312,8 +311,6 @@ See `design-web.md` → Security for rationale and tradeoffs.
   Unanswered items), consistent with the iOS app?
 - Should there be a visual indicator when another user has recently
   updated an item (highlight or timestamp)?
-- Is a more detailed desktop layout (>640px) worth specifying, or is
-  the 2-column grid adaptation sufficient?
 - Should error toasts include a manual retry action for state update
   failures, or is rollback + re-tap sufficient?
 - Should S3 cache headers be set explicitly to improve repeat-visit

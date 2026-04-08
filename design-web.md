@@ -21,9 +21,8 @@ photo, tap a decision, done. No sign-in, no onboarding.
 ## Target Users
 
 - Family members reviewing and categorizing household items
-- Primarily on iPhone Safari (iOS 16+)
+- iPhone Safari (iOS 16+); desktop browsers not supported
 - Non-technical users; expected to need no explanation to use the app
-- May also be used on desktop browsers for convenience
 
 ## Scope
 
@@ -130,8 +129,6 @@ photo, tap a decision, done. No sign-in, no onboarding.
   Unanswered items), consistent with the iOS app?
 - Should there be a visual indicator when another user has recently
   updated an item (e.g., highlight or timestamp)?
-- Is a desktop layout (>640px) worth specifying in more detail, or
-  is the 2-column grid adaptation sufficient?
 - Should error toasts include a manual retry action for state update
   failures, or is rollback + re-tap sufficient?
 
@@ -200,7 +197,7 @@ Targets iPhone Safari (375–430px viewport width).
 
 **Layout:**
 
-- Single-column on mobile; 2-column grid on wider screens
+- 2-column grid filling the iPhone viewport width
 - Touch targets minimum 44×44pt per Apple HIG
 - Fixed header (folder selector) always reachable
 
