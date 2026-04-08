@@ -20,5 +20,17 @@ aws s3 sync ./web/out s3://chuck.overcomingsh.in/ \
   --exclude "lambda/*" \
   --region ap-southeast-2
 
+STACK_NAME=chuck
+DISTRIBUTION_ID=$(aws cloudformation describe-stacks \
+  --stack-name "$STACK_NAME" \
+  --query "Stacks[0].Outputs[?OutputKey=='CloudFrontDistributionId'].OutputValue" \
+  --output text \
+  --region ap-southeast-2)
+
+echo "Invalidating CloudFront cache..."
+aws cloudfront create-invalidation \
+  --distribution-id "$DISTRIBUTION_ID" \
+  --paths "/*"
+
 echo ""
 echo "Deployment complete!"
