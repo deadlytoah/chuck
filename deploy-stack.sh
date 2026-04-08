@@ -12,11 +12,14 @@ REGION="ap-southeast-2"
 HOSTED_ZONE_NAME="${HOSTED_ZONE_NAME:-overcomingsh.in.}"
 LAMBDA_CODE_BUCKET="chuck.overcomingsh.in"
 LAMBDA_CODE_KEY="lambda/bootstrap.zip"
+: "${CHUCK_ACM_CERT_ARN:?CHUCK_ACM_CERT_ARN is required}"
+ACM_CERT_ARN="${CHUCK_ACM_CERT_ARN}"
 
 CF_PARAMS=(
   "ParameterKey=HostedZoneName,ParameterValue=$HOSTED_ZONE_NAME"
   "ParameterKey=LambdaCodeBucket,ParameterValue=$LAMBDA_CODE_BUCKET"
   "ParameterKey=LambdaCodeKey,ParameterValue=$LAMBDA_CODE_KEY"
+  "ParameterKey=AcmCertificateArn,ParameterValue=$ACM_CERT_ARN"
 )
 
 echo "Deploying CloudFormation stack: $STACK_NAME"
