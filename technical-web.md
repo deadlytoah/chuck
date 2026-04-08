@@ -9,8 +9,6 @@ iOS app see `technical.md`.
 defines *how* it is built: architecture, data models, API contracts,
 deployment, and open questions.
 
----
-
 ## Architecture Overview
 
 Single-page app (SPA) built as a Next.js static export. No server-side
@@ -29,8 +27,6 @@ Browser (iPhone Safari / desktop)
 The web app is a pure consumer of the backend API; it writes no data
 directly to DynamoDB or S3.
 
----
-
 ## Platform
 
 - **Target:** iPhone Safari, iOS 16+ (375–430px viewport)
@@ -38,8 +34,6 @@ directly to DynamoDB or S3.
 - **Rendering:** Client-side only; static export (`output: 'export'`)
 - **Hosting OS:** N/A (static files on S3)
 - **Build OS:** macOS (developer machines); Node.js 20+
-
----
 
 ## Technologies
 
@@ -60,8 +54,6 @@ directly to DynamoDB or S3.
   background refetching or cache invalidation requirements.
 - *Redux / Zustand* — no external state library; React `useState` /
   `useReducer` is sufficient for this scope.
-
----
 
 ## Data Models
 
@@ -122,8 +114,6 @@ interface ApiError {
 }
 ```
 
----
-
 ## Actors
 
 | Actor | Description |
@@ -135,8 +125,6 @@ interface ApiError {
 
 No authentication or user accounts. All actors share the same URL and
 have identical read/write access.
-
----
 
 ## API Contracts
 
@@ -174,8 +162,6 @@ Updates item state. Called immediately on user selection.
 
 *Note:* Optimistic update applied before call; rolled back on error.
 
----
-
 ## Deployment Model
 
 ```
@@ -193,8 +179,6 @@ Developer machine
     (`http://chuck.overcomingsh.in`)
 - **Routing:** single route `/`; no sub-pages
 - **Cache:** S3 default (no explicit cache headers configured)
-
----
 
 ## Component Structure
 
@@ -215,8 +199,6 @@ components/
 - `<Toast>` — transient success/error notifications (3s auto-dismiss)
 - Full-screen backdrop div — captures outside taps to dismiss overlay
 
----
-
 ## State Management
 
 All state managed with React `useState` / `useReducer`. No external
@@ -231,6 +213,7 @@ library.
 | Toast message | `page.tsx` | Local `useState`; auto-cleared |
 
 **Folder initialization priority (first visit):**
+
 1. "Inbox" folder if it exists
 2. First folder alphabetically
 3. None (if no folders)
@@ -238,15 +221,13 @@ library.
 On return visits, `chuck.folderId` is restored from `localStorage`
 with fallback to the above priority.
 
----
-
 ## Dependencies
 
 **Runtime:**
 
 | Package | Version | Purpose |
 |---|---|---|
-| next | 15.x | Framework |
+| next | 16.x | Framework |
 | react | 19.x | UI library |
 | react-dom | 19.x | DOM rendering |
 
@@ -266,14 +247,13 @@ with fallback to the above priority.
 
 No third-party UI component libraries.
 
----
-
 ## Tests
 
 No automated tests currently. The app is small and manually tested
 in iPhone Safari.
 
 **Manual test checklist (pre-deploy):**
+
 - Folder list loads; last-selected folder restored on reload
 - Switching folders loads correct items
 - Tapping card opens state overlay; tapping state updates badge
@@ -285,10 +265,9 @@ in iPhone Safari.
 - Works at 375px and 430px viewport widths
 
 **Future:**
+
 - Unit tests for state update logic and folder initialization
 - E2E tests (Playwright) for the happy path on mobile viewport
-
----
 
 ## Security
 
@@ -302,8 +281,6 @@ in iPhone Safari.
   data stored.
 
 See `design-web.md` → Security for rationale and tradeoffs.
-
----
 
 ## Open Questions
 
