@@ -53,7 +53,7 @@ class _EditItemScreenState extends ConsumerState<EditItemScreen> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.network(
-                  widget.item.imageUrl,
+                  widget.item.fullImageUrl,
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(

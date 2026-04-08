@@ -287,13 +287,6 @@ func queryItems(ctx context.Context, folderID, nextToken, filter, sortBy string,
 		return nil, "", err
 	}
 
-	// Transform S3 keys to full URLs
-	for i := range items {
-		if items[i].ImageURL != "" {
-			items[i].ImageURL = constructS3URL(items[i].ImageURL)
-		}
-	}
-
 	// Apply sorting based on sortBy parameter
 	field, direction := parseSortParam(sortBy)
 

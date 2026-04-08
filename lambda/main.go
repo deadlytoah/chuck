@@ -18,13 +18,6 @@ var (
 	region     = os.Getenv("REGION")
 )
 
-func constructS3URL(key string) string {
-	// us-east-1 exception: no region in URL
-	if region == "us-east-1" {
-		return fmt.Sprintf("http://%s.s3.amazonaws.com/%s", bucketName, key)
-	}
-	return fmt.Sprintf("http://%s.s3.%s.amazonaws.com/%s", bucketName, region, key)
-}
 
 func handler(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
 	// Headers (CORS handled by Lambda URL config)
@@ -203,11 +196,6 @@ func createItem(ctx context.Context, req events.APIGatewayV2HTTPRequest) (interf
 		return nil, err
 	}
 
-	// Transform S3 key to full URL (same as queryItems does)
-	if item.ImageURL != "" {
-		item.ImageURL = constructS3URL(item.ImageURL)
-	}
-
 	return ItemResponse{Data: *item}, nil
 }
 
@@ -221,11 +209,6 @@ func updateItem(ctx context.Context, itemID string, req events.APIGatewayV2HTTPR
 	item, err := updateItemRecord(ctx, itemID, updateReq)
 	if err != nil {
 		return nil, err
-	}
-
-	// Transform S3 key to full URL (same as queryItems does)
-	if item.ImageURL != "" {
-		item.ImageURL = constructS3URL(item.ImageURL)
 	}
 
 	return ItemResponse{Data: *item}, nil

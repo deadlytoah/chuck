@@ -71,8 +71,15 @@ class Item {
     );
   }
 
+  static const _imageBase = String.fromEnvironment('IMAGE_BASE_URL');
+
   String get thumbnailUrl {
-    return imageUrl.replaceAll('/full.jpg', '/thumb.jpg');
+    final key = imageUrl.replaceAll('/full.jpg', '/thumb.jpg');
+    return _imageBase.isNotEmpty ? '$_imageBase/$key' : key;
+  }
+
+  String get fullImageUrl {
+    return _imageBase.isNotEmpty ? '$_imageBase/$imageUrl' : imageUrl;
   }
 }
 

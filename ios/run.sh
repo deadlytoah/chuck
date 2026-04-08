@@ -17,7 +17,7 @@ for arg in "$@"; do
   esac
 done
 
-DEFINES="--dart-define=LAMBDA_URL=${NEXT_PUBLIC_API_URL}"
+DEFINES="--dart-define=LAMBDA_URL=${NEXT_PUBLIC_API_URL} --dart-define=IMAGE_BASE_URL=${NEXT_PUBLIC_S3_BASE}"
 
 if [ "$INSTALL" -eq 1 ]; then
   flutter build ipa --release $DEFINES $ARGS || exit 1
