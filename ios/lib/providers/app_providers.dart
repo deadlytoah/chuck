@@ -104,29 +104,33 @@ class FoldersNotifier extends StateNotifier<FoldersState> {
   Future<void> loadFolders() async {
     state = state.copyWith(isLoading: true);
 
-    final folders = await apiService.getFolders();
+    try {
+      final folders = await apiService.getFolders();
 
-    // Restore last-selected folder from storage
-    String? selectedId = await storageService.getSelectedFolderId();
+      // Restore last-selected folder from storage
+      String? selectedId = await storageService.getSelectedFolderId();
 
-    // Validate stored folder still exists
-    if (selectedId != null &&
-        !folders.any((f) => f.folderId == selectedId)) {
-      selectedId = null;
-    }
+      // Validate stored folder still exists
+      if (selectedId != null &&
+          !folders.any((f) => f.folderId == selectedId)) {
+        selectedId = null;
+      }
 
-    // Fallback: select "Inbox" or first folder alphabetically
-    selectedId ??= _selectDefaultFolder(folders);
+      // Fallback: select "Inbox" or first folder alphabetically
+      selectedId ??= _selectDefaultFolder(folders);
 
-    state = FoldersState(
-      folders: folders,
-      currentFolderId: selectedId,
-      isLoading: false,
-    );
+      state = FoldersState(
+        folders: folders,
+        currentFolderId: selectedId,
+        isLoading: false,
+      );
 
-    // Persist selection
-    if (selectedId != null) {
-      await storageService.setSelectedFolderId(selectedId);
+      // Persist selection
+      if (selectedId != null) {
+        await storageService.setSelectedFolderId(selectedId);
+      }
+    } catch (_) {
+      state = state.copyWith(isLoading: false);
     }
   }
 
@@ -237,34 +241,38 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
     final currentItems = state.items;
     state = state.copyWith(isLoading: true);
 
-    final response = await apiService.getItems(
-      folderId: folderId,
-      filter: filter,
-      sort: sort,
-      limit: limit,
-    );
+    try {
+      final response = await apiService.getItems(
+        folderId: folderId,
+        filter: filter,
+        sort: sort,
+        limit: limit,
+      );
 
-    // Preserve items that were added locally but aren't in backend response yet
-    // Only preserve non-archived items and only when showing "all" items (no filter)
-    // When a filter is active, don't preserve items as they may not match the filter
-    final backendItemIds = response.items.map((item) => item.itemId).toSet();
-    final localOnlyItems = (filter == null || filter == 'all')
-        ? currentItems
-            .where((item) =>
-                !backendItemIds.contains(item.itemId) &&
-                !item.archived &&
-                item.folderId == folderId)
-            .toList()
-        : <Item>[];
+      // Preserve items that were added locally but aren't in backend response yet
+      // Only preserve non-archived items and only when showing "all" items (no filter)
+      // When a filter is active, don't preserve items as they may not match the filter
+      final backendItemIds = response.items.map((item) => item.itemId).toSet();
+      final localOnlyItems = (filter == null || filter == 'all')
+          ? currentItems
+              .where((item) =>
+                  !backendItemIds.contains(item.itemId) &&
+                  !item.archived &&
+                  item.folderId == folderId)
+              .toList()
+          : <Item>[];
 
-    // Merge: local-only items first, then backend items
-    final mergedItems = [...localOnlyItems, ...response.items];
+      // Merge: local-only items first, then backend items
+      final mergedItems = [...localOnlyItems, ...response.items];
 
-    state = state.copyWith(
-      items: mergedItems,
-      nextToken: response.nextToken,
-      isLoading: false,
-    );
+      state = state.copyWith(
+        items: mergedItems,
+        nextToken: response.nextToken,
+        isLoading: false,
+      );
+    } catch (_) {
+      state = state.copyWith(isLoading: false);
+    }
   }
 
   Future<void> loadMore({
@@ -276,18 +284,22 @@ class ItemsNotifier extends StateNotifier<ItemsState> {
 
     state = state.copyWith(isLoading: true);
 
-    final response = await apiService.getItems(
-      folderId: folderId,
-      nextToken: state.nextToken,
-      filter: filter,
-      sort: sort,
-    );
+    try {
+      final response = await apiService.getItems(
+        folderId: folderId,
+        nextToken: state.nextToken,
+        filter: filter,
+        sort: sort,
+      );
 
-    state = ItemsState(
-      items: [...state.items, ...response.items],
-      nextToken: response.nextToken,
-      isLoading: false,
-    );
+      state = ItemsState(
+        items: [...state.items, ...response.items],
+        nextToken: response.nextToken,
+        isLoading: false,
+      );
+    } catch (_) {
+      state = state.copyWith(isLoading: false);
+    }
   }
 
   Future<void> updateItem(String itemId, {String? state, String? notes}) async {
