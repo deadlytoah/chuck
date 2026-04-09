@@ -20,8 +20,8 @@ done
 DEFINES="--dart-define=LAMBDA_URL=${LAMBDA_API_URL} --dart-define=IMAGE_BASE_URL=${NEXT_PUBLIC_S3_BASE}"
 
 if [ "$INSTALL" -eq 1 ]; then
-  flutter build ipa --release $DEFINES $ARGS || exit 1
-  exec flutter install $ARGS
+  flutter build ios --release $DEFINES $ARGS || exit 1
+  exec flutter install --release $ARGS
 else
   exec flutter run $DEFINES "$@"
 fi
