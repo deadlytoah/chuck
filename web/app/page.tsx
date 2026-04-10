@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { Suspense, useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import type { Folder, Item, GetItemsResponse } from '@/types/index'
 import { getFolders, getItems, updateItem } from '@/lib/api'
@@ -9,7 +9,7 @@ import ErrorBanner from '@/components/ErrorBanner'
 import ItemGrid from '@/components/ItemGrid'
 import FolderSelector from '@/components/FolderSelector'
 
-export default function Home() {
+function HomeInner() {
   const searchParams = useSearchParams()
   const [folders, setFolders] = useState<Folder[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null)
@@ -187,5 +187,13 @@ export default function Home() {
         />
       </div>
     </main>
+  )
+}
+
+export default function Home() {
+  return (
+    <Suspense>
+      <HomeInner />
+    </Suspense>
   )
 }
