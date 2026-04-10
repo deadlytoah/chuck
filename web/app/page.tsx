@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import type { Folder, Item, GetItemsResponse } from '@/types/index'
 import { getFolders, getItems, updateItem } from '@/lib/api'
 import { getStoredFolderId, setStoredFolderId } from '@/lib/storage'
@@ -9,6 +10,7 @@ import ItemGrid from '@/components/ItemGrid'
 import FolderSelector from '@/components/FolderSelector'
 
 export default function Home() {
+  const searchParams = useSearchParams()
   const [folders, setFolders] = useState<Folder[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null)
   const [items, setItems] = useState<Item[]>([])
@@ -54,10 +56,21 @@ export default function Home() {
         // Resolve initial folder
         let initialFolderId: string | null = null
 
-        // Try stored folderId first
-        const storedId = getStoredFolderId()
-        if (storedId && fetchedFolders.some((f) => f.folderId === storedId)) {
-          initialFolderId = storedId
+        // Try ?folder=name URL param first
+        const urlFolderName = searchParams.get('folder')
+        if (urlFolderName) {
+          const urlFolder = fetchedFolders.find(
+            (f) => f.name.toLowerCase() === urlFolderName.toLowerCase()
+          )
+          if (urlFolder) initialFolderId = urlFolder.folderId
+        }
+
+        // Try stored folderId
+        if (!initialFolderId) {
+          const storedId = getStoredFolderId()
+          if (storedId && fetchedFolders.some((f) => f.folderId === storedId)) {
+            initialFolderId = storedId
+          }
         }
 
         // Try "Inbox" folder
@@ -89,7 +102,7 @@ export default function Home() {
     }
 
     initializeFolders()
-  }, [fetchItemsForFolder])
+  }, [fetchItemsForFolder, searchParams])
 
   const handleFolderChange = async (folderId: string) => {
     setSelectedFolderId(folderId)
