@@ -275,9 +275,6 @@ No third-party UI component libraries.
 
 ## Tests
 
-No automated tests currently. The app is small and manually tested
-in iPhone Safari.
-
 **Manual test checklist (pre-deploy):**
 
 - Folder list loads; last-selected folder restored on reload
@@ -290,10 +287,62 @@ in iPhone Safari.
 - Touch targets ≥ 44×44pt on iPhone Safari
 - Works at 375px and 430px viewport widths
 
+**E2E Tests (Playwright)**
+
+*Purpose & Scope*
+
+Automated browser tests (Chromium) covering the core user flows:
+initial load and folder auto-selection, folder switching, pagination
+via "Load More", state change with optimistic update and rollback on
+server error, and API error banner display with retry. All API calls
+are intercepted with `page.route()` — no real backend or AWS
+credentials needed.
+
+Test files in `web/e2e/tests/` (7 tests across 5 files):
+
+- `init.spec.ts` — auto-selects Inbox, shows items
+- `folder-switch.spec.ts` — switching folder replaces item list
+- `pagination.spec.ts` — Load More appends items
+- `error.spec.ts` — folder/item fetch errors show banner; retry
+  clears banner and reloads items
+- `state-change.spec.ts` — state change updates badge; PUT 500
+  reverts badge and shows error banner
+
+*Prerequisites*
+
+- Node.js and `npm install` completed in `web/`
+- Playwright browser installed: `npx playwright install chromium`
+- No backend required; routes mocked via `e2e/helpers/routes.ts`
+
+*Run Commands*
+
+```bash
+# From web/
+npm run test:e2e        # headless, list reporter
+npm run test:e2e:ui     # interactive Playwright UI
+```
+
+Playwright auto-starts `npm run dev` on port 3000 if not already
+running (`reuseExistingServer: true` by default). Set `CI=true` to
+force a fresh dev server on each run.
+
+*Expected Output*
+
+All 7 tests pass. Reporter: `list` (one line per test). Traces are
+saved to `web/test-results/` only on failure (`retain-on-failure`).
+
+*Troubleshooting*
+
+- `browserType.launch: Executable doesn't exist` — run
+  `npx playwright install chromium`
+- Port 3000 conflict — kill the conflicting process, or set `CI=true`
+  to prevent server reuse
+- Overlay assertion fails — `.overlay-open` must be visible before
+  interacting; increase default timeout if running on a slow machine
+
 **Future:**
 
 - Unit tests for state update logic and folder initialization
-- E2E tests (Playwright) for the happy path on mobile viewport
 
 ## Security
 
