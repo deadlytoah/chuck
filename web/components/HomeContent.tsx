@@ -1,7 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import type { Folder, Item, GetItemsResponse } from '@/types/index'
 import { getFolders, getItems, updateItem } from '@/lib/api'
 import { getStoredFolderId, setStoredFolderId } from '@/lib/storage'
@@ -10,8 +10,9 @@ import ItemGrid from '@/components/ItemGrid'
 import FolderSelector from '@/components/FolderSelector'
 
 export default function HomeContent() {
+  const router = useRouter()
   const searchParams = useSearchParams()
-  const initialFolder = searchParams.get('folder') ?? undefined
+  const initialFolderRef = useRef(searchParams.get('folder'))
   const [folders, setFolders] = useState<Folder[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null)
   const [items, setItems] = useState<Item[]>([])
@@ -19,6 +20,7 @@ export default function HomeContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [openCardId, setOpenCardId] = useState<string | null>(null)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
 
   const fetchItemsForFolder = useCallback(
     async (folderId: string, nextTokenValue?: string) => {
@@ -55,12 +57,14 @@ export default function HomeContent() {
         // Resolve initial folder
         let initialFolderId: string | null = null
 
-        // Try ?folder=name URL param first
-        if (initialFolder) {
+        // Try ?folder=folderId URL param first
+        if (initialFolderRef.current !== null) {
           const urlFolder = fetchedFolders.find(
-            (f) => f.name.toLowerCase() === initialFolder.toLowerCase()
+            (f) => f.folderId === initialFolderRef.current
           )
-          if (urlFolder) initialFolderId = urlFolder.folderId
+          if (urlFolder) {
+            initialFolderId = urlFolder.folderId
+          }
         }
 
         // Try stored folderId
@@ -87,9 +91,21 @@ export default function HomeContent() {
           initialFolderId = sorted[0].folderId
         }
 
+        // Show toast if URL param was invalid but we fell back to default
+        const urlParamWasInvalid =
+          initialFolderRef.current !== null &&
+          !fetchedFolders.some((f) => f.folderId === initialFolderRef.current)
+        if (urlParamWasInvalid && initialFolderId) {
+          const fallbackName =
+            fetchedFolders.find((f) => f.folderId === initialFolderId)?.name ??
+            initialFolderId
+          setToastMessage(`Folder not found; showing ${fallbackName}`)
+        }
+
         if (initialFolderId) {
           setSelectedFolderId(initialFolderId)
           setStoredFolderId(initialFolderId)
+          router.replace(`/?folder=${initialFolderId}`, { scroll: false })
           await fetchItemsForFolder(initialFolderId)
         }
       } catch (err) {
@@ -100,12 +116,13 @@ export default function HomeContent() {
     }
 
     initializeFolders()
-  }, [fetchItemsForFolder, initialFolder])
+  }, [fetchItemsForFolder, router])
 
   const handleFolderChange = async (folderId: string) => {
     setSelectedFolderId(folderId)
     setItems([])
     setNextToken(undefined)
+    router.replace(`/?folder=${folderId}`, { scroll: false })
     setStoredFolderId(folderId)
     await fetchItemsForFolder(folderId)
   }
@@ -131,6 +148,13 @@ export default function HomeContent() {
       await handleRefresh()
     }
   }
+
+  // Auto-dismiss toast after 3 seconds
+  useEffect(() => {
+    if (!toastMessage) return
+    const id = setTimeout(() => setToastMessage(null), 3000)
+    return () => clearTimeout(id)
+  }, [toastMessage])
 
   const handleStateChange = async (itemId: string, newState: string) => {
     const originalState = items.find((i) => i.itemId === itemId)?.state
@@ -165,6 +189,12 @@ export default function HomeContent() {
 
       <div className="flex-1 flex flex-col p-2 overflow-hidden relative">
         <ErrorBanner message={error} onRetry={handleRetry} />
+
+        {toastMessage && (
+          <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-sm px-4 py-2 rounded shadow-lg z-50">
+            {toastMessage}
+          </div>
+        )}
 
         {openCardId !== null && (
           <div
