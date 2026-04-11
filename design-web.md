@@ -33,7 +33,8 @@ photo, tap a decision, done. No sign-in, no onboarding.
 - Token-based pagination with "Load More"
 - Manual refresh
 - Optimistic state updates with rollback on error
-- Persistent folder selection via `localStorage`
+- Persistent folder selection via URL query parameter and `localStorage`
+- Bookmarkable folder URLs: `/?folder=<folderId>`
 
 **Out of scope:**
 - Image upload (use Flutter iOS app)
@@ -48,6 +49,12 @@ photo, tap a decision, done. No sign-in, no onboarding.
 
 - Folder list loads on first visit; last-selected folder restored on
   return visits
+- Selecting a folder updates the URL to `/?folder=<folderId>`
+- Opening a bookmarked URL opens the bookmarked folder
+- Navigating to folder F then refreshing shows folder F (URL drives
+  state on refresh)
+- Invalid or missing `?folder=` falls back to `localStorage`, then
+  to default folder priority
 - Item grid renders thumbnails with current state badge
 - Tapping a card opens state overlay with selectable states (Chuck,
   Keep, Sell, Undecided); tapping a state applies it and dismisses
@@ -147,10 +154,24 @@ photo, tap a decision, done. No sign-in, no onboarding.
 ### Folder Selection
 
 - Folder selector displayed prominently at top of screen
-- Last-selected folder restored on return visits; defaults to first
-  folder alphabetically on first visit
-- Tapping selector opens a drop down listing all folders
-- Selecting a folder loads the item grid for that folder
+- Selecting a folder updates the URL in place (`?folder=<folderId>`)
+  without adding a browser history entry; the item grid reloads
+- The selected folder is reflected in the URL at all times, making
+  the current URL a valid bookmark for that folder
+- Opening a bookmarked URL restores the bookmarked folder; navigating
+  away changes the URL but does not retroactively alter the bookmark
+- Refreshing the page shows whatever folder is in the URL at that
+  moment (not necessarily the original bookmarked folder)
+- Folder selection priority on load:
+  1. `?folder=` query param, if it matches a known folder
+  2. `chuck.folderId` from `localStorage`
+  3. "Inbox" folder if it exists
+  4. First folder alphabetically
+  5. None (if no folders returned by API)
+- If `?folder=` is present but matches no known folder, a transient
+  notice is shown ("Folder not found; showing [folder name]",
+  toast-style, 3s auto-dismiss) and the app falls through to
+  step 2 of the priority list
 
 ### Main View (Item Grid)
 
@@ -225,4 +246,6 @@ Targets iPhone Safari (375–430px viewport width).
 - List loading failures: inline error banner with retry button
 - State update failures: toast-style error (red, 3s auto-dismiss)
   with state reverted
+- Unknown `?folder=` on load: toast-style notice (3s auto-dismiss):
+  "Folder not found; showing [folder name]"
 - User-friendly messages in UI; no blocking overlays.

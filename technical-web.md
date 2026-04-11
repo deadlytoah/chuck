@@ -196,7 +196,10 @@ Developer machine
     distribution (replaces former HTTP S3 URL)
 - **Routing:** single route `/`; CloudFront default root object
   set to `index.html`; custom error response 403/404 → `/index.html`
-  (SPA fallback)
+  (SPA fallback); `?folder=` query param is passed through unchanged
+  by CloudFront and read by the SPA on load
+- **Cache key:** CloudFront cache policy for the `/` route excludes
+  all query parameters; `?folder=` does not fragment the cache
 - **Cache invalidation:** `deploy-web.sh` runs after each sync to
   invalidate `/*`; first 1000 invalidations/mo free
 
@@ -227,19 +230,44 @@ library.
 | State | Location | Persistence |
 |---|---|---|
 | Folder list | `page.tsx` | In-memory; refetched on refresh |
-| Selected folder | `page.tsx` | `localStorage` (`chuck.folderId`) |
+| Selected folder | URL `?folder=` + `page.tsx` | URL (primary); `localStorage` fallback |
 | Item list | `page.tsx` | In-memory; refetched on folder change |
 | Overlay open | `ItemCard.tsx` | Local `useState`; ephemeral |
 | Toast message | `page.tsx` | Local `useState`; auto-cleared |
 
-**Folder initialization priority (first visit):**
+## URL Structure
 
-1. "Inbox" folder if it exists
-2. First folder alphabetically
-3. None (if no folders)
+The selected folder is encoded in the URL query parameter:
 
-On return visits, `chuck.folderId` is restored from `localStorage`
-with fallback to the above priority.
+```
+/?folder=<folderId>
+```
+
+Example: `https://chuck.example.com/?folder=entryway`
+
+- No path segments used; the app is a single route `/`.
+- Hash (`#`) is avoided; query params are copied into bookmarks and
+  shared links naturally.
+- Changing the folder calls `history.replaceState()` (or
+  `router.replace()`) to update `?folder=` in place without pushing
+  a new browser history entry. The back button is unaffected.
+- On every folder change the URL is written first, then
+  `localStorage` key `chuck.folderId` is written. Both writes occur
+  on every folder change without exception; they are never split
+  across separate code paths.
+
+**Folder initialization priority (on page load):**
+
+1. `?folder=<folderId>` query param, if `folderId` matches a folder
+   returned by `GET /folders`
+2. `chuck.folderId` from `localStorage`, if it matches a known folder
+3. "Inbox" folder if it exists
+4. First folder alphabetically
+5. None (if `GET /folders` returns an empty list)
+
+If `?folder=` is present but does not match any known folder (deleted
+or mistyped), a toast notice is shown ("Folder not found; showing
+[folder name]", 3s auto-dismiss) and priority falls to step 2.
 
 ## Dependencies
 
@@ -278,7 +306,10 @@ No third-party UI component libraries.
 **Manual test checklist (pre-deploy):**
 
 - Folder list loads; last-selected folder restored on reload
-- Switching folders loads correct items
+- Switching folders updates URL (`?folder=`) and loads correct items
+- Opening `/?folder=<id>` directly loads the correct folder
+- Invalid `?folder=` value falls back gracefully to default folder
+- Folder list loads; last-selected folder restored on reload
 - Tapping card opens state overlay; tapping state updates badge
 - Optimistic update visible immediately; reverts on simulated API error
 - "Load More" appends items without losing scroll position
