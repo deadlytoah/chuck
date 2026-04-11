@@ -584,27 +584,39 @@ func batchArchiveItems(ctx context.Context, itemIDs []string) (archived []string
 	return archived, failed
 }
 
-// encodeToken encodes LastEvaluatedKey to base64 string
+// encodeToken encodes LastEvaluatedKey to base64 string.
+// All DynamoDB key attributes in this schema are strings.
 func encodeToken(key map[string]types.AttributeValue) (string, error) {
-	data, err := json.Marshal(key)
+	simple := make(map[string]string, len(key))
+	for k, v := range key {
+		sv, ok := v.(*types.AttributeValueMemberS)
+		if !ok {
+			return "", fmt.Errorf("unsupported attribute type for key %s", k)
+		}
+		simple[k] = sv.Value
+	}
+	data, err := json.Marshal(simple)
 	if err != nil {
 		return "", err
 	}
 	return base64.URLEncoding.EncodeToString(data), nil
 }
 
-// decodeToken decodes base64 string to LastEvaluatedKey
+// decodeToken decodes base64 string to LastEvaluatedKey.
 func decodeToken(token string) (map[string]types.AttributeValue, error) {
 	data, err := base64.URLEncoding.DecodeString(token)
 	if err != nil {
 		return nil, err
 	}
 
-	var key map[string]types.AttributeValue
-	err = json.Unmarshal(data, &key)
-	if err != nil {
+	var simple map[string]string
+	if err = json.Unmarshal(data, &simple); err != nil {
 		return nil, err
 	}
 
+	key := make(map[string]types.AttributeValue, len(simple))
+	for k, v := range simple {
+		key[k] = &types.AttributeValueMemberS{Value: v}
+	}
 	return key, nil
 }

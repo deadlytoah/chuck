@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -64,6 +65,7 @@ func handler(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.AP
 	}
 
 	if err != nil {
+		log.Printf("ERROR %s %s: %v", method, path, err)
 		return errorResponse(headers, err, statusCode), nil
 	}
 
